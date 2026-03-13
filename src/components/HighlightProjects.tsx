@@ -159,24 +159,23 @@ export function HighlightProjects() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     
+                    {/* Button on hover */}
+                    <div className="absolute top-4 left-4 z-30 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-auto">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedProject(project); }}
+                        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
+                      >
+                        <Expand className="w-5 h-5 drop-shadow-md" />
+                      </button>
+                    </div>
+
                     {/* Overlay on hover */}
-                    <motion.div 
-                      className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5"
-                      initial={{ opacity: 0 }}
-                      whileHover={{ opacity: 1 }}
-                      transition={{ duration: 0.4 }}
-                    >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                       <div className="text-white relative z-10 w-full pointer-events-none">
                         <p className="text-xs text-gray-300 mb-1">{project.category}</p>
                         <p className="font-medium drop-shadow-md">{project.title}</p>
                       </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedProject(project); }}
-                        className="pointer-events-auto absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
-                      >
-                        <Expand className="w-5 h-5 drop-shadow-md" />
-                      </button>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
