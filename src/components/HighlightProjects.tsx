@@ -160,18 +160,18 @@ export function HighlightProjects() {
                     />
                     
                     {/* NEW: Independent Button Div */}
-                    <div className="absolute top-4 left-4 z-40 opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-auto">
+                    <div className="absolute top-4 left-4 z-40 opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                       <button
                         onClick={(e) => { e.stopPropagation(); setSelectedProject(project); }}
-                        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
+                        className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
                       >
                         <Expand className="w-5 h-5 drop-shadow-md" />
                       </button>
                     </div>
 
                     {/* Text Overlay Div */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="text-white relative z-10 w-full pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                      <div className="text-white relative z-10 w-full">
                         <p className="text-xs text-gray-300 mb-1">{project.category}</p>
                         <p className="font-medium drop-shadow-md">{project.title}</p>
                       </div>
