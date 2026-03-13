@@ -143,7 +143,7 @@ export function HighlightProjects() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "100px" }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group cursor-hover hover:-translate-y-2 hover:scale-[1.02] transition-transform duration-300 transform-gpu will-change-transform"
+                className="cursor-hover hover:-translate-y-2 hover:scale-[1.02] transition-transform duration-300 transform-gpu will-change-transform"
               >
                 <div className="relative overflow-hidden rounded-2xl liquid-glass-thumbnail shadow-xl hover:shadow-2xl transition-shadow duration-500 refraction liquid-ripple edge-glow-hover">
                   {/* Micro liquid movement */}
@@ -152,7 +152,7 @@ export function HighlightProjects() {
                   </div>
                   
                   {/* Image */}
-                  <div className="relative aspect-square overflow-hidden">
+                  <div className="group relative aspect-square overflow-hidden">
                     <ImageWithFallback
                       src={project.image}
                       alt={project.title}
@@ -160,10 +160,10 @@ export function HighlightProjects() {
                     />
                     
                     {/* NEW: Independent Button Div */}
-                    <div className="absolute top-4 left-4 z-40 opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                    <div className="absolute top-4 left-4 z-[50] pointer-events-auto">
                       <button
                         onClick={(e) => { e.stopPropagation(); setSelectedProject(project); }}
-                        className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
+                        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)] opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"
                       >
                         <Expand className="w-5 h-5 drop-shadow-md" />
                       </button>
