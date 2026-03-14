@@ -49,8 +49,7 @@ export function EcosystemServices() {
     };
   }, []);
 
-  const sectionBadge =
-    servicesEntries?.[0]?.fields?.sectionBadge ?? "Complete Ecosystem";
+  const sectionBadge = servicesEntries?.[0]?.fields?.sectionBadge ?? "Complete Ecosystem";
   const sectionTitle = servicesEntries?.[0]?.fields?.sectionTitle ?? "All in One Cirqle";
   const sectionSubtitle =
     servicesEntries?.[0]?.fields?.sectionSubtitle ??
@@ -75,10 +74,8 @@ export function EcosystemServices() {
           >
             <span className="text-sm">{sectionBadge}</span>
           </motion.div>
-          
-          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
-            {sectionTitle}
-          </h2>
+
+          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">{sectionTitle}</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             {sectionSubtitle}
           </p>
@@ -103,10 +100,10 @@ export function EcosystemServices() {
                   <div className="absolute inset-0 pointer-events-none z-10 micro-liquid">
                     <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-40"></div>
                   </div>
-                  
+
                   {/* Gradient accent */}
                   <div className="absolute -top-6 -right-6 w-28 h-28 bg-gradient-to-r from-[#A259FF]/20 to-[#4CC3FF]/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
-                  
+
                   <div className="relative z-10">
                     <motion.div
                       className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] flex items-center justify-center shadow-xl edge-glow"
@@ -115,7 +112,7 @@ export function EcosystemServices() {
                     >
                       <Icon className="w-8 h-8 text-white" />
                     </motion.div>
-                    
+
                     <h3 className="text-2xl mb-3 tracking-tight">
                       {fields?.title ?? service.title}
                     </h3>

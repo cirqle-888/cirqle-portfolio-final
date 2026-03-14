@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
-import { CircleDot, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
 
-export function Footer() {
+export const Footer = memo(function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -12,9 +13,10 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="mb-5">
-              <img 
-                src={cirqleLogo} 
-                alt="Cirqle Design" 
+              <img
+                src={cirqleLogo}
+                alt="Cirqle Design"
+                loading="lazy"
                 className="h-10 w-auto brightness-0 invert"
               />
             </div>
@@ -28,22 +30,34 @@ export function Footer() {
             <h3 className="text-lg mb-6">Services</h3>
             <ul className="space-y-3 text-sm text-gray-400">
               <li>
-                <Link to="/services" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/services"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   Supermarket Campaigns
                 </Link>
               </li>
               <li>
-                <Link to="/services" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/services"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   Brand Design
                 </Link>
               </li>
               <li>
-                <Link to="/services" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/services"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   Digital Solutions
                 </Link>
               </li>
               <li>
-                <Link to="/services" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/services"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   UI/UX Design
                 </Link>
               </li>
@@ -55,22 +69,34 @@ export function Footer() {
             <h3 className="text-lg mb-6">Company</h3>
             <ul className="space-y-3 text-sm text-gray-400">
               <li>
-                <Link to="/#about" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/#about"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   About Cirqle
                 </Link>
               </li>
               <li>
-                <Link to="/#portfolio" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/#portfolio"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   Portfolio
                 </Link>
               </li>
               <li>
-                <Link to="/#ecosystem" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/#ecosystem"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   Ecosystem
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                <Link
+                  to="/contact"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
                   Contact
                 </Link>
               </li>
@@ -104,9 +130,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="pt-10 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400">
-            <p>
-              © {currentYear} Cirqle Design. All rights reserved.
-            </p>
+            <p>© {currentYear} Cirqle Design. All rights reserved.</p>
             <div className="flex gap-8">
               <a href="#" className="hover:text-white transition-colors">
                 Privacy
@@ -121,14 +145,13 @@ export function Footer() {
         {/* SEO Keywords */}
         <div className="mt-10 pt-10 border-t border-gray-800 text-xs text-gray-700 leading-relaxed">
           <p>
-            Professional supermarket flyer design | Premium promotional campaign design | 
-            Brand identity design services | Digital creative design agency | 
-            Cirqle design ecosystem | Modern UI/UX design | 
-            Creative graphic design studio | Fast turnaround design services | 
+            Professional supermarket flyer design | Premium promotional campaign design | Brand
+            identity design services | Digital creative design agency | Cirqle design ecosystem |
+            Modern UI/UX design | Creative graphic design studio | Fast turnaround design services |
             Quality brand design solutions
           </p>
         </div>
       </div>
     </footer>
   );
-}
+});

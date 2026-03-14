@@ -21,11 +21,7 @@ export function ContactSection() {
   }, []);
 
   const whatsappNumberRaw = useMemo(() => {
-    return (
-      contact?.whatsappNumber ??
-      contact?.whatsapp ??
-      "+91 8129 5343 77"
-    );
+    return contact?.whatsappNumber ?? contact?.whatsapp ?? "+91 8129 5343 77";
   }, [contact]);
 
   const whatsappNumberDigits = useMemo(() => {
@@ -37,7 +33,10 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-28 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
+    <section
+      id="contact"
+      className="py-28 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden"
+    >
       {/* Large soft gradient circle */}
       <motion.div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full blur-3xl"
@@ -51,7 +50,7 @@ export function ContactSection() {
           ease: "easeInOut",
         }}
       />
-      
+
       <div className="max-w-4xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -69,7 +68,7 @@ export function ContactSection() {
           >
             <span className="text-sm">{contact?.badgeText ?? "Get in Touch"}</span>
           </motion.div>
-          
+
           <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
             {contact?.title ?? "Start Your Project"}
           </h2>
@@ -89,7 +88,7 @@ export function ContactSection() {
           <div className="absolute inset-0 pointer-events-none z-10 micro-liquid">
             <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent opacity-50"></div>
           </div>
-          
+
           <form
             action="https://formspree.io/f/xdawkvje"
             method="POST"
@@ -165,11 +164,8 @@ export function ContactSection() {
                   Send Inquiry
                 </Button>
               </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   type="button"
                   size="lg"

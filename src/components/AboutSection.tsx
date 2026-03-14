@@ -31,9 +31,7 @@ export function AboutSection() {
       : contentfulAssetUrl(about?.image);
 
   const strengthsFromCms = Array.isArray(about?.strengths)
-    ? (about.strengths as unknown[])
-        .map((s) => (typeof s === "string" ? s : null))
-        .filter(Boolean)
+    ? (about.strengths as unknown[]).map((s) => (typeof s === "string" ? s : null)).filter(Boolean)
     : null;
 
   return (
@@ -58,13 +56,15 @@ export function AboutSection() {
               <div className="absolute inset-0 pointer-events-none z-20 micro-liquid">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-50"></div>
               </div>
-              
+
               <ImageWithFallback
                 src={
                   imageFromCms ??
                   "https://images.unsplash.com/photo-1510832758362-af875829efcf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjcmVhdGl2ZSUyMHdvcmtzcGFjZSUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxNDU2Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 }
                 alt={about?.imageAlt ?? "Cirqle Creative Space"}
+                width={800}
+                height={800}
                 className="w-full aspect-square object-cover"
               />
             </motion.div>
@@ -87,7 +87,7 @@ export function AboutSection() {
             >
               <span className="text-sm">{about?.badgeText ?? "About Cirqle"}</span>
             </motion.div>
-            
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
               {about?.headingPrefix ?? "Built on"}
               <span className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
@@ -95,12 +95,12 @@ export function AboutSection() {
                 {about?.headingHighlight ?? "Excellence"}
               </span>
             </h2>
-            
+
             <p className="text-xl text-gray-600 mb-6 leading-relaxed">
               {about?.paragraph1 ??
                 "Cirqle brings together design expertise and modern technology to deliver exceptional results. Every project is crafted with precision and delivered with speed."}
             </p>
-            
+
             <p className="text-lg text-gray-600 mb-10 leading-relaxed">
               {about?.paragraph2 ??
                 "Specializing in supermarket campaigns while offering comprehensive creative services — from branding to digital solutions. We focus on quality, professionalism, and delivering results that exceed expectations."}
@@ -108,8 +108,7 @@ export function AboutSection() {
 
             {/* Strengths list */}
             <div className="space-y-5">
-              {(strengthsFromCms?.length ? strengthsFromCms : strengths).map(
-                (strength, index) => (
+              {(strengthsFromCms?.length ? strengthsFromCms : strengths).map((strength, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: 20 }}

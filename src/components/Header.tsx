@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { motion } from "motion/react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export function Header() {
+export const Header = memo(function Header() {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,17 +20,21 @@ export function Header() {
 
   const getPath = (item: string) => {
     switch (item) {
-      case "Home": return "/";
-      case "Services": return "/services";
-      case "Contact": return "/contact";
-      default: return `/#${item.toLowerCase()}`;
+      case "Home":
+        return "/";
+      case "Services":
+        return "/services";
+      case "Contact":
+        return "/contact";
+      default:
+        return `/#${item.toLowerCase()}`;
     }
   };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: string) => {
     e.preventDefault();
     const path = getPath(item);
-    
+
     if (path.startsWith("/#")) {
       const targetId = path.substring(2);
       if (location.pathname !== "/") {
@@ -62,16 +66,15 @@ export function Header() {
           {/* Logo */}
           <motion.a
             href="/"
-            onClick={(e) => { e.preventDefault(); navigate("/"); }}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/");
+            }}
             className="flex items-center cursor-hover relative z-10"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
           >
-            <img 
-              src={cirqleLogo} 
-              alt="Cirqle Design" 
-              className="h-10 w-auto"
-            />
+            <img src={cirqleLogo} alt="Cirqle Design" loading="lazy" className="h-10 w-auto" />
           </motion.a>
 
           {/* Navigation */}
@@ -101,4 +104,4 @@ export function Header() {
       </div>
     </motion.header>
   );
-}
+});

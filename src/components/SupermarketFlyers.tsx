@@ -23,32 +23,34 @@ export function SupermarketFlyers() {
 
   useEffect(() => {
     let cancelled = false;
-    
-    getSupermarketFlyers().then((items) => {
-      if (cancelled) return;
 
-      const fields = items?.[0]?.fields ?? null;
-      if (!fields) return;
+    getSupermarketFlyers()
+      .then((items) => {
+        if (cancelled) return;
 
-      setSectionMeta(fields);
+        const fields = items?.[0]?.fields ?? null;
+        if (!fields) return;
 
-      const flyersField = fields?.flyers;
-      const flyersFromCms = Array.isArray(flyersField)
-        ? flyersField
-            .map((asset: any) => {
-              if (typeof asset === "string") return asset;
-              return contentfulAssetUrl(asset);
-            })
-            .filter(Boolean) as string[]
-        : [];
+        setSectionMeta(fields);
 
-      // Use CMS flyers if available, otherwise fallback images stay active
-      if (flyersFromCms.length > 0) {
-        setFlyers(flyersFromCms);
-      }
-    }).catch((err) => {
-      console.error("Error fetching supermarket flyers:", err);
-    });
+        const flyersField = fields?.flyers;
+        const flyersFromCms = Array.isArray(flyersField)
+          ? (flyersField
+              .map((asset: any) => {
+                if (typeof asset === "string") return asset;
+                return contentfulAssetUrl(asset);
+              })
+              .filter(Boolean) as string[])
+          : [];
+
+        // Use CMS flyers if available, otherwise fallback images stay active
+        if (flyersFromCms.length > 0) {
+          setFlyers(flyersFromCms);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching supermarket flyers:", err);
+      });
 
     return () => {
       cancelled = true;
@@ -75,11 +77,14 @@ export function SupermarketFlyers() {
   return (
     <section className="py-28 px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       {/* Background decoration - optimized for hardware acceleration without filters */}
-      <div 
-        className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-40 pointer-events-none" 
-        style={{ background: 'radial-gradient(circle, rgba(162, 89, 255, 0.15) 0%, rgba(76, 195, 255, 0.1) 40%, rgba(255, 255, 255, 0) 70%)' }}
+      <div
+        className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-40 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(162, 89, 255, 0.15) 0%, rgba(76, 195, 255, 0.1) 40%, rgba(255, 255, 255, 0) 70%)",
+        }}
       ></div>
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, filter: "blur(10px)" }}
@@ -97,7 +102,7 @@ export function SupermarketFlyers() {
           >
             <span className="text-sm">{sectionMeta?.badgeText ?? "Core Specialty"}</span>
           </motion.div>
-          
+
           <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
             {sectionMeta?.title ?? "Supermarket Campaigns"}
             <br />
@@ -159,16 +164,22 @@ export function SupermarketFlyers() {
                 <div className="absolute inset-0 pointer-events-none z-20 micro-liquid">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-30"></div>
                 </div>
-                
+
                 <div className="relative aspect-[3/4] overflow-hidden">
                   <ImageWithFallback
                     src={image}
                     alt={`Supermarket Campaign ${i + 1}`}
+                    width={600}
+                    height={800}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 p-4 flex justify-end items-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedFlyer(image); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedFlyer(image);
+                      }}
                       className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
                     >
                       <Expand className="w-5 h-5 drop-shadow-md" />
@@ -200,26 +211,31 @@ export function SupermarketFlyers() {
 
       {/* Custom Liquid Glass Modal */}
       {selectedFlyer && (
-        <div 
-          className="fixed inset-0 w-full h-full z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl"
           onClick={() => setSelectedFlyer(null)}
         >
-          <button 
-            onClick={(e) => { e.stopPropagation(); setSelectedFlyer(null); }}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedFlyer(null);
+            }}
             className="fixed top-4 right-4 md:top-8 md:right-8 z-[10000] w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg transition-all hover:scale-110 text-white"
           >
             <X strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6" />
           </button>
-          
-          <div 
-            className="relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-[2rem] p-2 md:p-6 shadow-2xl w-[95vw] md:w-[90vw] lg:max-w-5xl h-fit max-h-[92vh] mx-auto flex flex-col"
+
+          <div
+            className="relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-[2rem] p-4 md:p-8 shadow-[0_0_50px_-10px_rgba(162,89,255,0.2)] flex flex-col items-center justify-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full h-[75vh] md:h-[80vh] flex flex-col items-center justify-center rounded-xl overflow-hidden min-h-0">
+            <div className="relative flex items-center justify-center rounded-xl overflow-hidden">
               <ImageWithFallback
                 src={selectedFlyer}
                 alt="Flyer Overview"
-                className="w-auto h-auto max-w-full max-h-full object-contain drop-shadow-2xl"
+                width={1200}
+                height={1600}
+                className="max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl"
               />
             </div>
           </div>

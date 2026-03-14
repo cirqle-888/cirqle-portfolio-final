@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { motion } from "motion/react";
 import cursorImage from "figma:asset/fda5abfd538782442882b2f230e1b2307e39e0bc.png";
 
-export function CustomCursor() {
+export const CustomCursor = memo(function CustomCursor() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
@@ -62,6 +62,7 @@ export function CustomCursor() {
         <img
           src={cursorImage}
           alt=""
+          loading="lazy"
           className="w-8 h-auto object-contain"
           style={{
             filter: isHovering
@@ -102,7 +103,7 @@ export function CustomCursor() {
               background: "radial-gradient(circle, rgba(162, 89, 255, 0.2), transparent 70%)",
             }}
           />
-          
+
           {/* Static glass ring */}
           <motion.div
             className="fixed top-0 left-0 pointer-events-none z-[9997] rounded-full"
@@ -129,4 +130,4 @@ export function CustomCursor() {
       )}
     </>
   );
-}
+});

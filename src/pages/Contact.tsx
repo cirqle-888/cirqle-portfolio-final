@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { ContactSection } from "../components/ContactSection";
 
 export function Contact() {
@@ -8,6 +9,13 @@ export function Contact() {
 
   return (
     <main className="pt-16">
+      <Helmet>
+        <title>Contact | Cirqle</title>
+        <meta
+          name="description"
+          content="Get in touch with Cirqle. Reach out for premium design services, collaborations, and project inquiries."
+        />
+      </Helmet>
       <ContactSection />
     </main>
   );

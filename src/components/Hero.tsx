@@ -19,7 +19,10 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-gray-50/30 to-white pt-24 pb-16">
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-gray-50/30 to-white pt-24 pb-16"
+    >
       {/* Animated background circles */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -48,7 +51,7 @@ export function Hero() {
             ease: "easeInOut",
           }}
         />
-        
+
         {/* Floating network nodes */}
         {[...Array(8)].map((_, i) => (
           <motion.div
@@ -86,11 +89,9 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 liquid-glass-card rounded-full mb-8 shadow-xl edge-glow float"
           >
             <Sparkles className="w-4 h-4 text-[#A259FF]" />
-            <span className="text-sm">
-              {hero?.badgeText ?? "Premium Design Ecosystem"}
-            </span>
+            <span className="text-sm">{hero?.badgeText ?? "Premium Design Ecosystem"}</span>
           </motion.div>
-          
+
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-8 tracking-tight leading-[1.1]">
             {hero?.title ?? "One Circle."}
             <br />
@@ -116,10 +117,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="flex flex-col sm:flex-row gap-5 justify-center items-center"
         >
-          <motion.div
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-          >
+          <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
             <Button
               size="lg"
               className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity px-10 py-7 text-lg rounded-full group shadow-lg shadow-[#A259FF]/25 cursor-hover"
@@ -128,11 +126,8 @@ export function Hero() {
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </motion.div>
-          
-          <motion.div
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-          >
+
+          <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
             <Button
               size="lg"
               variant="outline"

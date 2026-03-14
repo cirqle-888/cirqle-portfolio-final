@@ -49,6 +49,17 @@ export async function getSupermarketFlyers() {
 export function contentfulAssetUrl(asset: any): string | null {
   const url = asset?.fields?.file?.url;
   if (typeof url !== "string" || !url.length) return null;
-  return url.startsWith("//") ? `https:${url}` : url;
+  const fullUrl = url.startsWith("//") ? `https:${url}` : url;
+  
+  // Append Contentful Image API parameters for compression and modern formatting
+  try {
+    const urlObj = new URL(fullUrl);
+    urlObj.searchParams.set('fm', 'webp');
+    urlObj.searchParams.set('q', '80');
+    return urlObj.toString();
+  } catch (e) {
+    // Fallback if URL parsing fails for some reason
+    const separator = fullUrl.includes('?') ? '&' : '?';
+    return `${fullUrl}${separator}fm=webp&q=80`;
+  }
 }
-

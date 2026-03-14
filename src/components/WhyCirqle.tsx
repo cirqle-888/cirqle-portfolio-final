@@ -5,7 +5,8 @@ const features = [
   {
     icon: CircleDot,
     title: "Premium Quality",
-    description: "Every project crafted with meticulous attention to detail and professional excellence.",
+    description:
+      "Every project crafted with meticulous attention to detail and professional excellence.",
   },
   {
     icon: Link2,
@@ -41,7 +42,7 @@ export function WhyCirqle() {
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         style={{ opacity: 0.2 }}
       />
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -59,7 +60,7 @@ export function WhyCirqle() {
           >
             <span className="text-sm">Why Choose Us</span>
           </motion.div>
-          
+
           <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
             The Cirqle Difference
           </h2>
@@ -83,7 +84,7 @@ export function WhyCirqle() {
               >
                 <div className="liquid-glass-card p-8 rounded-3xl text-center shadow-xl hover:shadow-2xl transition-all duration-500 refraction edge-glow-hover">
                   <div className="relative inline-block">
-                    <motion.div 
+                    <motion.div
                       className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] flex items-center justify-center shadow-xl edge-glow"
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}

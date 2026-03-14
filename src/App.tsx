@@ -1,11 +1,17 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { CustomCursor } from "./components/CustomCursor";
+import { PageSkeleton } from "./components/PageSkeleton";
 
-import { Home } from "./pages/Home";
-import { Services } from "./pages/Services";
-import { Contact } from "./pages/Contact";
+const Home = lazy(() => import("./pages/Home").then((module) => ({ default: module.Home })));
+const Services = lazy(() =>
+  import("./pages/Services").then((module) => ({ default: module.Services }))
+);
+const Contact = lazy(() =>
+  import("./pages/Contact").then((module) => ({ default: module.Contact }))
+);
 
 export default function App() {
   return (
@@ -13,11 +19,13 @@ export default function App() {
       <div className="min-h-screen bg-white">
         <CustomCursor />
         <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
+        <Suspense fallback={<PageSkeleton />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </Suspense>
         <Footer />
       </div>
     </Router>
