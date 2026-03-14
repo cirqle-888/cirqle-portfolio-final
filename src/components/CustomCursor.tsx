@@ -62,6 +62,8 @@ export const CustomCursor = memo(function CustomCursor() {
         <img
           src={cursorImage}
           alt=""
+          width={32}
+          height={32}
           loading="lazy"
           className="w-8 h-auto object-contain"
           style={{

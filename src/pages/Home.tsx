@@ -14,6 +14,7 @@ export function Home() {
           name="description"
           content="Cirqle is a complete design ecosystem delivering premium creative services, brand identity, digital production, and supermarket promotional design."
         />
+        <link rel="canonical" href="https://cirqle.work" />
       </Helmet>
       <Hero />
       <HighlightProjects />

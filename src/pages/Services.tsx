@@ -15,6 +15,7 @@ export function Services() {
           name="description"
           content="Explore our comprehensive creative services including supermarket campaigns, brand identity design, and digital UI/UX solutions."
         />
+        <link rel="canonical" href="https://cirqle.work/services" />
       </Helmet>
       <EcosystemServices />
     </main>

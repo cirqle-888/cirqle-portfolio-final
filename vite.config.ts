@@ -61,6 +61,16 @@ export default defineConfig({
     outDir: "dist",
     cssCodeSplit: true,
     minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom", "react-helmet-async"],
+          ui: ["lucide-react", "clsx", "tailwind-merge"],
+          motion: ["motion"],
+          contentful: ["contentful"]
+        }
+      }
+    }
   },
   server: {
     port: 3000,

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -98,7 +98,7 @@ export function ContactSection() {
             <input type="text" name="_gotcha" style={{ display: "none" }} />
             <div className="grid md:grid-cols-2 gap-7">
               <div>
-                <label htmlFor="name" className="block mb-3 text-sm">
+                <label htmlFor="name" className="block mb-3 text-sm font-medium text-gray-900">
                   Full Name
                 </label>
                 <Input
@@ -106,11 +106,12 @@ export function ContactSection() {
                   type="text"
                   name="name"
                   placeholder="Your name"
-                  className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card"
+                  aria-label="Full Name"
+                  className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent"
                 />
               </div>
               <div>
-                <label htmlFor="whatsapp" className="block mb-3 text-sm">
+                <label htmlFor="whatsapp" className="block mb-3 text-sm font-medium text-gray-900">
                   WhatsApp Number
                 </label>
                 <Input
@@ -118,13 +119,14 @@ export function ContactSection() {
                   type="tel"
                   name="whatsapp"
                   placeholder="+91 8129 5343 77"
-                  className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card"
+                  aria-label="WhatsApp Number"
+                  className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block mb-3 text-sm">
+              <label htmlFor="email" className="block mb-3 text-sm font-medium text-gray-900">
                 Email Address
               </label>
               <Input
@@ -132,20 +134,22 @@ export function ContactSection() {
                 type="email"
                 name="email"
                 placeholder="your@email.com"
-                className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card"
+                aria-label="Email Address"
+                className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent"
               />
             </div>
 
             <div>
-              <label htmlFor="requirement" className="block mb-3 text-sm">
+              <label htmlFor="requirement" className="block mb-3 text-sm font-medium text-gray-900">
                 Project Details
               </label>
               <Textarea
                 id="requirement"
                 name="message"
                 placeholder="Tell us about your project..."
+                aria-label="Project Details"
                 rows={6}
-                className="rounded-2xl border-gray-200 focus:border-[#A259FF] resize-none transition-all liquid-glass-card"
+                className="rounded-2xl border-gray-200 focus:border-[#A259FF] resize-none transition-all liquid-glass-card bg-transparent"
               />
             </div>
 

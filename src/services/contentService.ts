@@ -55,11 +55,11 @@ export function contentfulAssetUrl(asset: any): string | null {
   try {
     const urlObj = new URL(fullUrl);
     urlObj.searchParams.set('fm', 'webp');
-    urlObj.searchParams.set('q', '80');
+    urlObj.searchParams.set('q', '75');
     return urlObj.toString();
   } catch (e) {
     // Fallback if URL parsing fails for some reason
     const separator = fullUrl.includes('?') ? '&' : '?';
-    return `${fullUrl}${separator}fm=webp&q=80`;
+    return `${fullUrl}${separator}fm=webp&q=75`;
   }
 }

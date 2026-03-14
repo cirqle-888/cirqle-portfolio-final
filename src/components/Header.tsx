@@ -74,7 +74,7 @@ export const Header = memo(function Header() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
           >
-            <img src={cirqleLogo} alt="Cirqle Design" loading="lazy" className="h-10 w-auto" />
+            <img src={cirqleLogo} alt="Cirqle Design" width={160} height={40} loading="eager" fetchPriority="high" className="h-10 w-auto" />
           </motion.a>
 
           {/* Navigation */}

@@ -15,6 +15,7 @@ export function Contact() {
           name="description"
           content="Get in touch with Cirqle. Reach out for premium design services, collaborations, and project inquiries."
         />
+        <link rel="canonical" href="https://cirqle.work/contact" />
       </Helmet>
       <ContactSection />
     </main>

@@ -89,7 +89,7 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 liquid-glass-card rounded-full mb-8 shadow-xl edge-glow float"
           >
             <Sparkles className="w-4 h-4 text-[#A259FF]" />
-            <span className="text-sm">{hero?.badgeText ?? "Premium Design Ecosystem"}</span>
+            <span className="text-sm text-gray-900 font-medium">{hero?.badgeText ?? "Premium Design Ecosystem"}</span>
           </motion.div>
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-8 tracking-tight leading-[1.1]">
@@ -105,7 +105,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed"
+          className="text-lg md:text-xl lg:text-2xl text-gray-800 max-w-3xl mx-auto mb-12 leading-relaxed"
         >
           {hero?.subtitle ??
             "Premium designs delivered with speed and precision. From supermarket promotions to complete brand ecosystems — experience quality that speaks for itself."}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -100,7 +100,7 @@ export function SupermarketFlyers() {
             transition={{ duration: 0.5 }}
             className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20"
           >
-            <span className="text-sm">{sectionMeta?.badgeText ?? "Core Specialty"}</span>
+            <span className="text-sm text-gray-900 font-medium">{sectionMeta?.badgeText ?? "Core Specialty"}</span>
           </motion.div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
@@ -175,6 +175,7 @@ export function SupermarketFlyers() {
                   />
                   <div className="absolute inset-0 p-4 flex justify-end items-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button
+                      aria-label="View Project"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -216,6 +217,7 @@ export function SupermarketFlyers() {
           onClick={() => setSelectedFlyer(null)}
         >
           <button
+            aria-label="Close Preview"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedFlyer(null);

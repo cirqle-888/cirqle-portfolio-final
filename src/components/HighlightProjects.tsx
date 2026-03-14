@@ -179,6 +179,7 @@ export function HighlightProjects() {
                         <p className="font-medium drop-shadow-md">{project.title}</p>
                       </div>
                       <button
+                        aria-label="View Project"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedProject(project);
@@ -203,6 +204,7 @@ export function HighlightProjects() {
           onClick={() => setSelectedProject(null)}
         >
           <button
+            aria-label="Close Preview"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedProject(null);
