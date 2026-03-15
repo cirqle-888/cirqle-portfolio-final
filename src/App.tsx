@@ -12,6 +12,9 @@ const Services = lazy(() =>
 const Contact = lazy(() =>
   import("./pages/Contact").then((module) => ({ default: module.Contact }))
 );
+const ProjectDetail = lazy(() =>
+  import("./pages/ProjectDetail").then((module) => ({ default: module.ProjectDetail }))
+);
 
 export default function App() {
   return (
@@ -24,6 +27,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/portfolio/:slug" element={<ProjectDetail />} />
           </Routes>
         </Suspense>
         <Footer />

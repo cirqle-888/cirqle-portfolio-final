@@ -46,6 +46,15 @@ export async function getSupermarketFlyers() {
   });
 }
 
+export async function getProjectBySlug(slug: string) {
+  const entries = await safeGetEntries({
+    content_type: "portfolioProject",
+    "fields.slug": slug,
+    limit: 1,
+  });
+  return entries?.length > 0 ? entries[0] : null;
+}
+
 export function contentfulAssetUrl(asset: any): string | null {
   const url = asset?.fields?.file?.url;
   if (typeof url !== "string" || !url.length) return null;

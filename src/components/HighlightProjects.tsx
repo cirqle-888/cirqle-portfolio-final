@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Expand, X } from "lucide-react";
+import { Expand } from "lucide-react";
 import { contentfulAssetUrl, getPortfolio } from "../services/contentService";
+import { useNavigate } from "react-router-dom";
 
 const projects = [
   {
@@ -10,57 +11,65 @@ const projects = [
     category: "Promotional Design",
     image:
       "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "supermarket-campaign"
   },
   {
     title: "Festival Promo",
     category: "Cultural Design",
     image:
       "https://images.unsplash.com/photo-1553443236-e031f8bb39ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmZXN0aXZhbCUyMHBvc3RlciUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxOTI4NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "festival-promo"
   },
   {
     title: "Brand Identity",
     category: "Visual System",
     image:
       "https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "brand-identity"
   },
   {
     title: "Digital Experience",
     category: "UI/UX Design",
     image:
       "https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "digital-experience"
   },
   {
     title: "Social Media Kit",
     category: "Digital Creatives",
     image:
       "https://images.unsplash.com/photo-1611926653670-1ea63b810d1e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NpYWwlMjBtZWRpYSUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "social-media-kit"
   },
   {
     title: "Package Design",
     category: "Product Design",
     image:
       "https://images.unsplash.com/photo-1526947425960-945c6e72858f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWNrYWdpbmclMjBkZXNpZ258ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "package-design"
   },
   {
     title: "Marketing Collateral",
     category: "Print Design",
     image:
       "https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "marketing-collateral"
   },
   {
     title: "Event Branding",
     category: "Brand Experience",
     image:
       "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "event-branding"
   },
 ];
 
-type Project = (typeof projects)[0];
+type Project = (typeof projects)[0] & { slug?: string };
 
 export function HighlightProjects() {
-  const [portfolioProjects, setPortfolioProjects] = useState(projects);
+  const [portfolioProjects, setPortfolioProjects] = useState<Project[]>(projects);
   const [sectionMeta, setSectionMeta] = useState<any | null>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -74,14 +83,16 @@ export function HighlightProjects() {
           const rawImage = fields?.image;
           const image =
             typeof rawImage === "string" ? rawImage : (contentfulAssetUrl(rawImage) ?? null);
+          const slug = fields?.slug ? String(fields.slug) : undefined;
           if (!fields?.title || !fields?.category || !image) return null;
           return {
             title: String(fields.title),
             category: String(fields.category),
             image,
+            slug,
           };
         })
-        .filter(Boolean) as typeof projects;
+        .filter(Boolean) as Project[];
 
       if (!cancelled && mapped.length) {
         setSectionMeta(meta);
@@ -93,23 +104,6 @@ export function HighlightProjects() {
       cancelled = true;
     };
   }, []);
-
-  // Handle Escape key press
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedProject) {
-        setSelectedProject(null);
-      }
-    };
-
-    if (selectedProject) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedProject]);
 
   return (
     <>
@@ -182,7 +176,9 @@ export function HighlightProjects() {
                         aria-label="View Project"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedProject(project);
+                          if (project.slug) {
+                            navigate(`/portfolio/${project.slug}`);
+                          }
                         }}
                         className="pointer-events-auto absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
                       >
@@ -196,52 +192,6 @@ export function HighlightProjects() {
           </div>
         </div>
       </section>
-
-      {/* Custom Liquid Glass Modal */}
-      {selectedProject && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl"
-          onClick={() => setSelectedProject(null)}
-        >
-          <button
-            aria-label="Close Preview"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedProject(null);
-            }}
-            className="fixed top-4 right-4 md:top-8 md:right-8 z-[10000] w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg transition-all hover:scale-110 text-white"
-          >
-            <X strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-
-          <div
-            className="relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-[2rem] p-4 md:p-8 shadow-[0_0_50px_-10px_rgba(162,89,255,0.2)] flex flex-col items-center justify-center overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative flex items-center justify-center rounded-xl overflow-hidden">
-              <ImageWithFallback
-                src={selectedProject.image}
-                alt={selectedProject.title}
-                width={1200}
-                height={1200}
-                className="max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl"
-              />
-
-              {/* Subtle Modal Info Overlay */}
-              <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 right-4 md:right-16 pointer-events-none z-[20]">
-                <div className="inline-block liquid-glass-card backdrop-blur-md bg-black/40 border border-white/10 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl text-white shadow-lg">
-                  <h3 className="text-lg md:text-xl font-semibold tracking-tight">
-                    {selectedProject.title}
-                  </h3>
-                  <p className="text-gray-300 text-xs md:text-sm mt-0.5">
-                    {selectedProject.category}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
