@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Expand } from "lucide-react";
-import { contentfulAssetUrl, getPortfolio } from "../services/contentService";
+import { getPortfolio } from "../services/contentService";
 import { useNavigate } from "react-router-dom";
 
 type Project = {
@@ -39,9 +39,17 @@ export function HighlightProjects() {
             console.log("Fields:", fields); // DEBUG
 
             const rawImage = fields?.image;
-            const image = contentfulAssetUrl(rawImage);
 
-            // 🔥 SAFE slug fallback
+            let image = null;
+
+            // ✅ SAFE IMAGE PARSE (FIXED)
+            if (rawImage?.fields?.file?.url) {
+              image = rawImage.fields.file.url.startsWith("//")
+                ? `https:${rawImage.fields.file.url}`
+                : rawImage.fields.file.url;
+            }
+
+            // ✅ SAFE SLUG
             const slug =
               fields?.slug ||
               fields?.title
@@ -52,11 +60,14 @@ export function HighlightProjects() {
             return {
               title: fields?.title ?? "Untitled Project",
               category: fields?.category ?? "General",
-              image: image ?? "/fallback.jpg", // fallback image
+              image:
+                image ||
+                "https://via.placeholder.com/600x600?text=No+Image",
               slug: slug ?? "",
             };
           })
-          .filter((item) => item.image); // remove broken ones only
+          // ✅ ONLY FILTER IF TITLE EXISTS (NOT IMAGE)
+          .filter((item) => item.title);
 
         if (!cancelled) {
           setSectionMeta(meta);
@@ -99,13 +110,16 @@ export function HighlightProjects() {
           </h2>
 
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {sectionMeta?.subtitle ?? "Crafted with precision, delivered with speed"}
+            {sectionMeta?.subtitle ??
+              "Crafted with precision, delivered with speed"}
           </p>
         </motion.div>
 
         {/* Loading */}
         {loading && (
-          <p className="text-center text-gray-500">Loading projects...</p>
+          <p className="text-center text-gray-500">
+            Loading projects...
+          </p>
         )}
 
         {/* Grid */}
@@ -117,7 +131,10 @@ export function HighlightProjects() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
+                transition={{
+                  duration: 0.4,
+                  delay: index * 0.05,
+                }}
                 className="group cursor-pointer hover:-translate-y-2 hover:scale-[1.02] transition"
               >
                 <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl">
@@ -150,7 +167,9 @@ export function HighlightProjects() {
                         onClick={(e) => {
                           e.stopPropagation();
                           if (project.slug) {
-                            navigate(`/portfolio/${project.slug}`);
+                            navigate(
+                              `/portfolio/${project.slug}`
+                            );
                           }
                         }}
                         className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-white hover:scale-110 transition"
