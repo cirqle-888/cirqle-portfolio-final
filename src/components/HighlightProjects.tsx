@@ -105,18 +105,16 @@ export function HighlightProjects() {
         >
           <div className="inline-block px-4 py-2 rounded-full mb-6 border">
             <span className="text-sm">
-              {sectionMeta?.badgeText ?? "Featured Work"}
-            </span>
-          </div>
+  Featured Work
+</span>
 
-          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6">
-            {sectionMeta?.title ?? "Excellence in Every Project"}
-          </h2>
+<h2 className="text-4xl md:text-5xl lg:text-6xl mb-6">
+  Excellence in Every Project
+</h2>
 
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {sectionMeta?.subtitle ??
-              "Crafted with precision, delivered with speed"}
-          </p>
+<p className="text-xl text-gray-600 max-w-2xl mx-auto">
+  Crafted with precision, delivered with speed
+</p>
         </motion.div>
 
         {/* Projects Grid */}
