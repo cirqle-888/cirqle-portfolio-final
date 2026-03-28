@@ -133,51 +133,49 @@ export const Footer = memo(function Footer() {
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#A259FF]" />
                 <span>India</span>
               </li>
+              <li className="flex items-center gap-5">
+                <a
+                  href="https://www.instagram.com/cirqle.work"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit Cirqle on Instagram"
+                  className="hover:scale-110 transition-transform"
+                  style={{ color: "#E1306C" }}
+                >
+                  <Instagram size={22} />
+                </a>
+                <a
+                  href="https://www.facebook.com/cirqle.work"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit Cirqle on Facebook"
+                  className="hover:scale-110 transition-transform"
+                  style={{ color: "#1877F2" }}
+                >
+                  <Facebook size={22} />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/cirqle-work"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit Cirqle on LinkedIn"
+                  className="hover:scale-110 transition-transform"
+                  style={{ color: "#0A66C2" }}
+                >
+                  <Linkedin size={22} />
+                </a>
+                <a
+                  href="https://www.youtube.com/@cirqle.work"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit Cirqle on YouTube"
+                  className="hover:scale-110 transition-transform"
+                  style={{ color: "#FF0000" }}
+                >
+                  <Youtube size={22} />
+                </a>
+              </li>
             </ul>
-
-            {/* Social Media Icons */}
-            <div className="flex items-center gap-5 mt-3 ml-7">
-              <a
-                href="https://www.instagram.com/cirqle.work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Visit Cirqle on Instagram"
-                className="hover:scale-110 transition-transform"
-                style={{ color: "#E1306C" }}
-              >
-                <Instagram size={22} />
-              </a>
-              <a
-                href="https://www.facebook.com/cirqle.work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Visit Cirqle on Facebook"
-                className="hover:scale-110 transition-transform"
-                style={{ color: "#1877F2" }}
-              >
-                <Facebook size={22} />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/cirqle-work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Visit Cirqle on LinkedIn"
-                className="hover:scale-110 transition-transform"
-                style={{ color: "#0A66C2" }}
-              >
-                <Linkedin size={22} />
-              </a>
-              <a
-                href="https://www.youtube.com/@cirqle.work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Visit Cirqle on YouTube"
-                className="hover:scale-110 transition-transform"
-                style={{ color: "#FF0000" }}
-              >
-                <Youtube size={22} />
-              </a>
-            </div>
           </div>
         </div>
 
