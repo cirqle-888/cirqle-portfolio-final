@@ -12,6 +12,15 @@ export function About() {
       <Helmet>
         <title>About | Cirqle</title>
         <meta name="description" content="Learn more about Cirqle, a premium design ecosystem." />
+        <meta property="og:title" content="About | Cirqle" />
+        <meta property="og:description" content="Learn more about Cirqle, a premium design ecosystem." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://cirqle.work/about" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="About | Cirqle" />
+        <meta name="twitter:description" content="Learn more about Cirqle, a premium design ecosystem." />
+        <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/about" />
       </Helmet>
       <AboutSection />
