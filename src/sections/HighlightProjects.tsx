@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Expand } from "lucide-react";
 import { contentfulAssetUrl, getPortfolio } from "../services/contentService";
 import { useNavigate } from "react-router-dom";
@@ -11,56 +11,56 @@ const projects = [
     category: "Promotional Design",
     image:
       "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "supermarket-campaign"
+    slug: "supermarket-campaign",
   },
   {
     title: "Festival Promo",
     category: "Cultural Design",
     image:
       "https://images.unsplash.com/photo-1553443236-e031f8bb39ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmZXN0aXZhbCUyMHBvc3RlciUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxOTI4NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "festival-promo"
+    slug: "festival-promo",
   },
   {
     title: "Brand Identity",
     category: "Visual System",
     image:
       "https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "brand-identity"
+    slug: "brand-identity",
   },
   {
     title: "Digital Experience",
     category: "UI/UX Design",
     image:
       "https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "digital-experience"
+    slug: "digital-experience",
   },
   {
     title: "Social Media Kit",
     category: "Digital Creatives",
     image:
       "https://images.unsplash.com/photo-1611926653670-1ea63b810d1e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NpYWwlMjBtZWRpYSUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "social-media-kit"
+    slug: "social-media-kit",
   },
   {
     title: "Package Design",
     category: "Product Design",
     image:
       "https://images.unsplash.com/photo-1526947425960-945c6e72858f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWNrYWdpbmclMjBkZXNpZ258ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "package-design"
+    slug: "package-design",
   },
   {
     title: "Marketing Collateral",
     category: "Print Design",
     image:
       "https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "marketing-collateral"
+    slug: "marketing-collateral",
   },
   {
     title: "Event Branding",
     category: "Brand Experience",
     image:
       "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "event-branding"
+    slug: "event-branding",
   },
 ];
 
@@ -83,7 +83,11 @@ export function HighlightProjects() {
           const rawImage = fields?.image;
           const image =
             typeof rawImage === "string" ? rawImage : (contentfulAssetUrl(rawImage) ?? null);
-          const slug = fields?.slug ? String(fields.slug) : undefined;
+          const slug = fields?.slug
+            ? String(fields.slug)
+            : String(fields?.title || "")
+                .toLowerCase()
+                .replace(/\s+/g, "-");
           if (!fields?.title || !fields?.category || !image) return null;
           return {
             title: String(fields.title),

@@ -1,0 +1,253 @@
+import { j as e, c, m as a, B as d } from "./index-CwkK_v2a.js";
+import { r as i, i as x } from "./vendor-CIVdjJUp.js";
+import { d as h } from "./contentService-DANRjCIE.js";
+import { i as b, j as g } from "./ui-D4ZHmBIb.js";
+import "./motion-D6IIJ6jz.js";
+import "./contentful-9eS7a33o.js";
+function l({ className: t, type: r, ...s }) {
+  return e.jsx("input", {
+    type: r,
+    "data-slot": "input",
+    className: c(
+      "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+      "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+      "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+      t
+    ),
+    ...s,
+  });
+}
+function f({ className: t, ...r }) {
+  return e.jsx("textarea", {
+    "data-slot": "textarea",
+    className: c(
+      "resize-none border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-input-background px-3 py-2 text-base transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+      t
+    ),
+    ...r,
+  });
+}
+function v() {
+  const [t, r] = i.useState(null);
+  i.useEffect(() => {
+    let n = !1;
+    return (
+      h().then((p) => {
+        const o = p?.[0]?.fields ?? null;
+        !n && o && r(o);
+      }),
+      () => {
+        n = !0;
+      }
+    );
+  }, []);
+  const s = i.useMemo(() => t?.whatsappNumber ?? t?.whatsapp ?? "+91 8129 5343 77", [t]),
+    m = i.useMemo(() => String(s).replace(/[^\d]/g, ""), [s]),
+    u = () => {
+      window.open(`https://wa.me/${m}`, "_blank");
+    };
+  return e.jsxs("section", {
+    id: "contact",
+    className: "py-28 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden",
+    children: [
+      e.jsx(a.div, {
+        className:
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full blur-3xl",
+        animate: { scale: [1, 1.1, 1], opacity: [0.5, 0.7, 0.5] },
+        transition: { duration: 8, repeat: 1 / 0, ease: "easeInOut" },
+      }),
+      e.jsxs("div", {
+        className: "max-w-4xl mx-auto relative z-10",
+        children: [
+          e.jsxs(a.div, {
+            initial: { opacity: 0, y: 30 },
+            whileInView: { opacity: 1, y: 0 },
+            viewport: { once: !0 },
+            transition: { duration: 0.7 },
+            className: "text-center mb-16",
+            children: [
+              e.jsx(a.div, {
+                initial: { opacity: 0, scale: 0.9 },
+                whileInView: { opacity: 1, scale: 1 },
+                viewport: { once: !0 },
+                transition: { duration: 0.5 },
+                className:
+                  "inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20",
+                children: e.jsx("span", {
+                  className: "text-sm",
+                  children: t?.badgeText ?? "Get in Touch",
+                }),
+              }),
+              e.jsx("h2", {
+                className: "text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight",
+                children: t?.title ?? "Start Your Project",
+              }),
+              e.jsx("p", {
+                className: "text-xl text-gray-600 leading-relaxed",
+                children: t?.subtitle ?? "Let's create something exceptional together",
+              }),
+            ],
+          }),
+          e.jsxs(a.div, {
+            initial: { opacity: 0, y: 30 },
+            whileInView: { opacity: 1, y: 0 },
+            viewport: { once: !0 },
+            transition: { duration: 0.7, delay: 0.2 },
+            className:
+              "liquid-glass-card rounded-3xl shadow-2xl p-10 md:p-14 relative overflow-hidden refraction edge-glow-hover",
+            children: [
+              e.jsx("div", {
+                className: "absolute inset-0 pointer-events-none z-10 micro-liquid",
+                children: e.jsx("div", {
+                  className:
+                    "absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent opacity-50",
+                }),
+              }),
+              e.jsxs("form", {
+                action: "https://formspree.io/f/xdawkvje",
+                method: "POST",
+                className: "space-y-7 relative z-10",
+                children: [
+                  e.jsx("input", { type: "hidden", name: "_subject", value: "New Cirqle Inquiry" }),
+                  e.jsx("input", { type: "text", name: "_gotcha", style: { display: "none" } }),
+                  e.jsxs("div", {
+                    className: "grid md:grid-cols-2 gap-7",
+                    children: [
+                      e.jsxs("div", {
+                        children: [
+                          e.jsx("label", {
+                            htmlFor: "name",
+                            className: "block mb-3 text-sm font-medium text-gray-900",
+                            children: "Full Name",
+                          }),
+                          e.jsx(l, {
+                            id: "name",
+                            type: "text",
+                            name: "name",
+                            placeholder: "Your name",
+                            "aria-label": "Full Name",
+                            className:
+                              "rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent",
+                          }),
+                        ],
+                      }),
+                      e.jsxs("div", {
+                        children: [
+                          e.jsx("label", {
+                            htmlFor: "whatsapp",
+                            className: "block mb-3 text-sm font-medium text-gray-900",
+                            children: "WhatsApp Number",
+                          }),
+                          e.jsx(l, {
+                            id: "whatsapp",
+                            type: "tel",
+                            name: "whatsapp",
+                            placeholder: "+91 8129 5343 77",
+                            "aria-label": "WhatsApp Number",
+                            className:
+                              "rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  e.jsxs("div", {
+                    children: [
+                      e.jsx("label", {
+                        htmlFor: "email",
+                        className: "block mb-3 text-sm font-medium text-gray-900",
+                        children: "Email Address",
+                      }),
+                      e.jsx(l, {
+                        id: "email",
+                        type: "email",
+                        name: "email",
+                        placeholder: "your@email.com",
+                        "aria-label": "Email Address",
+                        className:
+                          "rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent",
+                      }),
+                    ],
+                  }),
+                  e.jsxs("div", {
+                    children: [
+                      e.jsx("label", {
+                        htmlFor: "requirement",
+                        className: "block mb-3 text-sm font-medium text-gray-900",
+                        children: "Project Details",
+                      }),
+                      e.jsx(f, {
+                        id: "requirement",
+                        name: "message",
+                        placeholder: "Tell us about your project...",
+                        "aria-label": "Project Details",
+                        rows: 6,
+                        className:
+                          "rounded-2xl border-gray-200 focus:border-[#A259FF] resize-none transition-all liquid-glass-card bg-transparent",
+                      }),
+                    ],
+                  }),
+                  e.jsxs("div", {
+                    className: "flex flex-col sm:flex-row gap-4 pt-4",
+                    children: [
+                      e.jsx(a.div, {
+                        className: "flex-1",
+                        whileHover: { scale: 1.02 },
+                        whileTap: { scale: 0.98 },
+                        children: e.jsxs(d, {
+                          type: "submit",
+                          size: "lg",
+                          className:
+                            "w-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity py-7 rounded-full shadow-xl shadow-[#A259FF]/30 cursor-hover edge-glow",
+                          children: [e.jsx(b, { className: "mr-2 w-5 h-5" }), "Send Inquiry"],
+                        }),
+                      }),
+                      e.jsx(a.div, {
+                        whileHover: { scale: 1.02 },
+                        whileTap: { scale: 0.98 },
+                        children: e.jsxs(d, {
+                          type: "button",
+                          size: "lg",
+                          variant: "outline",
+                          onClick: u,
+                          className:
+                            "w-full sm:w-auto border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all py-7 rounded-full cursor-hover liquid-glass-card",
+                          children: [e.jsx(g, { className: "mr-2 w-5 h-5" }), "WhatsApp"],
+                        }),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+}
+function C() {
+  return (
+    i.useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []),
+    e.jsxs("main", {
+      className: "pt-16",
+      children: [
+        e.jsxs(x, {
+          children: [
+            e.jsx("title", { children: "Contact | Cirqle" }),
+            e.jsx("meta", {
+              name: "description",
+              content:
+                "Get in touch with Cirqle. Reach out for premium design services, collaborations, and project inquiries.",
+            }),
+            e.jsx("link", { rel: "canonical", href: "https://cirqle.work/contact" }),
+          ],
+        }),
+        e.jsx(v, {}),
+      ],
+    })
+  );
+}
+export { C as Contact };

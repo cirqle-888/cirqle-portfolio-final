@@ -10,7 +10,7 @@ export const PageSkeleton = memo(function PageSkeleton() {
       role="status"
     >
       <span className="sr-only">Loading content...</span>
-      
+
       {/* Hero Skeleton */}
       <div className="flex flex-col items-center justify-center space-y-8 mt-10 mb-20">
         <Skeleton className="w-40 h-10 rounded-full" />

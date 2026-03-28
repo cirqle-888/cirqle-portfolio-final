@@ -15,20 +15,28 @@ const Contact = lazy(() =>
 const ProjectDetail = lazy(() =>
   import("./pages/ProjectDetail").then((module) => ({ default: module.ProjectDetail }))
 );
+const About = lazy(() => import("./pages/About").then((module) => ({ default: module.About })));
+const Portfolio = lazy(() =>
+  import("./pages/Portfolio").then((module) => ({ default: module.Portfolio }))
+);
 
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen flex flex-col bg-white">
         <CustomCursor />
         <Header />
         <Suspense fallback={<PageSkeleton />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/portfolio/:slug" element={<ProjectDetail />} />
-          </Routes>
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/:slug" element={<ProjectDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </main>
         </Suspense>
         <Footer />
       </div>

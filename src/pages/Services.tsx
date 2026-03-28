@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { EcosystemServices } from "../components/EcosystemServices";
+import { EcosystemServices } from "../sections/EcosystemServices";
 
 export function Services() {
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Button } from "./ui/button";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Button } from "../components/ui/button";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Zap, Award, Clock3, Expand, X } from "lucide-react";
 import { contentfulAssetUrl, getSupermarketFlyers } from "../services/contentService";
 
@@ -100,7 +100,9 @@ export function SupermarketFlyers() {
             transition={{ duration: 0.5 }}
             className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20"
           >
-            <span className="text-sm text-gray-900 font-medium">{sectionMeta?.badgeText ?? "Core Specialty"}</span>
+            <span className="text-sm text-gray-900 font-medium">
+              {sectionMeta?.badgeText ?? "Core Specialty"}
+            </span>
           </motion.div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">

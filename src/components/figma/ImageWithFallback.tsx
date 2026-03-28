@@ -15,25 +15,39 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
   };
 
   const { src, alt, style, className, eager, ...rest } = props;
-  const altSrc = (props as any)['data-alt-src']; // Type assertion to bypass strict HTML props
-  
+  const altSrc = (props as any)["data-alt-src"]; // Type assertion to bypass strict HTML props
+
   const loadingStrategy = eager ? "eager" : "lazy";
 
   if (hasError && (altSrc || ERROR_IMG_SRC)) {
     return (
       <div
         className={`w-full h-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center
-        ${className || ''}`}
+        ${className || ""}`}
         style={style}
       >
         <div className="flex items-center justify-center w-full h-full">
-          <img src={altSrc || ERROR_IMG_SRC} alt="Error loading image" loading={loadingStrategy} {...rest} data-original-url={src} />
+          <img
+            src={altSrc || ERROR_IMG_SRC}
+            alt="Error loading image"
+            loading={loadingStrategy}
+            {...rest}
+            data-original-url={src}
+          />
         </div>
       </div>
     );
   }
 
   return (
-    <img src={src} alt={alt} loading={loadingStrategy} className={className} style={style} {...rest} onError={handleError} />
+    <img
+      src={src}
+      alt={alt}
+      loading={loadingStrategy}
+      className={className}
+      style={style}
+      {...rest}
+      onError={handleError}
+    />
   );
 }

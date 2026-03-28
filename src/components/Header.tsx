@@ -24,6 +24,10 @@ export const Header = memo(function Header() {
         return "/";
       case "Services":
         return "/services";
+      case "Portfolio":
+        return "/portfolio";
+      case "About":
+        return "/about";
       case "Contact":
         return "/contact";
       default:
@@ -66,6 +70,7 @@ export const Header = memo(function Header() {
           {/* Logo */}
           <motion.a
             href="/"
+            aria-label="Cirqle Homepage"
             onClick={(e) => {
               e.preventDefault();
               navigate("/");
@@ -74,7 +79,15 @@ export const Header = memo(function Header() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
           >
-            <img src={cirqleLogo} alt="Cirqle Design" width={160} height={40} loading="eager" fetchPriority="high" className="h-10 w-auto" />
+            <img
+              src={cirqleLogo}
+              alt="Cirqle Design"
+              width={160}
+              height={40}
+              loading="eager"
+              fetchPriority="high"
+              className="h-10 w-auto"
+            />
           </motion.a>
 
           {/* Navigation */}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { CheckCircle2 } from "lucide-react";
 import { contentfulAssetUrl, getAbout } from "../services/contentService";
 

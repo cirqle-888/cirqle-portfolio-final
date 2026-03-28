@@ -4,6 +4,7 @@ import { getProjectBySlug, contentfulAssetUrl } from "../services/contentService
 import { PageSkeleton } from "../components/PageSkeleton";
 import { motion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,21 +19,15 @@ export function ProjectDetail() {
       setLoading(true);
       try {
         const data = await getProjectBySlug(slug);
-        if (!cancelled) {
-          setProject(data);
-        }
+        if (!cancelled) setProject(data);
       } catch (err) {
         console.error("Failed to fetch project:", err);
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
     loadProject();
-
-    // Scroll to top when loading a new project
     window.scrollTo(0, 0);
 
     return () => {
@@ -40,17 +35,18 @@ export function ProjectDetail() {
     };
   }, [slug]);
 
+  console.log("Slug:", slug);
+
+  // ✅ Loading state
   if (loading) {
     return <PageSkeleton />;
   }
 
+  // ✅ 404 / Not Found state (FIXED + CENTERED)
   if (!project) {
     return (
-      <div className="relative w-full min-h-screen flex items-center justify-center bg-gray-50 overflow-hidden">
-
-        {/* Header spacer (optional if header is fixed, but justify-center usually handles it) */}
-        
-        {/* Background glow */}
+      <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+        {/* Glow Background */}
         <div
           className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-40 pointer-events-none"
           style={{
@@ -59,152 +55,182 @@ export function ProjectDetail() {
           }}
         />
 
-        {/* Absolute Centered 404 Text */}
-        <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15rem] md:text-[20rem] font-bold text-gray-900/5 select-none pointer-events-none">
-          404
-        </h1>
-
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4 }}
-          className="relative z-10 max-w-xl w-full px-6"
+          className="max-w-2xl w-full mt-6"
         >
+          <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.2)] p-12 text-center">
+            <h1 className="text-8xl font-bold bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent mb-6">
+              404
+            </h1>
 
-          <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl p-12 text-center border border-white/50 flex flex-col items-center space-y-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-3">Project Not Found</h2>
 
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">
-                Project in the Shadows
-              </h2>
+            <p className="text-gray-500 text-lg mb-10 max-w-md mx-auto">
+              The project you are looking for may have been removed or the link is incorrect.
+            </p>
 
-              <p className="text-lg text-gray-600 max-w-md mx-auto">
-                Sorry, the project you are looking for could not be found or has been moved.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto pt-4">
-
+            <div className="flex justify-center gap-4 flex-wrap">
               <Link
                 to="/"
-                className="px-8 py-3.5 rounded-full bg-gray-900 text-white font-medium shadow-lg shadow-gray-900/20 hover:bg-black hover:scale-105 hover:shadow-xl hover:shadow-gray-900/30 transition-all duration-300 flex items-center justify-center group"
+                className="px-7 py-3 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white font-medium shadow-lg hover:scale-105 transition"
               >
-                <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Return Home
               </Link>
 
               <Link
                 to="/"
-                className="px-8 py-3.5 rounded-full border border-gray-200 text-gray-700 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center"
+                className="px-7 py-3 rounded-full border border-gray-300 hover:border-gray-500 hover:bg-gray-50 transition"
               >
                 View Portfolio
               </Link>
-
             </div>
-
           </div>
-
         </motion.div>
       </div>
     );
   }
 
-  const { title, description, image, category, client, services, year } = project.fields;
+  // ✅ Extract fields
+  const { title, description, image, category, client, service, year, gallery } = project.fields;
+
   const imageUrl = image ? contentfulAssetUrl(image) : null;
 
-  // Basic rendering for description if it's an object (Rich Text) or string
+  // ✅ Description renderer
   const renderDescription = () => {
     if (!description) return <p>No description available.</p>;
-    if (typeof description === 'string') {
-      return <p className="text-xl leading-relaxed text-gray-700 whitespace-pre-wrap">{description}</p>;
+
+    if (typeof description === "string") {
+      return (
+        <p className="text-xl leading-relaxed text-gray-700 whitespace-pre-wrap">{description}</p>
+      );
     }
-    // Fallback for Contentful Rich Text without external renderer
+
     const extractText = (node: any): string => {
-      if (node?.nodeType === 'text') return node.value || '';
-      if (Array.isArray(node?.content)) return node.content.map(extractText).join('');
-      return '';
+      if (node?.nodeType === "text") return node.value || "";
+      if (Array.isArray(node?.content)) return node.content.map(extractText).join("");
+      return "";
     };
-    return <p className="text-xl leading-relaxed text-gray-700 whitespace-pre-wrap">{extractText(description)}</p>;
+
+    return (
+      <p className="text-xl leading-relaxed text-gray-700 whitespace-pre-wrap">
+        {extractText(description)}
+      </p>
+    );
   };
 
+  // ✅ MAIN PAGE
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-white relative pb-16 md:pb-24"
+      className="min-h-screen pt-28 pb-20 px-6 bg-white"
     >
-      {/* Fixed Back Button */}
-      <Link
-        to="/"
-        className="fixed top-28 left-4 md:left-8 z-50 inline-flex items-center px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-black/5 text-gray-600 hover:text-black hover:bg-white/80 transition-all shadow-sm group"
-      >
-        <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-        Back
-      </Link>
+      <Helmet>
+        <title>{title ? `${String(title)} | Cirqle Project` : "Project | Cirqle"}</title>
+        <meta
+          name="description"
+          content={`Explore ${title ? String(title) : "this"} premium design project by Cirqle.`}
+        />
+        {imageUrl && <meta property="og:image" content={imageUrl} />}
+      </Helmet>
+      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
+        {/* LEFT CONTENT */}
+        <div className="md:col-span-2">
+          <Link
+            to="/"
+            className="inline-flex items-center text-gray-500 hover:text-black transition-colors mb-12 group"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+            Back to Projects
+          </Link>
 
-      {/* Full-width Image Banner */}
-      {imageUrl && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="w-full h-[50vh] md:h-[60vh] relative mb-16 md:mb-24"
-        >
-          <img
-            src={imageUrl}
-            alt={title ? String(title) : "Project Image"}
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-      )}
+          <div className="mb-12">
+            {category && (
+              <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
+                <span className="text-sm font-medium">{String(category)}</span>
+              </div>
+            )}
 
-      {/* Main Content Area */}
-      <div className="max-w-3xl mx-auto px-6">
-        
-        {/* Header Section */}
-        <div className="mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 leading-tight mb-6">
-            {title ? String(title) : "Untitled Project"}
-          </h1>
-          {category && (
-            <div className="text-lg font-medium text-gray-500 mb-12">
-              {String(category)}
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight">
+              {title ? String(title) : "Untitled Project"}
+            </h1>
+          </div>
+
+          {/* MAIN IMAGE */}
+          {imageUrl && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="w-full aspect-video rounded-3xl overflow-hidden mb-16 shadow-2xl"
+            >
+              <img
+                src={imageUrl}
+                alt={title}
+                loading="eager"
+                fetchPriority="high"
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          )}
+
+          {/* DESCRIPTION */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="prose prose-lg max-w-none text-gray-700"
+          >
+            {renderDescription()}
+          </motion.div>
+
+          {/* GALLERY */}
+          {Array.isArray(gallery) && gallery.length > 0 && (
+            <div className="mt-20 columns-2 md:columns-3 gap-4 space-y-4">
+              {gallery.map((img: any, i: number) => {
+                const url = contentfulAssetUrl(img);
+                if (!url) return null;
+
+                return (
+                  <img
+                    key={i}
+                    src={url}
+                    loading="lazy"
+                    className="w-full rounded-xl shadow-lg hover:scale-[1.02] transition"
+                    alt="Project gallery"
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT SIDEBAR */}
+        <div className="space-y-6 md:sticky md:top-28 h-fit">
+          {client && (
+            <div>
+              <p className="text-sm text-gray-500">Client</p>
+              <p className="font-medium">{client}</p>
             </div>
           )}
 
-          {/* Info Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 py-8 border-y border-gray-100">
+          {service && (
             <div>
-              <div className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-2">Client</div>
-              <div className="text-sm font-medium text-black">
-                {client ? String(client) : "Internal"}
-              </div>
+              <p className="text-sm text-gray-500">Service</p>
+              <p className="font-medium">{service}</p>
             </div>
-            <div>
-              <div className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-2">Services</div>
-              <div className="text-sm font-medium text-black">
-                {services ? String(services) : (category ? String(category) : "Design")}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-2">Year</div>
-              <div className="text-sm font-medium text-black">
-                {year ? String(year) : new Date().getFullYear()}
-              </div>
-            </div>
-          </div>
-        </div>
+          )}
 
-        {/* Narrative Section - clean without background */}
-        <motion.div
-          id="narrative"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prose prose-lg prose-gray max-w-none text-gray-800"
-        >
-          {renderDescription()}
-        </motion.div>
+          {year && (
+            <div>
+              <p className="text-sm text-gray-500">Year</p>
+              <p className="font-medium">{year}</p>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

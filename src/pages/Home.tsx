@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
-import { Hero } from "../components/Hero";
-import { HighlightProjects } from "../components/HighlightProjects";
-import { SupermarketFlyers } from "../components/SupermarketFlyers";
-import { WhyCirqle } from "../components/WhyCirqle";
-import { AboutSection } from "../components/AboutSection";
+import { Hero } from "../sections/Hero";
+import { HighlightProjects } from "../sections/HighlightProjects";
+import { SupermarketFlyers } from "../sections/SupermarketFlyers";
+import { WhyCirqle } from "../sections/WhyCirqle";
+import { AboutSection } from "../sections/AboutSection";
 
 export function Home() {
   return (

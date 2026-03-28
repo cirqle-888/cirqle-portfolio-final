@@ -72,7 +72,7 @@ export const Footer = memo(function Footer() {
             <ul className="space-y-3 text-sm text-gray-400">
               <li>
                 <Link
-                  to="/#about"
+                  to="/about"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
                   About Cirqle
@@ -80,7 +80,7 @@ export const Footer = memo(function Footer() {
               </li>
               <li>
                 <Link
-                  to="/#portfolio"
+                  to="/portfolio"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
                   Portfolio
@@ -111,13 +111,21 @@ export const Footer = memo(function Footer() {
             <ul className="space-y-4 text-sm text-gray-400">
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#A259FF]" />
-                <a href="mailto:team@cirqle.work" className="hover:text-white transition-colors">
+                <a
+                  href="mailto:team@cirqle.work"
+                  aria-label="Email Cirqle team"
+                  className="hover:text-white transition-colors"
+                >
                   team@cirqle.work
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#4CC3FF]" />
-                <a href="tel:+918129534377" className="hover:text-white transition-colors">
+                <a
+                  href="tel:+918129534377"
+                  aria-label="Call Cirqle"
+                  className="hover:text-white transition-colors"
+                >
                   +91 8129 5343 77
                 </a>
               </li>
