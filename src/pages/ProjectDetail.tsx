@@ -45,7 +45,7 @@ export function ProjectDetail() {
   // ✅ 404 / Not Found state (FIXED + CENTERED)
   if (!project) {
     return (
-      <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+      <div className="min-h-screen pt-32 pb-20 flex items-center justify-center px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
         {/* Glow Background */}
         <div
           className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-40 pointer-events-none"
@@ -62,17 +62,17 @@ export function ProjectDetail() {
           className="max-w-2xl w-full mt-6"
         >
           <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.2)] p-12 text-center">
-            <h1 className="text-8xl font-bold bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent mb-6">
+            <h1 className="text-8xl font-bold bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent mt-8 mb-6">
               404
             </h1>
 
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">Project Not Found</h2>
 
-            <p className="text-gray-500 text-lg mb-10 max-w-md mx-auto">
+            <p className="text-gray-500 text-lg mb-10 max-w-md mx-auto px-4 text-center">
               The project you are looking for may have been removed or the link is incorrect.
             </p>
 
-            <div className="flex justify-center gap-4 flex-wrap">
+            <div className="flex justify-center gap-4 flex-wrap mb-8">
               <Link
                 to="/"
                 className="px-7 py-3 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white font-medium shadow-lg hover:scale-105 transition"

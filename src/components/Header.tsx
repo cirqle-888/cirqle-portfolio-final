@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { motion } from "motion/react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 
 export const Header = memo(function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -112,6 +113,46 @@ export const Header = memo(function Header() {
                 ></motion.span>
               </motion.a>
             ))}
+
+            {/* Social Media Icons */}
+            <div className="flex items-center gap-4 ml-2 border-l border-gray-200 pl-6">
+              <a
+                href="https://www.instagram.com/cirqle.work"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Cirqle on Instagram"
+                className="text-gray-500 hover:text-[#A259FF] transition-colors hover:-translate-y-0.5 transform duration-200"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.facebook.com/cirqle.work"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Cirqle on Facebook"
+                className="text-gray-500 hover:text-[#4CC3FF] transition-colors hover:-translate-y-0.5 transform duration-200"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/cirqle-work"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Cirqle on LinkedIn"
+                className="text-gray-500 hover:text-[#A259FF] transition-colors hover:-translate-y-0.5 transform duration-200"
+              >
+                <Linkedin className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.youtube.com/@cirqle.work"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Cirqle on YouTube"
+                className="text-gray-500 hover:text-[#4CC3FF] transition-colors hover:-translate-y-0.5 transform duration-200"
+              >
+                <Youtube className="w-4 h-4" />
+              </a>
+            </div>
           </nav>
         </div>
       </div>
