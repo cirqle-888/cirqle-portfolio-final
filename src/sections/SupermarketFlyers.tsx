@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "../components/ui/button";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { Zap, Award, Clock3, Expand, X } from "lucide-react";
+import { Zap, Award, Clock3, Expand } from "lucide-react";
 import { contentfulAssetUrl, getSupermarketFlyers } from "../services/contentService";
+import { BrochureReader } from "../components/ui/BrochureReader";
 
 const FALLBACK_FLYERS = [
   "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080&sig=1",
@@ -19,7 +20,7 @@ const FALLBACK_FLYERS = [
 export function SupermarketFlyers() {
   const [flyers, setFlyers] = useState<string[]>(FALLBACK_FLYERS);
   const [sectionMeta, setSectionMeta] = useState<any | null>(null);
-  const [selectedFlyer, setSelectedFlyer] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,22 +58,28 @@ export function SupermarketFlyers() {
     };
   }, []);
 
-  // Handle Escape key press
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedFlyer) {
-        setSelectedFlyer(null);
-      }
-    };
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
 
-    if (selectedFlyer) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedFlyer]);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.8,
+        ease: [0.25, 0.1, 0.25, 1] as const,
+      },
+    },
+  };
 
   return (
     <section className="py-28 px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
@@ -151,15 +158,19 @@ export function SupermarketFlyers() {
         </motion.div>
 
         {/* Flyer samples - Clean Grid Layout */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-14">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-14"
+        >
           {flyers.map((image, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "100px" }}
-              transition={{ duration: 0.4, delay: (i + 1) * 0.05 }}
-              className="group cursor-hover hover:-translate-y-2 hover:scale-[1.02] transition-transform duration-300 transform-gpu will-change-transform"
+              variants={itemVariants}
+              onClick={() => setActiveIndex(i)}
+              className="group cursor-pointer hover:-translate-y-2 hover:scale-[1.02] transition-transform duration-500 transform-gpu will-change-transform"
             >
               <div className="relative overflow-hidden rounded-2xl liquid-glass-thumbnail shadow-xl hover:shadow-2xl transition-shadow duration-500 refraction liquid-ripple edge-glow-hover">
                 {/* Micro liquid movement */}
@@ -167,7 +178,7 @@ export function SupermarketFlyers() {
                   <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-30"></div>
                 </div>
 
-                <div className="relative aspect-[3/4] overflow-hidden">
+                <div className="relative aspect-[3/4] overflow-hidden pointer-events-none">
                   <ImageWithFallback
                     src={image}
                     alt={`Supermarket Campaign ${i + 1}`}
@@ -178,12 +189,7 @@ export function SupermarketFlyers() {
                   <div className="absolute inset-0 p-4 flex justify-end items-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button
                       aria-label="View Project"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setSelectedFlyer(image);
-                      }}
-                      className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
+                      className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)] group-hover:scale-110 group-hover:bg-white/20"
                     >
                       <Expand className="w-5 h-5 drop-shadow-md" />
                     </button>
@@ -192,7 +198,7 @@ export function SupermarketFlyers() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -212,39 +218,11 @@ export function SupermarketFlyers() {
         </motion.div>
       </div>
 
-      {/* Custom Liquid Glass Modal */}
-      {selectedFlyer && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/90 backdrop-blur-2xl"
-          onClick={() => setSelectedFlyer(null)}
-        >
-          <button
-            aria-label="Close Preview"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedFlyer(null);
-            }}
-            className="fixed top-4 right-4 md:top-8 md:right-8 z-[10000] w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg transition-all hover:scale-110 text-white"
-          >
-            <X strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-
-          <div
-            className="relative bg-white/5 backdrop-blur-xl border border-white/20 rounded-[2rem] p-4 md:p-8 shadow-[0_0_50px_-10px_rgba(162,89,255,0.2)] flex flex-col items-center justify-center overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative flex items-center justify-center rounded-xl overflow-hidden">
-              <ImageWithFallback
-                src={selectedFlyer}
-                alt="Flyer Overview"
-                width={1200}
-                height={1600}
-                className="max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <BrochureReader
+        images={flyers}
+        activeIndex={activeIndex}
+        setActiveIndex={setActiveIndex}
+      />
     </section>
   );
 }
