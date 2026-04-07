@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import HTMLFlipBook from "react-pageflip";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X } from "lucide-react";
 
 interface BrochureReaderProps {
   images: string[];
@@ -185,26 +185,6 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
           ))}
         </HTMLFlipBook>
       </div>
-      
-      {/* Footer Navigation Buttons */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 z-[10000] pointer-events-auto backdrop-blur-md bg-black/20 p-2 rounded-full border border-white/10 shadow-sm">
-        <button 
-          onClick={(e) => { e.stopPropagation(); try { bookRef.current?.pageFlip()?.flipPrev(); } catch(e){} }}
-          className="p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
-          aria-label="Previous Page"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
-        <button 
-          onClick={(e) => { e.stopPropagation(); try { bookRef.current?.pageFlip()?.flipNext(); } catch(e){} }}
-          className="p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
-          aria-label="Next Page"
-        >
-          <ChevronRight size={24} />
-        </button>
-      </div>
-
     </div>,
     document.body
   );
