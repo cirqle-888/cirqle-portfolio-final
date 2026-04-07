@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "../components/ui/button";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { Zap, Award, Clock3, Expand } from "lucide-react";
+import { Zap, Award, Clock3 } from "lucide-react";
 import { contentfulAssetUrl, getSupermarketFlyers } from "../services/contentService";
 import { BrochureReader } from "../components/ui/BrochureReader";
 
@@ -186,14 +186,7 @@ export function SupermarketFlyers() {
                     height={800}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 p-4 flex justify-end items-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button
-                      aria-label="View Project"
-                      className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)] group-hover:scale-110 group-hover:bg-white/20"
-                    >
-                      <Expand className="w-5 h-5 drop-shadow-md" />
-                    </button>
-                  </div>
+
                 </div>
               </div>
             </motion.div>
