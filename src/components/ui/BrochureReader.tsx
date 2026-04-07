@@ -109,7 +109,12 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-2xl bg-black/40"
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ 
+        backgroundColor: 'rgba(0, 0, 0, 0.85)', 
+        backdropFilter: 'blur(30px)', 
+        WebkitBackdropFilter: 'blur(30px)' 
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
