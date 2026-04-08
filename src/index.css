@@ -2907,3 +2907,10 @@ html {
   inherits: false;
   initial-value: 1;
 }
+
+/* Remove page flip hint */
+[data-stf-role="hint"],
+.stf__block--hint,
+.stf__hint {
+  display: none !important;
+}

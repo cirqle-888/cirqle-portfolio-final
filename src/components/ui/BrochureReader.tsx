@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import HTMLFlipBook from "react-pageflip";
-import { X } from "lucide-react";
+
 
 interface BrochureReaderProps {
   images: string[];
@@ -109,7 +109,12 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-3xl bg-black/85"
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{
+        background: 'rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(24px) saturate(180%) brightness(1.05)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(1.05)'
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
@@ -119,22 +124,9 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
       {/* Radial soft spotlight behind the book to create depth */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15)_0%,transparent_60%)]"></div>
 
-      {/* Close button at top-right */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleClose();
-        }}
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-[10000] p-3 text-white/70 hover:text-white bg-black/40 hover:bg-black/80 rounded-full transition-all border border-white/20 shadow-lg"
-        aria-label="Close viewer"
-      >
-        <X size={24} strokeWidth={2.5} />
-      </button>
 
-      {/* Guide text */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-white/60 text-xs sm:text-sm font-medium tracking-[0.2em] uppercase pointer-events-none z-[10000] drop-shadow-md">
-        Drag edges to flip pages
-      </div>
+
+
 
       {/* Container to prevent clicks from closing when clicking the book, but close on empty space */}
       <div 
