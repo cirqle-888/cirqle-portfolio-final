@@ -65,7 +65,17 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
   const isOpen = activeIndex !== null;
   const bookRef = useRef<any>(null); // Ref to access the pageFlip API methods
   
+  const [isMobile, setIsMobile] = React.useState(false);
   const [isPortrait, setIsPortrait] = React.useState(() => typeof window !== 'undefined' ? (window.innerWidth < 768 || window.innerWidth < window.innerHeight) : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize(); // Check initially
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleClose = useCallback(() => {
     setActiveIndex(null);
@@ -99,12 +109,7 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[99999] w-screen h-screen overflow-hidden flex items-center justify-center"
-      style={{ 
-        backgroundColor: 'rgba(0, 0, 0, 0.85)', 
-        backdropFilter: 'blur(30px)', 
-        WebkitBackdropFilter: 'blur(30px)' 
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-3xl bg-black/85"
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
@@ -114,26 +119,27 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
       {/* Radial soft spotlight behind the book to create depth */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15)_0%,transparent_60%)]"></div>
 
-      {/* Close button at top-right pinned to viewport */}
+      {/* Close button at top-right */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           handleClose();
         }}
-        className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[100000] p-3 text-white/70 hover:text-white bg-black/40 hover:bg-black/80 rounded-full transition-all border border-white/20 shadow-lg"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-[10000] p-3 text-white/70 hover:text-white bg-black/40 hover:bg-black/80 rounded-full transition-all border border-white/20 shadow-lg"
         aria-label="Close viewer"
       >
         <X size={24} strokeWidth={2.5} />
       </button>
 
       {/* Guide text */}
-      <div className="fixed top-8 left-1/2 -translate-x-1/2 text-white/60 text-xs sm:text-sm font-medium tracking-[0.2em] uppercase pointer-events-none z-[100000] drop-shadow-md">
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-white/60 text-xs sm:text-sm font-medium tracking-[0.2em] uppercase pointer-events-none z-[10000] drop-shadow-md">
         Drag edges to flip pages
       </div>
 
-      {/* Container strictly bound to 92vw to prevent horizontal overflow */}
+      {/* Container to prevent clicks from closing when clicking the book, but close on empty space */}
       <div 
-        className="relative w-[92vw] max-w-[1200px] h-[75vh] sm:h-[85vh] flex items-center justify-center pointer-events-auto mx-auto"
+        className="relative w-full max-w-[1200px] h-[80vh] sm:h-[90vh] flex items-center justify-center pointer-events-auto mx-auto"
+        style={isMobile ? { maxWidth: 'calc(min(100vw, 80vh * 0.65))' } : {}}
         onClick={(e) => {
           if (e.target === e.currentTarget) handleClose();
         }}
