@@ -57,7 +57,8 @@ export const Header = memo(function Header() {
   };
 
   return (
-    <motion.header
+    <>
+      <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
@@ -168,45 +169,46 @@ export const Header = memo(function Header() {
           </div>
         </div>
       </div>
-
-      {/* Mobile Navigation Panel */}
-      {mobileOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-2xl py-6 px-6 flex flex-col gap-6"
-        >
-          {menuItems.map((item) => (
-            <Link
-              key={item}
-              to={getPath(item)}
-              onClick={(e) => {
-                setMobileOpen(false);
-                // Call handles scroll logic naturally
-                handleNavClick(e as any, item);
-              }}
-              className="text-lg font-medium tracking-wide text-gray-800 hover:text-[#A259FF] transition-colors border-b border-gray-100 pb-2"
-            >
-              {item}
-            </Link>
-          ))}
-          <div className="flex items-center gap-6 pt-2">
-            <a href="https://www.instagram.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a href="https://www.facebook.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
-              <Facebook className="w-5 h-5" />
-            </a>
-            <a href="https://www.linkedin.com/company/cirqle-work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
-              <Linkedin className="w-5 h-5" />
-            </a>
-            <a href="https://www.youtube.com/@cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
-              <Youtube className="w-5 h-5" />
-            </a>
-          </div>
-        </motion.div>
-      )}
     </motion.header>
+
+    {/* Mobile Navigation Panel */}
+    {mobileOpen && (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-xl shadow-lg z-50 py-6 px-6 flex flex-col gap-6 border-b border-gray-100"
+      >
+        {menuItems.map((item) => (
+          <Link
+            key={item}
+            to={getPath(item)}
+            onClick={(e) => {
+              setMobileOpen(false);
+              // Call handles scroll logic naturally
+              handleNavClick(e as any, item);
+            }}
+            className="text-lg font-medium tracking-wide text-gray-800 hover:text-[#A259FF] transition-colors border-b border-gray-100 pb-2"
+          >
+            {item}
+          </Link>
+        ))}
+        <div className="flex items-center gap-6 pt-2">
+          <a href="https://www.instagram.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
+            <Instagram className="w-5 h-5" />
+          </a>
+          <a href="https://www.facebook.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
+            <Facebook className="w-5 h-5" />
+          </a>
+          <a href="https://www.linkedin.com/company/cirqle-work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
+            <Linkedin className="w-5 h-5" />
+          </a>
+          <a href="https://www.youtube.com/@cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
+            <Youtube className="w-5 h-5" />
+          </a>
+        </div>
+      </motion.div>
+    )}
+    </>
   );
 });
