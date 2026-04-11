@@ -67,11 +67,11 @@ export const Header = memo(function Header() {
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? "shadow-2xl" : ""
+        scrolled ? "shadow-2xl" : "border-b border-white/10"
       }`}
     >
       <div className={`absolute inset-0 pointer-events-none -z-10 transition-all duration-500 ${
-        scrolled ? "bg-white/90 backdrop-blur-xl border-b border-white/20" : "bg-white/60 backdrop-blur-md border-b border-white/10"
+        scrolled ? "liquid-glass-card edge-glow-hover" : "liquid-glass"
       }`}></div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 relative z-10">
@@ -182,7 +182,7 @@ export const Header = memo(function Header() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-gray-200/50 shadow-2xl overflow-hidden md:hidden z-40"
+            className="absolute top-full left-0 right-0 liquid-glass-card border-b border-white/20 shadow-2xl overflow-hidden md:hidden z-40"
           >
             <div className="px-6 py-8 flex flex-col space-y-6">
               {menuItems.map((item, index) => (
