@@ -15,6 +15,7 @@ const Contact = lazy(() =>
 const ProjectDetail = lazy(() =>
   import("./pages/ProjectDetail").then((module) => ({ default: module.ProjectDetail }))
 );
+const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
 const About = lazy(() => import("./pages/About").then((module) => ({ default: module.About })));
 const Portfolio = lazy(() =>
   import("./pages/Portfolio").then((module) => ({ default: module.Portfolio }))
@@ -37,6 +38,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/services/:slug" element={<ServiceDetail />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/:slug" element={<ProjectDetail />} />
               <Route path="/about" element={<About />} />

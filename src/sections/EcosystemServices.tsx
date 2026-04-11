@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { FileText, Palette, Share2, Code, Sparkles, Layout } from "lucide-react";
 import { getServices } from "../services/contentService";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const services = [
   {
@@ -39,7 +39,6 @@ const services = [
 
 export function EcosystemServices() {
   const [servicesEntries, setServicesEntries] = useState<any[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -87,45 +86,52 @@ export function EcosystemServices() {
           {services.map((service, index) => {
             const Icon = service.icon;
             const fields = servicesEntries?.[index]?.fields ?? null;
-            const slug = fields?.slug ?? service.title.toLowerCase().replace(/[\s/]+/g, '-');
+            const generatedSlug = (
+              fields?.slug || 
+              service.title
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, "-")
+                .replace(/[^\w-]+/g, "")
+            ).toLowerCase();
             return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -6, scale: 1.02 }}
-                onClick={() => navigate(`/services/${slug}`)}
-                className="group cursor-pointer"
-              >
-                <div className="relative h-full liquid-glass-card p-9 rounded-3xl hover:shadow-2xl transition-all duration-500 overflow-hidden refraction liquid-ripple edge-glow-hover">
-                  {/* Micro liquid movement */}
-                  <div className="absolute inset-0 pointer-events-none z-10 micro-liquid">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-40"></div>
+              <Link key={index} to={`/services/${generatedSlug}`} className="block group cursor-pointer">
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  className="h-full"
+                >
+                  <div className="relative h-full liquid-glass-card p-9 rounded-3xl hover:shadow-2xl transition-all duration-500 overflow-hidden refraction liquid-ripple edge-glow-hover">
+                    {/* Micro liquid movement */}
+                    <div className="absolute inset-0 pointer-events-none z-10 micro-liquid">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-40"></div>
+                    </div>
+
+                    {/* Gradient accent */}
+                    <div className="absolute -top-6 -right-6 w-28 h-28 bg-gradient-to-r from-[#A259FF]/20 to-[#4CC3FF]/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
+
+                    <div className="relative z-10">
+                      <motion.div
+                        className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] flex items-center justify-center shadow-xl edge-glow"
+                        whileHover={{ rotate: 5, scale: 1.1 }}
+                        transition={{ duration: 0.4, type: "spring" }}
+                      >
+                        <Icon className="w-8 h-8 text-white" />
+                      </motion.div>
+
+                      <h3 className="text-2xl mb-3 tracking-tight">
+                        {fields?.title ?? service.title}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed">
+                        {fields?.description ?? service.description}
+                      </p>
+                    </div>
                   </div>
-
-                  {/* Gradient accent */}
-                  <div className="absolute -top-6 -right-6 w-28 h-28 bg-gradient-to-r from-[#A259FF]/20 to-[#4CC3FF]/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
-
-                  <div className="relative z-10">
-                    <motion.div
-                      className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] flex items-center justify-center shadow-xl edge-glow"
-                      whileHover={{ rotate: 5, scale: 1.1 }}
-                      transition={{ duration: 0.4, type: "spring" }}
-                    >
-                      <Icon className="w-8 h-8 text-white" />
-                    </motion.div>
-
-                    <h3 className="text-2xl mb-3 tracking-tight">
-                      {fields?.title ?? service.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {fields?.description ?? service.description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             );
           })}
         </div>

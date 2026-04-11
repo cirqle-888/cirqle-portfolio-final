@@ -46,6 +46,28 @@ export async function getSupermarketFlyers() {
   });
 }
 
+export async function getServiceBySlug(slug: string) {
+  const normalizedSlug = slug.toLowerCase();
+  try {
+    const entries = await contentfulClient.getEntries({
+      content_type: "services",
+      "fields.slug": normalizedSlug,
+      include: 2
+    });
+    
+    const entry = entries.items?.[0];
+    if (!entry) {
+      return null;
+    }
+    
+    return entry;
+  } catch (err) {
+    console.error(`Contentful getServiceBySlug failed for ${normalizedSlug}:`, err);
+    return null;
+  }
+}
+
+
 export async function getProjectBySlug(slug: string) {
   const entries = await safeGetEntries({
     content_type: "portfolio",
