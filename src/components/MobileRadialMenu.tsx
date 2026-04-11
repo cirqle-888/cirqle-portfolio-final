@@ -65,7 +65,7 @@ export function MobileRadialMenu({ isOpen, onClose }: MobileRadialMenuProps) {
   };
 
   // Math Radius mapped organically safely inside valid contexts
-  const radius = typeof window !== 'undefined' ? Math.min(window.innerWidth, window.innerHeight) * 0.28 : 140;
+  const radius = typeof window !== 'undefined' ? Math.min(window.innerWidth, window.innerHeight) * (window.innerWidth < 640 ? 0.28 : 0.35) : 140;
 
   return (
     <AnimatePresence>
@@ -75,7 +75,7 @@ export function MobileRadialMenu({ isOpen, onClose }: MobileRadialMenuProps) {
           animate={{ opacity: 1, clipPath: "circle(150% at 90% 10%)" }}
           exit={{ opacity: 0, clipPath: "circle(0px at 90% 10%)" }}
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-3xl md:hidden"
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-white/70 backdrop-blur-2xl md:hidden"
           onClick={onClose}
         >
           {/* Centered Mathematical Frame */}
@@ -107,7 +107,7 @@ export function MobileRadialMenu({ isOpen, onClose }: MobileRadialMenuProps) {
                   key={item}
                   href={getPath(item)}
                   onClick={(e) => handleNavClick(e, item)}
-                  className="absolute flex items-center justify-center liquid-glass-card border border-white/40 shadow-xl rounded-full text-sm font-medium text-gray-800 hover:text-black edge-glow-hover backdrop-blur-md"
+                  className="absolute flex items-center justify-center rounded-full bg-white shadow-xl border border-white/40 backdrop-blur-md text-sm font-medium text-gray-800 hover:text-black transition-all hover:scale-110 hover:shadow-2xl"
                   style={{ width: "84px", height: "84px" }}
                   initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
                   animate={{ scale: 1, opacity: 1, x: xPos, y: yPos }}
