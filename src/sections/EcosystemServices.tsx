@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { FileText, Palette, Share2, Code, Sparkles, Layout } from "lucide-react";
 import { getServices } from "../services/contentService";
+import { useNavigate } from "react-router-dom";
 
 const services = [
   {
@@ -38,6 +39,7 @@ const services = [
 
 export function EcosystemServices() {
   const [servicesEntries, setServicesEntries] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +87,7 @@ export function EcosystemServices() {
           {services.map((service, index) => {
             const Icon = service.icon;
             const fields = servicesEntries?.[index]?.fields ?? null;
+            const slug = fields?.slug ?? service.title.toLowerCase().replace(/[\s/]+/g, '-');
             return (
               <motion.div
                 key={index}
@@ -93,7 +96,8 @@ export function EcosystemServices() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -6, scale: 1.02 }}
-                className="group cursor-hover"
+                onClick={() => navigate(`/services/${slug}`)}
+                className="group cursor-pointer"
               >
                 <div className="relative h-full liquid-glass-card p-9 rounded-3xl hover:shadow-2xl transition-all duration-500 overflow-hidden refraction liquid-ripple edge-glow-hover">
                   {/* Micro liquid movement */}
