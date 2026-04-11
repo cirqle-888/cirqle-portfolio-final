@@ -2,10 +2,12 @@ import { useState, useEffect, memo } from "react";
 import { motion } from "motion/react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
+import { Instagram, Facebook, Linkedin, Youtube, Menu } from "lucide-react";
+import { MobileRadialMenu } from "./MobileRadialMenu";
 
 export const Header = memo(function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -154,8 +156,25 @@ export const Header = memo(function Header() {
               </a>
             </div>
           </nav>
+
+          {/* Mobile Navigation Toggle */}
+          <div className="md:hidden flex items-center relative z-10">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open Mobile Menu"
+              className="w-10 h-10 rounded-full flex items-center justify-center liquid-glass-card border border-white/20 text-gray-700 hover:text-black transition-colors"
+            >
+               <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
+      
+      {/* Dynamic Radial Mobile Menu Overlay */}
+      <MobileRadialMenu 
+        isOpen={mobileMenuOpen} 
+        onClose={() => setMobileMenuOpen(false)} 
+      />
     </motion.header>
   );
 });
