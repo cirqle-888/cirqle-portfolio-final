@@ -1,13 +1,12 @@
 import { useState, useEffect, memo } from "react";
 import { motion } from "motion/react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Instagram, Facebook, Linkedin, Youtube, Menu } from "lucide-react";
-import { MobileRadialMenu } from "./MobileRadialMenu";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Instagram, Facebook, Linkedin, Youtube, Menu, X } from "lucide-react";
 
 export const Header = memo(function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -157,24 +156,57 @@ export const Header = memo(function Header() {
             </div>
           </nav>
 
-          {/* Mobile Navigation Toggle */}
+          {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center relative z-10">
             <button
-              onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open Mobile Menu"
-              className="w-10 h-10 rounded-full flex items-center justify-center liquid-glass-card border border-white/20 text-gray-700 hover:text-black transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-gray-800 hover:text-[#A259FF] transition-colors p-2"
+              aria-label="Toggle Menu"
             >
-               <Menu className="w-5 h-5" />
+              {mobileOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
       </div>
-      
-      {/* Dynamic Radial Mobile Menu Overlay */}
-      <MobileRadialMenu 
-        isOpen={mobileMenuOpen} 
-        onClose={() => setMobileMenuOpen(false)} 
-      />
+
+      {/* Mobile Navigation Panel */}
+      {mobileOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-2xl py-6 px-6 flex flex-col gap-6"
+        >
+          {menuItems.map((item) => (
+            <Link
+              key={item}
+              to={getPath(item)}
+              onClick={(e) => {
+                setMobileOpen(false);
+                // Call handles scroll logic naturally
+                handleNavClick(e as any, item);
+              }}
+              className="text-lg font-medium tracking-wide text-gray-800 hover:text-[#A259FF] transition-colors border-b border-gray-100 pb-2"
+            >
+              {item}
+            </Link>
+          ))}
+          <div className="flex items-center gap-6 pt-2">
+            <a href="https://www.instagram.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
+              <Instagram className="w-5 h-5" />
+            </a>
+            <a href="https://www.facebook.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a href="https://www.linkedin.com/company/cirqle-work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
+              <Linkedin className="w-5 h-5" />
+            </a>
+            <a href="https://www.youtube.com/@cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
+              <Youtube className="w-5 h-5" />
+            </a>
+          </div>
+        </motion.div>
+      )}
     </motion.header>
   );
 });
