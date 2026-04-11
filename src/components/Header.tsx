@@ -1,14 +1,19 @@
 import { useState, useEffect, memo } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Instagram, Facebook, Linkedin, Youtube, Menu, X } from "lucide-react";
 
 export const Header = memo(function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,8 +62,7 @@ export const Header = memo(function Header() {
   };
 
   return (
-    <>
-      <motion.header
+    <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
@@ -158,57 +162,59 @@ export const Header = memo(function Header() {
           </nav>
 
           {/* Mobile Menu Toggle */}
-          <div className="md:hidden flex items-center relative z-10">
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="text-gray-800 hover:text-[#A259FF] transition-colors p-2"
-              aria-label="Toggle Menu"
-            >
-              {mobileOpen ? <X size={28} /> : <Menu size={28} />}
-            </button>
-          </div>
+          <button
+            className="md:hidden relative z-50 p-2 text-gray-800 transition-transform active:scale-95"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle Navigation"
+          >
+            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+          </button>
         </div>
       </div>
-    </motion.header>
 
-    {/* Mobile Navigation Panel */}
-    {mobileOpen && (
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="md:hidden fixed top-16 left-0 w-full bg-white/95 backdrop-blur-xl shadow-lg z-50 py-6 px-6 flex flex-col gap-6 border-b border-gray-100"
-      >
-        {menuItems.map((item) => (
-          <Link
-            key={item}
-            to={getPath(item)}
-            onClick={(e) => {
-              setMobileOpen(false);
-              // Call handles scroll logic naturally
-              handleNavClick(e as any, item);
-            }}
-            className="text-lg font-medium tracking-wide text-gray-800 hover:text-[#A259FF] transition-colors border-b border-gray-100 pb-2"
+      {/* Mobile Menu Dropdown Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            className="absolute top-full left-0 right-0 liquid-glass-card border-b border-white/20 shadow-2xl overflow-hidden md:hidden z-40"
           >
-            {item}
-          </Link>
-        ))}
-        <div className="flex items-center gap-6 pt-2">
-          <a href="https://www.instagram.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
-            <Instagram className="w-5 h-5" />
-          </a>
-          <a href="https://www.facebook.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
-            <Facebook className="w-5 h-5" />
-          </a>
-          <a href="https://www.linkedin.com/company/cirqle-work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF]">
-            <Linkedin className="w-5 h-5" />
-          </a>
-          <a href="https://www.youtube.com/@cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF]">
-            <Youtube className="w-5 h-5" />
-          </a>
-        </div>
-      </motion.div>
-    )}
-    </>
+            <div className="px-6 py-8 flex flex-col space-y-6">
+              {menuItems.map((item, index) => (
+                <motion.a
+                  key={item}
+                  href={getPath(item)}
+                  onClick={(e) => {
+                    handleNavClick(e, item);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-xl font-medium text-gray-800 tracking-wide hover:text-[#A259FF] transition-colors"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05, duration: 0.3 }}
+                >
+                  {item}
+                </motion.a>
+              ))}
+
+              <motion.div 
+                className="flex items-center gap-6 pt-6 border-t border-gray-200/50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+              >
+                <a href="https://www.instagram.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF] transition-colors"><Instagram className="w-6 h-6" /></a>
+                <a href="https://www.facebook.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF] transition-colors"><Facebook className="w-6 h-6" /></a>
+                <a href="https://www.linkedin.com/company/cirqle-work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF] transition-colors"><Linkedin className="w-6 h-6" /></a>
+                <a href="https://www.youtube.com/@cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF] transition-colors"><Youtube className="w-6 h-6" /></a>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 });
