@@ -1,11 +1,24 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { HighlightProjects } from "../sections/HighlightProjects";
+import { useLocation } from "react-router-dom";
+import { ShowcaseGrid } from "../sections/ShowcaseGrid";
+import { SupermarketFlyers } from "../sections/SupermarketFlyers";
 
 export function Portfolio() {
+  const location = useLocation();
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    if (location.hash) {
+      setTimeout(() => {
+        const element = document.getElementById(location.hash.substring(1));
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.hash]);
 
   return (
     <main className="pt-16">
@@ -23,7 +36,8 @@ export function Portfolio() {
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/portfolio" />
       </Helmet>
-      <HighlightProjects />
+      <ShowcaseGrid />
+      <SupermarketFlyers />
     </main>
   );
 }

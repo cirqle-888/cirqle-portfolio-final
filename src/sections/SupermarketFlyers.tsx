@@ -5,6 +5,11 @@ import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Zap, Award, Clock3 } from "lucide-react";
 import { contentfulAssetUrl, getSupermarketFlyers } from "../services/contentService";
 import { BrochureReader } from "../components/ui/BrochureReader";
+import { useNavigate } from "react-router-dom";
+
+interface SupermarketFlyersProps {
+  limit?: number;
+}
 
 const FALLBACK_FLYERS = [
   "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080&sig=1",
@@ -17,10 +22,13 @@ const FALLBACK_FLYERS = [
   "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080&sig=8",
 ];
 
-export function SupermarketFlyers() {
+export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
   const [flyers, setFlyers] = useState<string[]>(FALLBACK_FLYERS);
   const [sectionMeta, setSectionMeta] = useState<any | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  const displayFlyers = limit && limit > 0 ? flyers.slice(0, limit) : flyers;
 
   useEffect(() => {
     let cancelled = false;
@@ -82,7 +90,7 @@ export function SupermarketFlyers() {
   };
 
   return (
-    <section className="py-28 px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+    <section id="supermarket-flyers" className="py-28 px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       {/* Background decoration - optimized for hardware acceleration without filters */}
       <div
         className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-40 pointer-events-none"
@@ -165,7 +173,7 @@ export function SupermarketFlyers() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-14"
         >
-          {flyers.map((image, i) => (
+          {displayFlyers.map((image, i) => (
             <motion.div
               key={i}
               variants={itemVariants}
@@ -193,26 +201,29 @@ export function SupermarketFlyers() {
           ))}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center"
-        >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity px-10 py-7 text-lg rounded-full shadow-lg shadow-[#A259FF]/25 cursor-hover"
-            >
-              View Full Portfolio
-            </Button>
+        {limit !== undefined && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                size="lg"
+                onClick={() => navigate('/portfolio#supermarket-flyers')}
+                className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity px-10 py-7 text-lg rounded-full shadow-lg shadow-[#A259FF]/25 cursor-hover"
+              >
+                View Full Portfolio
+              </Button>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        )}
       </div>
 
       <BrochureReader
-        images={flyers}
+        images={displayFlyers}
         activeIndex={activeIndex}
         setActiveIndex={setActiveIndex}
       />

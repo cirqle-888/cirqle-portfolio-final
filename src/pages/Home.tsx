@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { Hero } from "../sections/Hero";
-import { HighlightProjects } from "../sections/HighlightProjects";
+import { ShowcaseGrid } from "../sections/ShowcaseGrid";
 import { SupermarketFlyers } from "../sections/SupermarketFlyers";
 import { WhyCirqle } from "../sections/WhyCirqle";
 import { AboutSection } from "../sections/AboutSection";
@@ -23,8 +23,8 @@ export function Home() {
         <link rel="canonical" href="https://cirqle.work" />
       </Helmet>
       <Hero />
-      <HighlightProjects />
-      <SupermarketFlyers />
+      <ShowcaseGrid />
+      <SupermarketFlyers limit={8} />
       <WhyCirqle />
       <AboutSection />
     </main>

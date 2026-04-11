@@ -20,6 +20,12 @@ const Portfolio = lazy(() =>
   import("./pages/Portfolio").then((module) => ({ default: module.Portfolio }))
 );
 
+const BrandIdentity = lazy(() => import("./pages/services/brand-identity").then((m) => ({ default: m.BrandIdentity })));
+const EventBranding = lazy(() => import("./pages/services/event-branding").then((m) => ({ default: m.EventBranding })));
+const UIUXDesign = lazy(() => import("./pages/services/ui-ux-design").then((m) => ({ default: m.UIUXDesign })));
+const MarketingPack = lazy(() => import("./pages/products/marketing-pack").then((m) => ({ default: m.MarketingPack })));
+const SupermarketCampaign = lazy(() => import("./pages/highlights/supermarket-campaign").then((m) => ({ default: m.SupermarketCampaign })));
+
 export default function App() {
   return (
     <Router>
@@ -35,6 +41,11 @@ export default function App() {
               <Route path="/portfolio/:slug" element={<ProjectDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/services/brand-identity" element={<BrandIdentity />} />
+              <Route path="/services/event-branding" element={<EventBranding />} />
+              <Route path="/services/ui-ux-design" element={<UIUXDesign />} />
+              <Route path="/products/marketing-pack" element={<MarketingPack />} />
+              <Route path="/highlights/supermarket-campaign" element={<SupermarketCampaign />} />
             </Routes>
           </main>
         </Suspense>

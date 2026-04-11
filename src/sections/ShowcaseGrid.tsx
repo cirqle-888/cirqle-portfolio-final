@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { Expand } from "lucide-react";
 import { contentfulAssetUrl, getPortfolio } from "../services/contentService";
 import { useNavigate } from "react-router-dom";
 
@@ -12,13 +11,15 @@ const projects = [
     image:
       "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
     slug: "supermarket-campaign",
+    href: "/highlights/supermarket-campaign",
   },
   {
-    title: "Festival Promo",
-    category: "Cultural Design",
+    title: "Event Branding",
+    category: "Brand Experience",
     image:
-      "https://images.unsplash.com/photo-1553443236-e031f8bb39ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmZXN0aXZhbCUyMHBvc3RlciUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxOTI4NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "festival-promo",
+      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "event-branding",
+    href: "/services/event-branding",
   },
   {
     title: "Brand Identity",
@@ -26,13 +27,23 @@ const projects = [
     image:
       "https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1080",
     slug: "brand-identity",
+    href: "/services/brand-identity",
   },
   {
-    title: "Digital Experience",
-    category: "UI/UX Design",
+    title: "UI/UX Design",
+    category: "Digital Experience",
     image:
       "https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "digital-experience",
+    slug: "ui-ux-design",
+    href: "/services/ui-ux-design",
+  },
+  {
+    title: "Marketing Pack",
+    category: "Product Design",
+    image:
+      "https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    slug: "marketing-pack",
+    href: "/products/marketing-pack",
   },
   {
     title: "Social Media Kit",
@@ -41,37 +52,30 @@ const projects = [
       "https://images.unsplash.com/photo-1611926653670-1ea63b810d1e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NpYWwlMjBtZWRpYSUyMGRlc2lnbnxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
     slug: "social-media-kit",
   },
-  {
-    title: "Package Design",
-    category: "Product Design",
-    image:
-      "https://images.unsplash.com/photo-1526947425960-945c6e72858f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWNrYWdpbmclMjBkZXNpZ258ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "package-design",
-  },
-  {
-    title: "Marketing Collateral",
-    category: "Print Design",
-    image:
-      "https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "marketing-collateral",
-  },
-  {
-    title: "Event Branding",
-    category: "Brand Experience",
-    image:
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1080",
-    slug: "event-branding",
-  },
 ];
 
-type Project = (typeof projects)[0] & { slug?: string };
+export type Project = {
+  title: string;
+  category: string;
+  image: string;
+  slug?: string;
+  description?: string;
+  href?: string;
+};
 
-export function HighlightProjects() {
-  const [portfolioProjects, setPortfolioProjects] = useState<Project[]>(projects);
-  const [sectionMeta, setSectionMeta] = useState<any | null>(null);
+interface ShowcaseGridProps {
+  items?: Project[];
+  sectionMeta?: any;
+}
+
+export function ShowcaseGrid({ items: propItems, sectionMeta: propMeta }: ShowcaseGridProps = {}) {
+  const [portfolioProjects, setPortfolioProjects] = useState<Project[]>(propItems || projects);
+  const [sectionMeta, setSectionMeta] = useState<any | null>(propMeta || null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (propItems) return; // If items passed as props, don't fetch CMS
+    
     let cancelled = false;
     getPortfolio().then((items) => {
       if (cancelled || !Array.isArray(items) || !items.length) return;
@@ -99,7 +103,7 @@ export function HighlightProjects() {
         .filter(Boolean) as Project[];
 
       if (!cancelled && mapped.length) {
-        setSectionMeta(meta);
+        if (!propMeta) setSectionMeta(meta);
         setPortfolioProjects(mapped);
       }
     });
@@ -107,7 +111,7 @@ export function HighlightProjects() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [propItems, propMeta]);
 
   return (
     <>
@@ -147,7 +151,14 @@ export function HighlightProjects() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "100px" }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group cursor-hover hover:-translate-y-2 hover:scale-[1.02] transition-transform duration-300 transform-gpu will-change-transform"
+                onClick={() => {
+                  if (project.href) {
+                    navigate(project.href);
+                  } else if (project.slug) {
+                    navigate(`/portfolio/${project.slug}`);
+                  }
+                }}
+                className="group cursor-pointer hover:-translate-y-2 hover:scale-[1.02] transition-transform duration-300 transform-gpu will-change-transform"
               >
                 <div className="relative overflow-hidden rounded-2xl liquid-glass-thumbnail shadow-xl hover:shadow-2xl transition-shadow duration-500 refraction liquid-ripple edge-glow-hover">
                   {/* Micro liquid movement */}
@@ -176,18 +187,6 @@ export function HighlightProjects() {
                         <p className="text-xs text-gray-300 mb-1">{project.category}</p>
                         <p className="font-medium drop-shadow-md">{project.title}</p>
                       </div>
-                      <button
-                        aria-label="View Project"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (project.slug) {
-                            navigate(`/portfolio/${project.slug}`);
-                          }
-                        }}
-                        className="pointer-events-auto absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-[16px] border border-white/20 flex items-center justify-center text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]"
-                      >
-                        <Expand className="w-5 h-5 drop-shadow-md" />
-                      </button>
                     </motion.div>
                   </div>
                 </div>
