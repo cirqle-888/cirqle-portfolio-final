@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
@@ -67,7 +68,15 @@ export function MobileRadialMenu({ isOpen, onClose }: MobileRadialMenuProps) {
   // Math Radius mapped organically safely inside valid contexts
   const radius = typeof window !== 'undefined' ? Math.min(window.innerWidth, window.innerHeight) * (window.innerWidth < 640 ? 0.28 : 0.35) : 140;
 
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -128,6 +137,7 @@ export function MobileRadialMenu({ isOpen, onClose }: MobileRadialMenuProps) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
