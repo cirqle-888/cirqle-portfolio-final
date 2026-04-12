@@ -1,89 +1,120 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Instagram, Facebook, Linkedin, Youtube, Menu, X } from "lucide-react";
+import { Instagram, Facebook, Linkedin, Youtube, LucideIcon, Menu, X } from "lucide-react";
+
+// --- Types ---
+interface NavItem {
+  label: string;
+  path: string;
+}
+
+interface SocialLink {
+  icon: LucideIcon;
+  href: string;
+  label: string;
+  hoverColorClass: string;
+}
+
+// --- Constants ---
+const SCROLL_THRESHOLD = 20;
+
+const NAV_ITEMS: readonly NavItem[] = [
+  { label: "Home", path: "/" },
+  { label: "Ecosystem", path: "/#ecosystem" },
+  { label: "Services", path: "/services" },
+  { label: "Portfolio", path: "/portfolio" },
+  { label: "About", path: "/about" },
+  { label: "Contact", path: "/contact" },
+];
+
+const SOCIAL_LINKS: readonly SocialLink[] = [
+  { 
+    icon: Instagram, 
+    href: "https://www.instagram.com/cirqle.work", 
+    label: "Cirqle on Instagram", 
+    hoverColorClass: "hover:text-[#A259FF]" 
+  },
+  { 
+    icon: Facebook, 
+    href: "https://www.facebook.com/cirqle.work", 
+    label: "Cirqle on Facebook", 
+    hoverColorClass: "hover:text-[#4CC3FF]" 
+  },
+  { 
+    icon: Linkedin, 
+    href: "https://www.linkedin.com/company/cirqle-work", 
+    label: "Cirqle on LinkedIn", 
+    hoverColorClass: "hover:text-[#A259FF]" 
+  },
+  { 
+    icon: Youtube, 
+    href: "https://www.youtube.com/@cirqle.work", 
+    label: "Cirqle on YouTube", 
+    hoverColorClass: "hover:text-[#4CC3FF]" 
+  },
+];
 
 export const Header = memo(function Header() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location]);
-
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
     };
-    window.addEventListener("scroll", handleScroll);
+
+    // Initial check in case of mid-page reload
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const menuItems = ["Home", "Ecosystem", "Services", "Portfolio", "About", "Contact"];
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+      e.preventDefault();
 
-  const getPath = (item: string) => {
-    switch (item) {
-      case "Home":
-        return "/";
-      case "Services":
-        return "/services";
-      case "Portfolio":
-        return "/portfolio";
-      case "About":
-        return "/about";
-      case "Contact":
-        return "/contact";
-      default:
-        return `/#${item.toLowerCase()}`;
-    }
-  };
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: string) => {
-    e.preventDefault();
-    const path = getPath(item);
-
-    if (path.startsWith("/#")) {
-      const targetId = path.substring(2);
-      if (location.pathname !== "/") {
-        navigate("/");
-        setTimeout(() => {
+      if (path.startsWith("/#")) {
+        const targetId = path.substring(2);
+        if (location.pathname !== "/") {
+          navigate("/");
+          setTimeout(() => {
+            document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        } else {
           document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+        }
       } else {
-        document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth" });
+        navigate(path);
+        // Ensure scrolling to top when navigating to a new page
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       }
-    } else {
-      navigate(path);
-    }
-  };
+    },
+    [navigate, location.pathname]
+  );
 
   return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? "shadow-2xl" : "border-b border-white/10"
+      className={`fixed top-0 left-0 w-full max-w-[100vw] z-50 transition-all duration-500 box-border ${
+        isScrolled
+          ? "liquid-glass-card shadow-2xl edge-glow-hover"
+          : "liquid-glass border-b border-white/10"
       }`}
     >
-      <div className={`absolute inset-0 pointer-events-none -z-10 transition-all duration-500 ${
-        scrolled ? "liquid-glass-card edge-glow-hover" : "liquid-glass"
-      }`}></div>
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 relative z-10">
-        <div className="flex items-center justify-between">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 sm:py-5 relative z-10 box-border">
+        <div className="flex items-center justify-between w-full">
           {/* Logo */}
           <motion.a
             href="/"
             aria-label="Cirqle Homepage"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/");
-            }}
+            onClick={(e) => handleNavClick(e, "/")}
             className="flex items-center cursor-hover relative z-10"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
@@ -101,20 +132,20 @@ export const Header = memo(function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-10 relative z-10">
-            {menuItems.map((item, index) => (
+            {NAV_ITEMS.map((item, index) => (
               <motion.a
-                key={item}
-                href={getPath(item)}
-                onClick={(e) => handleNavClick(e, item)}
+                key={item.label}
+                href={item.path}
+                onClick={(e) => handleNavClick(e, item.path)}
                 className="relative text-sm tracking-wide text-gray-700 hover:text-black transition-colors group cursor-hover"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 whileHover={{ y: -2 }}
               >
-                {item}
+                {item.label}
                 <motion.span
-                  className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] origin-left rounded-full"
+                  className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] origin-left rounded-full"
                   initial={{ scaleX: 0 }}
                   whileHover={{ scaleX: 1 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
@@ -124,95 +155,79 @@ export const Header = memo(function Header() {
 
             {/* Social Media Icons */}
             <div className="flex items-center gap-4 ml-2 border-l border-gray-200 pl-6">
-              <a
-                href="https://www.instagram.com/cirqle.work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Cirqle on Instagram"
-                className="text-gray-500 hover:text-[#A259FF] transition-colors hover:-translate-y-0.5 transform duration-200"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.facebook.com/cirqle.work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Cirqle on Facebook"
-                className="text-gray-500 hover:text-[#4CC3FF] transition-colors hover:-translate-y-0.5 transform duration-200"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/cirqle-work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Cirqle on LinkedIn"
-                className="text-gray-500 hover:text-[#A259FF] transition-colors hover:-translate-y-0.5 transform duration-200"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.youtube.com/@cirqle.work"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Cirqle on YouTube"
-                className="text-gray-500 hover:text-[#4CC3FF] transition-colors hover:-translate-y-0.5 transform duration-200"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
+              {SOCIAL_LINKS.map(({ icon: Icon, href, label, hoverColorClass }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className={`text-gray-500 transition-colors hover:-translate-y-0.5 transform duration-200 ${hoverColorClass}`}
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </nav>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle Button */}
           <button
-            className="md:hidden relative z-50 p-2 text-gray-800 transition-transform active:scale-95"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation"
+            className="md:hidden flex-shrink-0 text-gray-700 hover:text-[#A259FF] focus:outline-none z-50 p-2 relative transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+            aria-expanded={isMobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown Overlay */}
+      {/* Mobile Menu Dropdown */}
       <AnimatePresence>
-        {mobileMenuOpen && (
+        {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute top-full left-0 right-0 liquid-glass-card border-b border-white/20 shadow-2xl overflow-hidden md:hidden z-40"
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden w-full max-w-[100vw] liquid-glass-card shadow-2xl border-t border-white/10 origin-top box-border"
           >
-            <div className="px-6 py-8 flex flex-col space-y-6">
-              {menuItems.map((item, index) => (
+            <div className="px-4 md:px-6 py-6 sm:py-8 flex flex-col items-center gap-6">
+              {NAV_ITEMS.map((item, index) => (
                 <motion.a
-                  key={item}
-                  href={getPath(item)}
+                  key={item.label}
+                  href={item.path}
                   onClick={(e) => {
-                    handleNavClick(e, item);
-                    setMobileMenuOpen(false);
+                    setIsMobileMenuOpen(false);
+                    handleNavClick(e, item.path);
                   }}
-                  className="text-xl font-medium text-gray-800 tracking-wide hover:text-[#A259FF] transition-colors"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05, duration: 0.3 }}
+                  className="text-lg tracking-wide text-gray-700 hover:text-black font-medium transition-colors"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  {item}
+                  {item.label}
                 </motion.a>
               ))}
+              
+              {/* Divider */}
+              <div className="h-px bg-gray-200/50 w-full max-w-[200px] my-2" />
 
-              <motion.div 
-                className="flex items-center gap-6 pt-6 border-t border-gray-200/50"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-              >
-                <a href="https://www.instagram.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF] transition-colors"><Instagram className="w-6 h-6" /></a>
-                <a href="https://www.facebook.com/cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF] transition-colors"><Facebook className="w-6 h-6" /></a>
-                <a href="https://www.linkedin.com/company/cirqle-work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#A259FF] transition-colors"><Linkedin className="w-6 h-6" /></a>
-                <a href="https://www.youtube.com/@cirqle.work" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4CC3FF] transition-colors"><Youtube className="w-6 h-6" /></a>
-              </motion.div>
+              {/* Social Media Icons (Mobile) */}
+              <div className="flex items-center gap-6">
+                {SOCIAL_LINKS.map(({ icon: Icon, href, label, hoverColorClass }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className={`text-gray-500 transition-colors transform duration-200 ${hoverColorClass}`}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
