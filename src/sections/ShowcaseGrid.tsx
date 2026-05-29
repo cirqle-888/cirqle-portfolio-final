@@ -92,10 +92,10 @@ export function ShowcaseGrid({ items: propItems, sectionMeta: propMeta }: Showca
             : String(fields?.title || "")
                 .toLowerCase()
                 .replace(/\s+/g, "-");
-          if (!fields?.title || !fields?.category || !image) return null;
+          if (!fields?.title || !image) return null;
           return {
             title: String(fields.title),
-            category: String(fields.category),
+            category: fields?.category ? String(fields.category) : "",
             image,
             slug,
           };

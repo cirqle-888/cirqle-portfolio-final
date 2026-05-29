@@ -25,6 +25,7 @@ export async function getServices() {
 export async function getPortfolio() {
   return await safeGetEntries({
     content_type: "portfolio",
+    include: 2,
   });
 }
 
