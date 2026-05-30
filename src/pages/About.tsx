@@ -23,7 +23,7 @@ export function About() {
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/about" />
       </Helmet>
-      <AboutSection />
+      <AboutSection headingTag="h1" />
     </main>
   );
 }

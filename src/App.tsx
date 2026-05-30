@@ -4,6 +4,8 @@ import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { CustomCursor } from "./components/CustomCursor";
 import { PageSkeleton } from "./components/PageSkeleton";
+import { Privacy } from "./pages/Privacy";
+import { Terms } from "./pages/Terms";
 
 const Home = lazy(() => import("./pages/Home").then((module) => ({ default: module.Home })));
 const Services = lazy(() =>
@@ -31,10 +33,11 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-white">
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <CustomCursor />
         <Header />
         <Suspense fallback={<PageSkeleton />}>
-          <main className="flex-1">
+          <main id="main-content" className="flex-1">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/services" element={<Services />} />
@@ -43,6 +46,8 @@ export default function App() {
               <Route path="/portfolio/:slug" element={<ProjectDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
               <Route path="/services/brand-identity" element={<BrandIdentity />} />
               <Route path="/services/event-branding" element={<EventBranding />} />
               <Route path="/services/ui-ux-design" element={<UIUXDesign />} />

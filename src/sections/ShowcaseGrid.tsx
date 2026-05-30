@@ -66,9 +66,11 @@ export type Project = {
 interface ShowcaseGridProps {
   items?: Project[];
   sectionMeta?: any;
+  headingTag?: "h1" | "h2";
 }
 
-export function ShowcaseGrid({ items: propItems, sectionMeta: propMeta }: ShowcaseGridProps = {}) {
+export function ShowcaseGrid({ items: propItems, sectionMeta: propMeta, headingTag = "h2" }: ShowcaseGridProps = {}) {
+  const Heading = headingTag;
   const [portfolioProjects, setPortfolioProjects] = useState<Project[]>(propItems || projects);
   const [sectionMeta, setSectionMeta] = useState<any | null>(propMeta || null);
   const navigate = useNavigate();
@@ -134,9 +136,9 @@ export function ShowcaseGrid({ items: propItems, sectionMeta: propMeta }: Showca
               <span className="text-sm">{sectionMeta?.badgeText ?? "Featured Work"}</span>
             </motion.div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
+            <Heading className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
               {sectionMeta?.title ?? "Excellence in Every Project"}
-            </h2>
+            </Heading>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               {sectionMeta?.subtitle ?? "Crafted with precision, delivered with speed"}
             </p>

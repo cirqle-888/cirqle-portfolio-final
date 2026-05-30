@@ -27,6 +27,7 @@ export function Hero() {
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute top-20 left-10 w-[500px] h-[500px] bg-gradient-to-r from-[#A259FF]/15 to-[#4CC3FF]/15 rounded-full blur-3xl"
+          style={{ willChange: "transform, opacity" }}
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -40,6 +41,7 @@ export function Hero() {
         />
         <motion.div
           className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-gradient-to-r from-[#4CC3FF]/15 to-[#A259FF]/15 rounded-full blur-3xl"
+          style={{ willChange: "transform, opacity" }}
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.5, 0.3, 0.5],
@@ -94,10 +96,16 @@ export function Hero() {
             </span>
           </motion.div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-8 tracking-tight leading-[1.1]">
-            {hero?.title ?? "One Circle."}
-            <br />
-            <span className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
+          <h1
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-8 tracking-tight leading-[1.1]"
+            aria-label={`${hero?.title ?? "One Circle."} ${hero?.highlight ?? "Infinite Possibilities."}`}
+          >
+            <span aria-hidden="true">{hero?.title ?? "One Circle."}</span>
+            <br aria-hidden="true" />
+            <span
+              aria-hidden="true"
+              className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent"
+            >
               {hero?.highlight ?? "Infinite Possibilities."}
             </span>
           </h1>

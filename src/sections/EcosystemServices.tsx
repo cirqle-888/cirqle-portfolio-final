@@ -76,7 +76,7 @@ export function EcosystemServices() {
             <span className="text-sm">{sectionBadge}</span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">{sectionTitle}</h2>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">{sectionTitle}</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             {sectionSubtitle}
           </p>

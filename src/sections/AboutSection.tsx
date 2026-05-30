@@ -11,7 +11,12 @@ const strengths = [
   "Modern technology",
 ];
 
-export function AboutSection() {
+interface AboutSectionProps {
+  headingTag?: "h1" | "h2";
+}
+
+export function AboutSection({ headingTag = "h2" }: AboutSectionProps = {}) {
+  const Heading = headingTag;
   const [about, setAbout] = useState<any | null>(null);
 
   useEffect(() => {
@@ -35,7 +40,7 @@ export function AboutSection() {
     : null;
 
   return (
-    <section id="about" className="py-28 px-6 bg-white">
+    <section id="about" className="py-28 px-6 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           {/* Image */}
@@ -88,13 +93,13 @@ export function AboutSection() {
               <span className="text-sm">{about?.badgeText ?? "About Cirqle"}</span>
             </motion.div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
+            <Heading className="text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
               {about?.headingPrefix ?? "Built on"}
               <span className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
                 {" "}
                 {about?.headingHighlight ?? "Excellence"}
               </span>
-            </h2>
+            </Heading>
 
             <p className="text-xl text-gray-600 mb-6 leading-relaxed">
               {about?.paragraph1 ??

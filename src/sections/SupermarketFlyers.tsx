@@ -120,10 +120,16 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
             </span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
-            {sectionMeta?.title ?? "Supermarket Campaigns"}
-            <br />
-            <span className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
+          <h2
+            className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight"
+            aria-label={`${sectionMeta?.title ?? "Supermarket Campaigns"} ${sectionMeta?.highlight ?? "That Deliver Results"}`}
+          >
+            <span aria-hidden="true">{sectionMeta?.title ?? "Supermarket Campaigns"}</span>
+            <br aria-hidden="true" />
+            <span
+              aria-hidden="true"
+              className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent"
+            >
               {sectionMeta?.highlight ?? "That Deliver Results"}
             </span>
           </h2>

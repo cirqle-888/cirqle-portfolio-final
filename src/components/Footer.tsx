@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Mail, Phone, MapPin, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
 
@@ -186,25 +186,16 @@ export const Footer = memo(function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400">
             <p>© {currentYear} Cirqle Design. All rights reserved.</p>
             <div className="flex gap-8">
-              <a href="#" className="hover:text-white transition-colors">
+              <NavLink to="/privacy" className="hover:text-white transition-colors">
                 Privacy
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
+              </NavLink>
+              <NavLink to="/terms" className="hover:text-white transition-colors">
                 Terms
-              </a>
+              </NavLink>
             </div>
           </div>
         </div>
 
-        {/* SEO Keywords */}
-        <div className="mt-10 pt-10 border-t border-gray-800 text-xs text-gray-700 leading-relaxed">
-          <p>
-            Professional supermarket flyer design | Premium promotional campaign design | Brand
-            identity design services | Digital creative design agency | Cirqle design ecosystem |
-            Modern UI/UX design | Creative graphic design studio | Fast turnaround design services |
-            Quality brand design solutions
-          </p>
-        </div>
       </div>
     </footer>
   );

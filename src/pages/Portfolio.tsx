@@ -36,7 +36,7 @@ export function Portfolio() {
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/portfolio" />
       </Helmet>
-      <ShowcaseGrid />
+      <ShowcaseGrid headingTag="h1" />
       <SupermarketFlyers />
     </main>
   );
