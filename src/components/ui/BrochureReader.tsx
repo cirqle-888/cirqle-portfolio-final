@@ -90,13 +90,15 @@ export function BrochureReader({
   // Recalculate portrait on resize / orientation change
   useEffect(() => {
     const update = () => {
-      setIsPortrait(window.innerWidth < window.innerHeight || window.innerWidth < 768);
+      setIsPortrait(window.innerWidth < window.innerHeight);
     };
+    // orientationchange fires before dimensions settle — delay slightly
+    const handleOrientation = () => setTimeout(update, 120);
     window.addEventListener("resize", update);
-    window.addEventListener("orientationchange", update);
+    window.addEventListener("orientationchange", handleOrientation);
     return () => {
       window.removeEventListener("resize", update);
-      window.removeEventListener("orientationchange", update);
+      window.removeEventListener("orientationchange", handleOrientation);
     };
   }, []);
 
@@ -137,34 +139,47 @@ export function BrochureReader({
 
   if (!isOpen) return null;
 
-  // Book dimensions
-  // Portrait: single-page, fill near the full screen
-  // Landscape: two-page spread, fill the width
-  const vw = typeof window !== "undefined" ? window.innerWidth : 390;
-  const vh = typeof window !== "undefined" ? window.innerHeight : 844;
+  // A4 portrait ratio: height = width × (297/210)
+  const A4 = 297 / 210; // ≈ 1.4142
 
-  const CONTROLS_H = 80; // bottom bar height
-  const CLOSE_H = 56;    // top close bar clearance
-  const PADDING = 8;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-  let bookW: number;
-  let bookH: number;
+  const CONTROLS_H = 72;
+  const CLOSE_H    = 52;
+  const PAD        = 12;
+
+  const availW = vw - PAD * 2;
+  const availH = vh - CONTROLS_H - CLOSE_H - PAD * 2;
+
+  // Compute page dimensions that respect A4 ratio and fit available space
+  let pageW: number;
+  let pageH: number;
 
   if (isPortrait) {
-    // Single page: use full width
-    bookW = vw - PADDING * 2;
-    bookH = vh - CONTROLS_H - CLOSE_H - PADDING * 2;
+    // Single page — fit A4 within available width, clamp to available height
+    pageW = availW;
+    pageH = pageW * A4;
+    if (pageH > availH) {
+      pageH = availH;
+      pageW = pageH / A4;
+    }
   } else {
-    // Two-page spread: fill width, aspect ratio derived from page dims
-    bookW = Math.min(vw - PADDING * 2, 1400);
-    bookH = vh - CONTROLS_H - CLOSE_H - PADDING * 2;
+    // Two-page spread — each page is half the available width
+    pageW = availW / 2;
+    pageH = pageW * A4;
+    if (pageH > availH) {
+      pageH = availH;
+      pageW = pageH / A4;
+    }
   }
 
-  // Clamp to avoid degenerate sizes
-  bookW = Math.max(bookW, 280);
-  bookH = Math.max(bookH, 300);
+  pageW = Math.max(Math.floor(pageW), 200);
+  pageH = Math.max(Math.floor(pageH), 280);
 
-  const displayPage = isPortrait ? currentPage + 1 : `${currentPage + 1}–${Math.min(currentPage + 2, images.length)}`;
+  const displayPage = isPortrait
+    ? currentPage + 1
+    : `${currentPage + 1}–${Math.min(currentPage + 2, images.length)}`;
 
   return createPortal(
     <div
@@ -250,33 +265,26 @@ export function BrochureReader({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: `0 ${PADDING}px`,
+          padding: `0 ${PAD}px`,
           overflow: "hidden",
         }}
       >
+        {/* key forces full remount when orientation flips — critical for portrait↔landscape switch */}
         {/* @ts-ignore */}
         <HTMLFlipBook
-          width={isPortrait ? bookW : Math.floor(bookW / 2)}
-          height={bookH}
+          key={isPortrait ? "portrait" : "landscape"}
+          width={pageW}
+          height={pageH}
           size="fixed"
-          minWidth={isPortrait ? bookW : Math.floor(bookW / 2)}
-          maxWidth={isPortrait ? bookW : Math.floor(bookW / 2)}
-          minHeight={bookH}
-          maxHeight={bookH}
+          minWidth={pageW}
+          maxWidth={pageW}
+          minHeight={pageH}
+          maxHeight={pageH}
           maxShadowOpacity={0.5}
           showCover={false}
           mobileScrollSupport={false}
           className="drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
           ref={bookRef}
-          onInit={() => {
-            try {
-              const flip = bookRef.current?.pageFlip();
-              if (flip?.getOrientation) {
-                setIsPortrait(flip.getOrientation() === "portrait");
-              }
-            } catch {}
-          }}
-          onChangeOrientation={(e: any) => setIsPortrait(e.data === "portrait")}
           onFlip={(e: any) => setCurrentPage(e.data)}
           startPage={activeIndex || 0}
           drawShadow={true}
