@@ -79,7 +79,7 @@ export function ServicePageTemplate({ fields }: ServicePageTemplateProps) {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src={heroImageUrl} alt={title} className="w-full h-full object-cover" />
+          <img src={heroImageUrl} alt={title} className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 
@@ -182,7 +182,7 @@ export function ServicePageTemplate({ fields }: ServicePageTemplateProps) {
                       <div className="relative h-full liquid-glass-card p-6 rounded-3xl hover:shadow-2xl transition-all duration-500 overflow-hidden edge-glow-hover">
                         <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6">
                             {projImage ? (
-                              <img src={projImage} alt={projFields.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                              <img src={projImage} alt={projFields.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
                             ) : (
                               <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">No Image</div>
                             )}

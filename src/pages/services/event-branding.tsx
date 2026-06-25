@@ -14,8 +14,8 @@ export function EventBranding() {
   return (
     <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Event Branding | Services | Cirqle</title>
-        <meta name="description" content="Immersive Event Branding experiences that captivate your audience." />
+        <title>Event Branding in Kerala | Stage, Exhibition &amp; Event Design | Cirqle</title>
+        <meta name="description" content="Cirqle designs immersive event branding experiences in Kerala — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -40,7 +40,7 @@ export function EventBranding() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1920" alt="Event Branding coverage" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1920" alt="Event Branding coverage" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 

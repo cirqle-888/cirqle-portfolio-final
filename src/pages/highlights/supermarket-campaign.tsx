@@ -14,8 +14,8 @@ export function SupermarketCampaign() {
   return (
     <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Supermarket Campaign | Highlights | Cirqle</title>
-        <meta name="description" content="Inside our approach to highly effective Supermarket promotional campaigns." />
+        <title>Supermarket Promotional Campaign Design | Highlights | Cirqle Kerala</title>
+        <meta name="description" content="A behind-the-scenes look at how Cirqle designs high-impact supermarket promotional campaigns — offer flyers, shelf banners, and in-store visual systems that drive sales." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -40,7 +40,7 @@ export function SupermarketCampaign() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1920" alt="Supermarket flyer showcase" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=1920" alt="Supermarket flyer showcase" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 

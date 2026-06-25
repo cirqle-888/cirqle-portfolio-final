@@ -14,8 +14,8 @@ export function MarketingPack() {
   return (
     <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Marketing Pack | Products | Cirqle</title>
-        <meta name="description" content="All-in-one scalable and ready-to-deploy Marketing Pack for any platform." />
+        <title>Marketing Pack | Ready-to-Deploy Social Media &amp; Ad Design | Cirqle Kerala</title>
+        <meta name="description" content="Cirqle's Marketing Pack gives you a complete, ready-to-deploy set of social media graphics, ad creatives, and promotional materials — scalable for any platform or campaign." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -40,7 +40,7 @@ export function MarketingPack() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1920" alt="Marketing pack presentation" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1920" alt="Marketing pack presentation" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 

@@ -14,8 +14,8 @@ export function UIUXDesign() {
   return (
     <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>UI/UX Design | Services | Cirqle</title>
-        <meta name="description" content="Intuitive and stunning digital experiences mapped precisely to user journeys." />
+        <title>UI/UX Design Services in Kerala | App &amp; Web Design | Cirqle</title>
+        <meta name="description" content="Cirqle delivers intuitive UI/UX design for apps and websites in Kerala — user research, wireframes, and polished interfaces mapped precisely to your customer journey." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -40,7 +40,7 @@ export function UIUXDesign() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1920" alt="UI/UX Design interface showcase" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1920" alt="UI/UX Design interface showcase" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 

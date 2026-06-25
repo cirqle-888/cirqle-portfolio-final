@@ -14,8 +14,8 @@ export function BrandIdentity() {
   return (
     <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Brand Identity | Services | Cirqle</title>
-        <meta name="description" content="Premium Brand Identity services providing complete visual systems for your business." />
+        <title>Brand Identity Design in Kerala | Logo &amp; Visual System | Cirqle</title>
+        <meta name="description" content="Cirqle crafts complete brand identity systems in Kerala — logos, typography, colour palettes, and brand guidelines that make your business instantly recognisable." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -40,7 +40,7 @@ export function BrandIdentity() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1920" alt="Brand Identity presentation" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1920" alt="Brand Identity presentation" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 

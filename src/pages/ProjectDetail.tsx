@@ -129,12 +129,23 @@ export function ProjectDetail() {
       className="min-h-screen pt-28 pb-20 px-6 bg-white"
     >
       <Helmet>
-        <title>{title ? `${String(title)} | Cirqle Project` : "Project | Cirqle"}</title>
+        <title>{title ? `${String(title)} | Creative Work by Cirqle Kerala` : "Project | Cirqle Kerala"}</title>
         <meta
           name="description"
-          content={`Explore ${title ? String(title) : "this"} premium design project by Cirqle.`}
+          content={
+            title
+              ? `See how Cirqle, a Kerala-based creative agency, delivered ${String(title)}${category ? ` — a ${String(category)} project` : ""}${client ? ` for ${String(client)}` : ""}. Premium design, fast delivery.`
+              : "Explore this creative design project by Cirqle, a Kerala-based graphic design and video production agency."
+          }
         />
+        <meta property="og:title" content={title ? `${String(title)} | Creative Work by Cirqle Kerala` : "Project | Cirqle Kerala"} />
+        <meta property="og:description" content={title ? `Creative design project — ${String(title)} by Cirqle, Kerala's premium design agency.` : "Creative design project by Cirqle Kerala."} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://cirqle.work/portfolio/${slug}`} />
         {imageUrl && <meta property="og:image" content={imageUrl} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        {imageUrl && <meta name="twitter:image" content={imageUrl} />}
+        <link rel="canonical" href={`https://cirqle.work/portfolio/${slug}`} />
       </Helmet>
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
         {/* LEFT CONTENT */}
