@@ -1,7 +1,9 @@
-import React, { useEffect, useCallback, useRef, useState } from "react";
+import React, {
+  useEffect, useCallback, useRef, useState,
+} from "react";
 import { createPortal } from "react-dom";
 import HTMLFlipBook from "react-pageflip";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Maximize, Minimize } from "lucide-react";
 
 interface BrochureReaderProps {
   images: string[];
@@ -9,13 +11,15 @@ interface BrochureReaderProps {
   setActiveIndex: (index: number | null) => void;
 }
 
-// ─── Single page for the book ──────────────────────────────────────────────
+// A4 portrait ratio: height / width
+const A4 = 297 / 210; // ≈ 1.4142
+
+// ─── Single book page ────────────────────────────────────────────────────────
 const Page = React.forwardRef<
   HTMLDivElement,
   { imageUrl: string; pageNumber: number; isPortrait: boolean }
 >((props, ref) => {
   const isRight = props.isPortrait ? true : props.pageNumber % 2 !== 0;
-
   return (
     <div
       ref={ref}
@@ -27,8 +31,8 @@ const Page = React.forwardRef<
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#f5f5f5",
-        borderRadius: isRight ? "0 4px 4px 0" : "4px 0 0 4px",
+        background: "#f5f4f0",
+        borderRadius: isRight ? "0 3px 3px 0" : "3px 0 0 3px",
       }}
     >
       <img
@@ -39,33 +43,23 @@ const Page = React.forwardRef<
           width: "100%",
           height: "100%",
           objectFit: "contain",
+          display: "block",
           pointerEvents: "none",
           userSelect: "none",
-          display: "block",
         }}
       />
       {/* Spine shadow */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          background: isRight
-            ? "linear-gradient(to right, rgba(0,0,0,0.18) 0%, transparent 18%)"
-            : "linear-gradient(to left,  rgba(0,0,0,0.18) 0%, transparent 18%)",
-        }}
-      />
-      <span
-        style={{
-          position: "absolute",
-          bottom: 6,
-          [isRight ? "right" : "left"]: 10,
-          fontSize: 11,
-          color: "rgba(0,0,0,0.25)",
-          fontFamily: "serif",
-          pointerEvents: "none",
-        }}
-      >
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: isRight
+          ? "linear-gradient(to right, rgba(0,0,0,0.16) 0%, transparent 20%)"
+          : "linear-gradient(to left,  rgba(0,0,0,0.16) 0%, transparent 20%)",
+      }} />
+      <span style={{
+        position: "absolute", bottom: 5, fontSize: 10,
+        [isRight ? "right" : "left"]: 8,
+        color: "rgba(0,0,0,0.2)", fontFamily: "serif", pointerEvents: "none",
+      }}>
         {props.pageNumber}
       </span>
     </div>
@@ -73,46 +67,60 @@ const Page = React.forwardRef<
 });
 Page.displayName = "BrochurePage";
 
-// ─── Main component ────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
 export function BrochureReader({ images, activeIndex, setActiveIndex }: BrochureReaderProps) {
   const isOpen = activeIndex !== null;
-  const bookRef   = useRef<any>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const bookRef    = useRef<any>(null);
+  const stripRef   = useRef<HTMLDivElement>(null);
 
-  const [isPortrait, setIsPortrait] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth <= window.innerHeight : true
-  );
-  const [dims, setDims] = useState({ vw: window.innerWidth, vh: window.innerHeight });
-  const [currentPage, setCurrentPage] = useState(0);
+  const [isPortrait,   setIsPortrait]   = useState(() => window.innerWidth <= window.innerHeight);
+  const [vw, setVw]                     = useState(() => window.innerWidth);
+  const [vh, setVh]                     = useState(() => window.innerHeight);
+  const [currentPage,  setCurrentPage]  = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Sync start page
-  useEffect(() => {
-    if (activeIndex !== null) setCurrentPage(activeIndex);
-  }, [activeIndex]);
+  const supportsFullscreen =
+    typeof document !== "undefined" && !!document.documentElement.requestFullscreen;
 
-  // Dimensions + orientation tracking
+  // ── Track dimensions & orientation ─────────────────────────────────────────
   useEffect(() => {
     const update = () => {
+      setVw(window.innerWidth);
+      setVh(window.innerHeight);
       setIsPortrait(window.innerWidth <= window.innerHeight);
-      setDims({ vw: window.innerWidth, vh: window.innerHeight });
     };
-    const delayed = () => setTimeout(update, 150); // let browser settle after rotate
+    const delayed = () => setTimeout(update, 150);
     window.addEventListener("resize", update);
     window.addEventListener("orientationchange", delayed);
+    document.addEventListener("fullscreenchange", () =>
+      setIsFullscreen(!!document.fullscreenElement)
+    );
     return () => {
       window.removeEventListener("resize", update);
       window.removeEventListener("orientationchange", delayed);
     };
   }, []);
 
+  // Sync start page
+  useEffect(() => {
+    if (activeIndex !== null) setCurrentPage(activeIndex);
+  }, [activeIndex]);
+
   const handleClose = useCallback(() => setActiveIndex(null), [setActiveIndex]);
 
   const goPrev = useCallback(() => {
     try { bookRef.current?.pageFlip()?.flipPrev(); } catch {}
   }, []);
-
   const goNext = useCallback(() => {
     try { bookRef.current?.pageFlip()?.flipNext(); } catch {}
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
   }, []);
 
   useEffect(() => {
@@ -132,152 +140,207 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
 
   if (!isOpen) return null;
 
-  const { vw, vh } = dims;
-
-  // Phone landscape = narrow height (typically < 500 CSS px)
+  // ── Layout constants ────────────────────────────────────────────────────────
   const isPhoneLandscape = !isPortrait && vh < 500;
 
-  const TOPBAR = 52;
-  const BOTBAR = isPhoneLandscape ? 0 : 68;
-  const PAD    = 0; // no padding — use every pixel
-
+  const TOPBAR = 50;
+  const BOTBAR = isPhoneLandscape ? 40 : 64; // dots vs nav buttons
   const availW = vw;
-  const availH = vh - TOPBAR - BOTBAR - PAD;
+  const availH = vh - TOPBAR - BOTBAR;
 
-  // ── Book page dimensions: fill the available space ──
-  // Images use object-contain inside, so no distortion regardless of ratio
-  const pageW = isPortrait
-    ? availW
-    : Math.floor(availW / 2);
-  const pageH = availH;
+  // ── A4-correct page dims (portrait & tablet/desktop landscape) ──────────────
+  let pageW: number, pageH: number;
+  if (isPortrait) {
+    pageW = Math.min(availW, availH / A4);
+    pageH = pageW * A4;
+  } else {
+    // Two-page spread: each page is half the width, capped by height
+    pageW = Math.min(Math.floor(availW / 2), Math.floor(availH / A4));
+    pageH = Math.round(pageW * A4);
+  }
+  pageW = Math.max(pageW, 180);
+  pageH = Math.max(pageH, 240);
 
-  const safePageW = Math.max(pageW, 180);
-  const safePageH = Math.max(pageH, 240);
+  // ── Filmstrip slide dims (phone landscape) ──────────────────────────────────
+  // Make the active slide fill most of the available height
+  const activeSlideH  = availH * 0.9;
+  const activeSlideW  = activeSlideH / A4;
+  const thumbSlideH   = availH * 0.7;
+  const thumbSlideW   = thumbSlideH / A4;
+  const STRIP_GAP     = 10;
+  // Effective scroll width per slide (use thumbnail size for scroll math)
+  const scrollItemW   = thumbSlideW + STRIP_GAP;
+  const stripPaddingX = Math.max((availW - activeSlideW) / 2, 8);
 
-  // ── Shared overlay ──────────────────────────────────────────────────────
-  const overlay: React.CSSProperties = {
-    position: "fixed",
-    inset: 0,
-    zIndex: 9999,
+  // ── Shared overlay style — z-index 9000 keeps it BELOW the custom cursor (z-9999) ──
+  const overlayStyle: React.CSSProperties = {
+    position: "fixed", inset: 0,
+    zIndex: 9000,
     display: "flex",
     flexDirection: "column",
-    background: "rgba(8, 8, 14, 0.97)",
+    background: "rgba(6, 6, 12, 0.97)",
+    cursor: "none", // let CustomCursor render on top
   };
 
-  // ── Top bar ─────────────────────────────────────────────────────────────
+  // ── Top bar ──────────────────────────────────────────────────────────────────
+  const pageLabel = isPhoneLandscape
+    ? `${currentPage + 1} / ${images.length}`
+    : isPortrait
+      ? `${currentPage + 1} / ${images.length}`
+      : `${currentPage + 1}–${Math.min(currentPage + 2, images.length)} / ${images.length}`;
+
   const topBar = (
-    <div
-      style={{
-        height: TOPBAR,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 14px",
-        flexShrink: 0,
-      }}
-    >
-      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, fontWeight: 500, letterSpacing: "0.05em" }}>
-        {isPortrait
-          ? `${currentPage + 1} / ${images.length}`
-          : `${currentPage + 1}–${Math.min(currentPage + 2, images.length)} / ${images.length}`}
+    <div style={{
+      height: TOPBAR, display: "flex", alignItems: "center",
+      justifyContent: "space-between", padding: "0 12px", flexShrink: 0,
+      gap: 8,
+    }}>
+      {/* Counter */}
+      <span style={{
+        color: "rgba(255,255,255,0.45)", fontSize: 12, fontWeight: 500,
+        letterSpacing: "0.06em", minWidth: 60,
+      }}>
+        {pageLabel}
       </span>
-      <button
-        onClick={handleClose}
-        aria-label="Close"
-        style={{
-          display: "flex", alignItems: "center", gap: 6,
-          background: "rgba(255,255,255,0.1)",
-          border: "1.5px solid rgba(255,255,255,0.2)",
-          borderRadius: 999,
-          padding: "7px 14px 7px 10px",
-          color: "white", fontSize: 13, fontWeight: 500,
-          cursor: "pointer",
-          minHeight: 36,
-        }}
-      >
-        <X size={14} strokeWidth={2.5} />
-        <span>Close</span>
-      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {/* Fullscreen button */}
+        {supportsFullscreen && (
+          <button
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 36, height: 36, borderRadius: "50%",
+              background: "rgba(255,255,255,0.08)",
+              border: "1.5px solid rgba(255,255,255,0.15)",
+              color: "white", cursor: "pointer",
+            }}
+          >
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+          </button>
+        )}
+
+        {/* Close */}
+        <button
+          onClick={handleClose}
+          aria-label="Close"
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            background: "rgba(255,255,255,0.09)",
+            border: "1.5px solid rgba(255,255,255,0.18)",
+            borderRadius: 999,
+            padding: "6px 14px 6px 10px",
+            color: "white", fontSize: 13, fontWeight: 500,
+            cursor: "pointer", minHeight: 34,
+          }}
+        >
+          <X size={13} strokeWidth={2.5} />
+          <span>Close</span>
+        </button>
+      </div>
     </div>
   );
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // PHONE LANDSCAPE — horizontal swipe-snap gallery
-  // ══════════════════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════════════════
+  // PHONE LANDSCAPE — filmstrip: all pages in one view, swipe to navigate
+  // ════════════════════════════════════════════════════════════════════════════
   if (isPhoneLandscape) {
+    const handleStripScroll = (e: React.UIEvent<HTMLDivElement>) => {
+      const scrollLeft = e.currentTarget.scrollLeft;
+      const idx = Math.round(scrollLeft / scrollItemW);
+      setCurrentPage(Math.max(0, Math.min(idx, images.length - 1)));
+    };
+
+    // Scroll to initial page on open
+    const initScroll = (el: HTMLDivElement | null) => {
+      if (!el || activeIndex === null) return;
+      el.scrollLeft = activeIndex * scrollItemW;
+    };
+
     return createPortal(
-      <div style={overlay} role="dialog" aria-modal="true">
+      <div style={overlayStyle} role="dialog" aria-modal="true">
         {topBar}
 
-        {/* Scroll strip */}
+        {/* Filmstrip */}
         <div
-          ref={scrollRef}
+          ref={(el) => { (stripRef as any).current = el; initScroll(el); }}
+          onScroll={handleStripScroll}
           style={{
             flex: 1,
             display: "flex",
+            alignItems: "center",
             overflowX: "auto",
             overflowY: "hidden",
             scrollSnapType: "x mandatory",
             WebkitOverflowScrolling: "touch",
-            scrollBehavior: "smooth",
-          }}
-          onScroll={(e) => {
-            const idx = Math.round(e.currentTarget.scrollLeft / vw);
-            setCurrentPage(idx);
+            gap: STRIP_GAP,
+            paddingLeft:  stripPaddingX,
+            paddingRight: stripPaddingX,
+            // Hide scrollbar
+            scrollbarWidth: "none",
           }}
         >
-          {images.map((url, i) => (
-            <div
-              key={i}
-              style={{
-                width: vw,
-                height: availH,
-                flexShrink: 0,
-                scrollSnapAlign: "start",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src={url}
-                alt={`Flyer ${i + 1}`}
-                loading={Math.abs(currentPage - i) <= 1 ? "eager" : "lazy"}
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  objectFit: "contain",
-                  userSelect: "none",
-                  pointerEvents: "none",
+          {images.map((url, i) => {
+            const isActive = i === currentPage;
+            const w = isActive ? activeSlideW : thumbSlideW;
+            const h = isActive ? activeSlideH : thumbSlideH;
+            return (
+              <div
+                key={i}
+                onClick={() => {
+                  if (!isActive && stripRef.current) {
+                    stripRef.current.scrollTo({ left: i * scrollItemW, behavior: "smooth" });
+                  }
                 }}
-              />
-            </div>
-          ))}
+                style={{
+                  width: w,
+                  height: h,
+                  flexShrink: 0,
+                  scrollSnapAlign: "center",
+                  borderRadius: 6,
+                  overflow: "hidden",
+                  transition: "width 300ms ease, height 300ms ease, opacity 300ms ease, box-shadow 300ms ease",
+                  opacity: isActive ? 1 : 0.55,
+                  boxShadow: isActive ? "0 8px 32px rgba(0,0,0,0.7)" : "none",
+                  cursor: isActive ? "default" : "pointer",
+                }}
+              >
+                <img
+                  src={url}
+                  alt={`Flyer ${i + 1}`}
+                  loading={Math.abs(currentPage - i) <= 2 ? "eager" : "lazy"}
+                  style={{
+                    width: "100%", height: "100%",
+                    objectFit: "contain",
+                    background: "#f5f4f0",
+                    pointerEvents: "none", userSelect: "none",
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Dot indicators */}
         <div style={{
-          height: 32,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 6,
-          flexShrink: 0,
+          height: BOTBAR, display: "flex", alignItems: "center",
+          justifyContent: "center", gap: 5, flexShrink: 0,
         }}>
           {images.map((_, i) => (
             <div
               key={i}
               onClick={() => {
-                scrollRef.current?.scrollTo({ left: i * vw, behavior: "smooth" });
+                if (stripRef.current) {
+                  stripRef.current.scrollTo({ left: i * scrollItemW, behavior: "smooth" });
+                }
                 setCurrentPage(i);
               }}
               style={{
-                width: i === currentPage ? 18 : 6,
-                height: 6,
-                borderRadius: 3,
-                background: i === currentPage ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.25)",
-                transition: "all 250ms ease",
-                cursor: "pointer",
+                width: i === currentPage ? 16 : 5,
+                height: 5, borderRadius: 3,
+                background: i === currentPage ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.22)",
+                transition: "all 260ms ease", cursor: "pointer",
               }}
             />
           ))}
@@ -287,38 +350,32 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // PORTRAIT & TABLET/DESKTOP LANDSCAPE — book-flip viewer
-  // ══════════════════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════════════════════
+  // PORTRAIT & TABLET/DESKTOP LANDSCAPE — book-flip viewer (A4-correct)
+  // ════════════════════════════════════════════════════════════════════════════
   return createPortal(
-    <div style={overlay} role="dialog" aria-modal="true">
+    <div style={overlayStyle} role="dialog" aria-modal="true">
       {topBar}
 
-      {/* Book area — fills all remaining space */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-        }}
-      >
-        {/* key forces remount on orientation change */}
+      {/* Book area */}
+      <div style={{
+        flex: 1, display: "flex", alignItems: "center",
+        justifyContent: "center", overflow: "hidden",
+      }}>
         {/* @ts-ignore */}
         <HTMLFlipBook
           key={isPortrait ? "portrait" : "landscape"}
-          width={safePageW}
-          height={safePageH}
+          width={pageW}
+          height={pageH}
           size="fixed"
-          minWidth={safePageW}
-          maxWidth={safePageW}
-          minHeight={safePageH}
-          maxHeight={safePageH}
+          minWidth={pageW}
+          maxWidth={pageW}
+          minHeight={pageH}
+          maxHeight={pageH}
           maxShadowOpacity={0.45}
           showCover={false}
           mobileScrollSupport={false}
-          className="drop-shadow-[0_16px_48px_rgba(0,0,0,0.75)]"
+          className="drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
           ref={bookRef}
           onFlip={(e: any) => setCurrentPage(e.data)}
           startPage={activeIndex || 0}
@@ -340,44 +397,35 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
       </div>
 
       {/* Bottom nav */}
-      <div
-        style={{
-          height: BOTBAR,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 20,
-          flexShrink: 0,
-        }}
-      >
-        <button
-          onClick={goPrev}
-          aria-label="Previous"
-          style={{
-            width: 48, height: 48, borderRadius: "50%",
-            background: "rgba(255,255,255,0.08)",
-            border: "1.5px solid rgba(255,255,255,0.15)",
-            color: "white", cursor: "pointer", display: "flex",
-            alignItems: "center", justifyContent: "center",
-          }}
-        >
-          <ChevronLeft size={22} />
+      <div style={{
+        height: BOTBAR, display: "flex", alignItems: "center",
+        justifyContent: "center", gap: 18, flexShrink: 0,
+      }}>
+        <button onClick={goPrev} aria-label="Previous" style={{
+          width: 44, height: 44, borderRadius: "50%",
+          background: "rgba(255,255,255,0.07)",
+          border: "1.5px solid rgba(255,255,255,0.14)",
+          color: "white", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <ChevronLeft size={20} />
         </button>
-        <span style={{ color: "rgba(255,255,255,0.28)", fontSize: 12, letterSpacing: "0.05em", userSelect: "none" }}>
+
+        <span style={{
+          color: "rgba(255,255,255,0.25)", fontSize: 11,
+          letterSpacing: "0.05em", userSelect: "none",
+        }}>
           {isPortrait ? "Swipe or tap edges" : "Click corners to turn"}
         </span>
-        <button
-          onClick={goNext}
-          aria-label="Next"
-          style={{
-            width: 48, height: 48, borderRadius: "50%",
-            background: "rgba(255,255,255,0.08)",
-            border: "1.5px solid rgba(255,255,255,0.15)",
-            color: "white", cursor: "pointer", display: "flex",
-            alignItems: "center", justifyContent: "center",
-          }}
-        >
-          <ChevronRight size={22} />
+
+        <button onClick={goNext} aria-label="Next" style={{
+          width: 44, height: 44, borderRadius: "50%",
+          background: "rgba(255,255,255,0.07)",
+          border: "1.5px solid rgba(255,255,255,0.14)",
+          color: "white", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <ChevronRight size={20} />
         </button>
       </div>
     </div>,
