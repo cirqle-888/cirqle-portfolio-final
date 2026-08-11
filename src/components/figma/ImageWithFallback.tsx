@@ -29,9 +29,9 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
         <div className="flex items-center justify-center w-full h-full">
           <img
             src={altSrc || ERROR_IMG_SRC}
-            alt="Error loading image"
             loading={loadingStrategy}
             {...rest}
+            alt={alt || "Image failed to load"}
             data-original-url={src}
           />
         </div>

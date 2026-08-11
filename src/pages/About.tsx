@@ -8,7 +8,7 @@ export function About() {
   }, []);
 
   return (
-    <main className="pt-16">
+    <div className="pt-16">
       <Helmet>
         <title>About Us | Creative Design Agency in Kerala | Cirqle</title>
         <meta name="description" content="Cirqle is a Kerala-based creative agency built for ambitious brands. We deliver graphic design, video production, social media content, and Meta Ads — all under one roof." />
@@ -24,6 +24,6 @@ export function About() {
         <link rel="canonical" href="https://cirqle.work/about" />
       </Helmet>
       <AboutSection headingTag="h1" />
-    </main>
+    </div>
   );
 }

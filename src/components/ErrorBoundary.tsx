@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-b from-gray-50 to-white">
-          <div className="max-w-md w-full liquid-glass-card refraction p-8 rounded-3xl text-center shadow-2xl relative overflow-hidden">
+          <div className="max-w-md w-full liquid-glass-card p-8 rounded-3xl text-center shadow-2xl relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute -inset-10 bg-gradient-to-tr from-[#A259FF]/10 to-[#4CC3FF]/10 blur-3xl rounded-full z-0 pointer-events-none"></div>
 
@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="flex flex-col gap-3">
                 <Button
                   onClick={this.handleReset}
-                  className="w-full rounded-full py-6 text-base bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 shadow-lg cursor-hover"
+                  className="w-full rounded-full py-6 text-base bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 shadow-lg"
                 >
                   <RefreshCcw className="w-4 h-4 mr-2" />
                   Try Again
@@ -63,7 +63,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <Button
                   variant="outline"
                   onClick={() => window.location.reload()}
-                  className="w-full rounded-full py-6 text-base border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 cursor-hover"
+                  className="w-full rounded-full py-6 text-base border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700"
                 >
                   Reload Page
                 </Button>

@@ -12,7 +12,7 @@ export function UIUXDesign() {
   }, []);
 
   return (
-    <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
         <title>UI/UX Design Services in Kerala | App &amp; Web Design | Cirqle</title>
         <meta name="description" content="Cirqle delivers intuitive UI/UX design for apps and websites in Kerala — user research, wireframes, and polished interfaces mapped precisely to your customer journey." />
@@ -40,17 +40,30 @@ export function UIUXDesign() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1920" alt="UI/UX Design interface showcase" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
+          <img src="https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1280" alt="UI/UX Design interface showcase" className="w-full h-full object-cover" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 
         <section className="mb-24">
           <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {["Wireframing & Prototyping", "Polished UI Systems", "Interaction Design"].map((item, i) => (
-              <div key={i} className="liquid-glass-card p-8 rounded-3xl edge-glow-hover transition-all">
-                <h3 className="text-xl font-medium mb-4">{item}</h3>
-                <p className="text-gray-600">Bringing the magic of Apple-tier design aesthetics right to your user base metrics.</p>
+            {[
+              {
+                title: "Wireframing & Prototyping",
+                desc: "Clickable prototypes first, so you see and test the flow before any visual polish.",
+              },
+              {
+                title: "Polished UI Systems",
+                desc: "Reusable components and consistent screens your developers can build from directly.",
+              },
+              {
+                title: "Interaction Design",
+                desc: "Micro-interactions and states — hover, loading, empty, error — specified, not left to guesswork.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="liquid-glass-card p-8 rounded-3xl transition-all">
+                <h3 className="text-xl font-medium mb-4">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -60,17 +73,17 @@ export function UIUXDesign() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center py-16 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
+          className="text-center py-20 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
         >
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
             <h2 className="text-4xl font-medium mb-6">Build your next product with us</h2>
             <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
-              Let's Talk
+              Get a Quote
             </Button>
           </div>
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

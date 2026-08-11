@@ -1,5 +1,8 @@
 import { contentfulClient } from "../lib/contentful";
 
+// Only content types that actually exist in the Contentful space are queried
+// here (`portfolio`, `supermarketFlyers`). Querying unknown types returns a
+// 400 InvalidQuery from Contentful, so keep this list in sync with the space.
 async function safeGetEntries(query: Record<string, unknown>) {
   try {
     const res = await contentfulClient.getEntries(query);
@@ -10,18 +13,6 @@ async function safeGetEntries(query: Record<string, unknown>) {
   }
 }
 
-export async function getHeroContent() {
-  return await safeGetEntries({
-    content_type: "heroSection",
-  });
-}
-
-export async function getServices() {
-  return await safeGetEntries({
-    content_type: "services",
-  });
-}
-
 export async function getPortfolio() {
   return await safeGetEntries({
     content_type: "portfolio",
@@ -29,53 +20,10 @@ export async function getPortfolio() {
   });
 }
 
-export async function getAbout() {
-  return await safeGetEntries({
-    content_type: "about",
-  });
-}
-
-export async function getContact() {
-  return await safeGetEntries({
-    content_type: "contact",
-  });
-}
-
 export async function getSupermarketFlyers() {
   return await safeGetEntries({
     content_type: "supermarketFlyers",
   });
-}
-
-export async function getServiceBySlug(slug: string) {
-  const normalizedSlug = slug.toLowerCase();
-  try {
-    const entries = await contentfulClient.getEntries({
-      content_type: "services",
-      "fields.slug": normalizedSlug,
-      include: 2
-    });
-    
-    const entry = entries.items?.[0];
-    if (!entry) {
-      return null;
-    }
-    
-    return entry;
-  } catch (err) {
-    console.error(`Contentful getServiceBySlug failed for ${normalizedSlug}:`, err);
-    return null;
-  }
-}
-
-
-export async function getProjectBySlug(slug: string) {
-  const entries = await safeGetEntries({
-    content_type: "portfolio",
-    "fields.slug": slug,
-    limit: 1,
-  });
-  return entries?.length > 0 ? entries[0] : null;
 }
 
 export function contentfulAssetUrl(asset: any): string | null {

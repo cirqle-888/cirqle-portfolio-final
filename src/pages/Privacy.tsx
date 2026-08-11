@@ -8,7 +8,7 @@ export function Privacy() {
   }, []);
 
   return (
-    <main className="pt-32 pb-28 px-6 min-h-screen bg-white">
+    <div className="py-28 px-6 min-h-screen bg-white">
       <Helmet>
         <title>Privacy Policy | Cirqle</title>
         <meta name="description" content="Privacy policy for Cirqle Design – how we collect, use, and protect your information." />
@@ -65,6 +65,6 @@ export function Privacy() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

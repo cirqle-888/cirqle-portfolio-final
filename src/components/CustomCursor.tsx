@@ -1,135 +1,99 @@
-import { useEffect, useState, memo } from "react";
-import { motion } from "motion/react";
-import cursorImage from "figma:asset/fda5abfd538782442882b2f230e1b2307e39e0bc.png";
+import { useEffect, useRef } from "react";
+import cursorImage from "../assets/cirqle-cursor.png";
 
-export const CustomCursor = memo(function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
+const INTERACTIVE_SELECTOR = "a, button, [role='button'], input, textarea, select, label, summary";
+
+/**
+ * Brand cursor: replaces the native pointer with the Cirqle arrow.
+ *
+ * Performance notes — this deliberately avoids React state:
+ * position updates go straight to style.transform inside a
+ * requestAnimationFrame loop, so mouse movement never re-renders the tree.
+ * It self-disables on touch devices and for prefers-reduced-motion users.
+ */
+export function CustomCursor() {
+  const cursorRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!finePointer || reducedMotion) return;
+
+    const el = cursorRef.current;
+    if (!el) return;
+
+    // Hide native cursor only while the brand cursor is active
+    document.documentElement.classList.add("has-custom-cursor");
+
+    let targetX = -100;
+    let targetY = -100;
+    let raf = 0;
+    let hovering = false;
+    let visible = false;
+
+    const render = () => {
+      raf = 0;
+      el.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(${hovering ? 1.35 : 1})`;
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(render);
     };
 
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === "A" ||
-        target.tagName === "BUTTON" ||
-        target.closest("a") ||
-        target.closest("button") ||
-        target.classList.contains("cursor-hover")
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
+    const onMove = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+      if (!visible) {
+        visible = true;
+        el.style.opacity = "1";
+      }
+      schedule();
+    };
+    const onOver = (e: MouseEvent) => {
+      const next = !!(e.target as Element | null)?.closest?.(INTERACTIVE_SELECTOR);
+      if (next !== hovering) {
+        hovering = next;
+        schedule();
       }
     };
+    const onLeave = () => {
+      visible = false;
+      el.style.opacity = "0";
+    };
 
-    window.addEventListener("mousemove", updateMousePosition);
-    window.addEventListener("mouseover", handleMouseOver);
-
-    // Hide default cursor
-    document.body.style.cursor = "none";
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mouseover", onOver, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
 
     return () => {
-      window.removeEventListener("mousemove", updateMousePosition);
-      window.removeEventListener("mouseover", handleMouseOver);
-      document.body.style.cursor = "auto";
+      document.documentElement.classList.remove("has-custom-cursor");
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseover", onOver);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
-    <>
-      {/* Main Custom Cursor */}
-      <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center"
-        animate={{
-          x: mousePosition.x,
-          y: mousePosition.y,
-          scale: isHovering ? 1.15 : 1,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 28,
-          mass: 0.5,
-        }}
-        style={{
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <img
-          src={cursorImage}
-          alt=""
-          width={32}
-          height={32}
-          loading="lazy"
-          className="w-8 h-auto object-contain"
-          style={{
-            filter: isHovering
-              ? "drop-shadow(0 4px 16px rgba(162, 89, 255, 0.6)) drop-shadow(0 8px 32px rgba(162, 89, 255, 0.4))"
-              : "drop-shadow(0 2px 8px rgba(162, 89, 255, 0.4)) drop-shadow(0 4px 16px rgba(162, 89, 255, 0.2))",
-            transition: "filter 0.3s ease",
-          }}
-        />
-      </motion.div>
-
-      {/* Liquid Glass Ring Effect on Hover */}
-      {isHovering && (
-        <>
-          {/* Expanding ring pulse */}
-          <motion.div
-            className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full"
-            initial={{
-              x: mousePosition.x - 24,
-              y: mousePosition.y - 24,
-              scale: 0.8,
-              opacity: 0.6,
-            }}
-            animate={{
-              x: mousePosition.x - 24,
-              y: mousePosition.y - 24,
-              scale: 1.5,
-              opacity: 0,
-            }}
-            transition={{
-              duration: 0.8,
-              repeat: Infinity,
-              ease: "easeOut",
-            }}
-            style={{
-              width: "48px",
-              height: "48px",
-              border: "2px solid rgba(162, 89, 255, 0.6)",
-              background: "radial-gradient(circle, rgba(162, 89, 255, 0.2), transparent 70%)",
-            }}
-          />
-
-          {/* Static glass ring */}
-          <motion.div
-            className="fixed top-0 left-0 pointer-events-none z-[9997] rounded-full"
-            animate={{
-              x: mousePosition.x - 20,
-              y: mousePosition.y - 20,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 25,
-              mass: 0.5,
-            }}
-            style={{
-              width: "40px",
-              height: "40px",
-              border: "2px solid rgba(76, 195, 255, 0.5)",
-              backdropFilter: "blur(8px)",
-              background: "radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%)",
-              boxShadow: "0 0 20px rgba(162, 89, 255, 0.4), inset 0 0 10px rgba(76, 195, 255, 0.3)",
-            }}
-          />
-        </>
-      )}
-    </>
+    <img
+      ref={cursorRef}
+      src={cursorImage}
+      alt=""
+      aria-hidden="true"
+      width={24}
+      height={32}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: 24,
+        height: "auto",
+        pointerEvents: "none",
+        zIndex: 9999,
+        opacity: 0,
+        transform: "translate3d(-100px, -100px, 0)",
+        transition: "opacity 0.2s ease",
+        willChange: "transform",
+      }}
+    />
   );
-});
+}

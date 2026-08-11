@@ -21,7 +21,7 @@ export function Portfolio() {
   }, [location.hash]);
 
   return (
-    <main className="pt-16">
+    <div className="pt-16">
       <Helmet>
         <title>Portfolio | Graphic Design &amp; Video Work | Cirqle Kerala</title>
         <meta name="description" content="Browse Cirqle's portfolio of graphic design, video production, social media campaigns, and supermarket promotional work from our Kerala-based creative studio." />
@@ -38,6 +38,6 @@ export function Portfolio() {
       </Helmet>
       <ShowcaseGrid headingTag="h1" />
       <SupermarketFlyers />
-    </main>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ export function MarketingPack() {
   }, []);
 
   return (
-    <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
         <title>Marketing Pack | Ready-to-Deploy Social Media &amp; Ad Design | Cirqle Kerala</title>
         <meta name="description" content="Cirqle's Marketing Pack gives you a complete, ready-to-deploy set of social media graphics, ad creatives, and promotional materials — scalable for any platform or campaign." />
@@ -30,7 +30,7 @@ export function MarketingPack() {
           </div>
           <h1 className="text-5xl md:text-7xl mb-6 tracking-tight font-medium">Marketing Pack</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Drive sales and supercharge conversion instantly with our custom, ready-to-use array of digital and print marketing templates tailored strictly to your specific identity.
+            A ready-to-use set of social media, ad, and print templates designed around your brand — so your team can publish consistent marketing without waiting on a designer.
           </p>
         </motion.div>
 
@@ -40,17 +40,30 @@ export function MarketingPack() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1920" alt="Marketing pack presentation" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
+          <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1280" alt="Marketing pack presentation" className="w-full h-full object-cover" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 
         <section className="mb-24">
           <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {["High Converting Social Templates", "Email Flyers", "Print-Ready Collaterals"].map((item, i) => (
-              <div key={i} className="liquid-glass-card p-8 rounded-3xl edge-glow-hover transition-all">
-                <h3 className="text-xl font-medium mb-4">{item}</h3>
-                <p className="text-gray-600">A holistic, drag-and-drop solution for high traffic inbound channels.</p>
+            {[
+              {
+                title: "Social Media Templates",
+                desc: "Post and story layouts in your brand style, sized for Instagram, Facebook, and WhatsApp.",
+              },
+              {
+                title: "Ad & Email Creatives",
+                desc: "Banner and flyer layouts for promotions, offers, and announcements — swap the text and go.",
+              },
+              {
+                title: "Print-Ready Collaterals",
+                desc: "Business cards, letterheads, and brochures delivered as press-ready files.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="liquid-glass-card p-8 rounded-3xl transition-all">
+                <h3 className="text-xl font-medium mb-4">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -60,17 +73,17 @@ export function MarketingPack() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center py-16 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
+          className="text-center py-20 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
         >
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
-            <h2 className="text-4xl font-medium mb-6">Invest in conversion today</h2>
+            <h2 className="text-4xl font-medium mb-6">Want a pack built for your brand?</h2>
             <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
-              Secure a Pack
+              Get a Quote
             </Button>
           </div>
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -8,17 +8,6 @@ export default defineConfig({
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
     alias: {
-      "figma:asset/fda5abfd538782442882b2f230e1b2307e39e0bc.png": path.resolve(
-        __dirname,
-        "./src/assets/fda5abfd538782442882b2f230e1b2307e39e0bc.png"
-      ),
-      "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png": path.resolve(
-        __dirname,
-        "./src/assets/a79873ff7b54a9a37128bda14561149e5eeb12b3.png"
-      ),
-      "class-variance-authority@0.7.1": "class-variance-authority",
-      "lucide-react@0.487.0": "lucide-react",
-      "@radix-ui/react-slot@1.1.2": "@radix-ui/react-slot",
       "@": path.resolve(__dirname, "./src"),
     },
   },
@@ -39,7 +28,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: process.env.PORT ? parseInt(process.env.PORT) : 5174,
+    port: process.env.PORT ? parseInt(process.env.PORT) : 5176,
     open: false,
   },
 });

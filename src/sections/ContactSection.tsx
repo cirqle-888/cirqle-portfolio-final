@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { MessageCircle, Send, CheckCircle2, AlertCircle } from "lucide-react";
-import { getContact } from "../services/contentService";
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
@@ -23,30 +22,21 @@ interface FormErrors {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function ContactSection() {
-  const [contact, setContact] = useState<any | null>(null);
+const WHATSAPP_NUMBER = "+91 8129 5343 77";
+
+interface ContactSectionProps {
+  headingTag?: "h1" | "h2";
+}
+
+export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) {
+  const Heading = headingTag;
   const [values, setValues] = useState<FormValues>({ name: "", whatsapp: "", email: "", message: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
 
-  useEffect(() => {
-    let cancelled = false;
-    getContact().then((items) => {
-      const fields = items?.[0]?.fields ?? null;
-      if (!cancelled && fields) setContact(fields);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const whatsappNumberRaw = useMemo(() => {
-    return contact?.whatsappNumber ?? contact?.whatsapp ?? "+91 8129 5343 77";
-  }, [contact]);
-
   const whatsappNumberDigits = useMemo(() => {
-    return String(whatsappNumberRaw).replace(/[^\d]/g, "");
-  }, [whatsappNumberRaw]);
+    return WHATSAPP_NUMBER.replace(/[^\d]/g, "");
+  }, []);
 
   const handleWhatsAppClick = () => {
     window.open(`https://wa.me/${whatsappNumberDigits}`, "_blank");
@@ -110,17 +100,9 @@ export function ContactSection() {
       className="py-28 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden"
     >
       {/* Large soft gradient circle */}
-      <motion.div
+      <div
+        aria-hidden="true"
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.5, 0.7, 0.5],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
       />
 
       <div className="max-w-4xl mx-auto relative z-10">
@@ -131,21 +113,15 @@ export function ContactSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20"
-          >
-            <span className="text-sm">{contact?.badgeText ?? "Get in Touch"}</span>
-          </motion.div>
+          <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
+            <span className="text-sm">Get a Quote</span>
+          </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
-            {contact?.title ?? "Start Your Project"}
-          </h1>
+          <Heading className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
+            Tell us what you need
+          </Heading>
           <p className="text-xl text-gray-600 leading-relaxed">
-            {contact?.subtitle ?? "Let's create something exceptional together"}
+            Send the details below, or message us directly on WhatsApp — we reply within 24 hours.
           </p>
         </motion.div>
 
@@ -154,10 +130,10 @@ export function ContactSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="liquid-glass-card rounded-3xl shadow-2xl p-10 md:p-14 relative overflow-hidden refraction edge-glow-hover"
+          className="liquid-glass-card rounded-3xl shadow-2xl p-10 md:p-14 relative overflow-hidden"
         >
           {/* Micro liquid movement */}
-          <div className="absolute inset-0 pointer-events-none z-10 micro-liquid">
+          <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent opacity-50"></div>
           </div>
 
@@ -170,7 +146,7 @@ export function ContactSection() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4 }}
-                className="relative z-10 flex flex-col items-center justify-center py-16 text-center"
+                className="relative z-10 flex flex-col items-center justify-center py-20 text-center"
               >
                 <div className="w-20 h-20 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] flex items-center justify-center mb-6 shadow-xl">
                   <CheckCircle2 className="w-10 h-10 text-white" />
@@ -183,7 +159,7 @@ export function ContactSection() {
                   type="button"
                   variant="outline"
                   onClick={() => setStatus("idle")}
-                  className="rounded-full px-8 border-2 border-gray-200 hover:border-[#A259FF] hover:text-[#A259FF] transition-all"
+                  className="rounded-full px-10 border-2 border-gray-200 hover:border-[#A259FF] hover:text-[#A259FF] transition-all"
                 >
                   Send Another Message
                 </Button>
@@ -317,7 +293,7 @@ export function ContactSection() {
                       type="submit"
                       size="lg"
                       disabled={status === "submitting"}
-                      className="w-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity py-7 rounded-full shadow-xl shadow-[#A259FF]/30 cursor-hover edge-glow disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="w-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity py-7 rounded-full shadow-xl shadow-[#A259FF]/30 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <Send className="mr-2 w-5 h-5" />
                       {status === "submitting" ? "Sending…" : "Send Inquiry"}
@@ -330,7 +306,7 @@ export function ContactSection() {
                       size="lg"
                       variant="outline"
                       onClick={handleWhatsAppClick}
-                      className="w-full sm:w-auto border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all py-7 rounded-full cursor-hover liquid-glass-card"
+                      className="w-full sm:w-auto border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all py-7 rounded-full liquid-glass-card"
                     >
                       <MessageCircle className="mr-2 w-5 h-5" />
                       WhatsApp

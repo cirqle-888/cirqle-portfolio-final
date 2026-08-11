@@ -8,7 +8,7 @@ export function Services() {
   }, []);
 
   return (
-    <main className="pt-16">
+    <div className="pt-16">
       <Helmet>
         <title>Design Services in Kerala | Graphic Design, Video, Social Media &amp; Ads | Cirqle</title>
         <meta name="description" content="Explore Cirqle's creative services in Kerala: graphic design, video production, social media management, Meta Ads, brand identity, event branding, and UI/UX design." />
@@ -24,6 +24,6 @@ export function Services() {
         <link rel="canonical" href="https://cirqle.work/services" />
       </Helmet>
       <EcosystemServices />
-    </main>
+    </div>
   );
 }

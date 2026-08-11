@@ -8,7 +8,7 @@ export function Contact() {
   }, []);
 
   return (
-    <main className="pt-16">
+    <div className="pt-16">
       <Helmet>
         <title>Contact Cirqle | Kerala Design Agency | Get a Quote</title>
         <meta name="description" content="Get in touch with Cirqle, Kerala's creative design agency. Reach out for graphic design, video production, social media management, Meta Ads, or brand identity projects." />
@@ -24,6 +24,6 @@ export function Contact() {
         <link rel="canonical" href="https://cirqle.work/contact" />
       </Helmet>
       <ContactSection />
-    </main>
+    </div>
   );
 }

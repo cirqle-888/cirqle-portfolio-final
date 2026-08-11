@@ -8,7 +8,7 @@ export function Terms() {
   }, []);
 
   return (
-    <main className="pt-32 pb-28 px-6 min-h-screen bg-white">
+    <div className="py-28 px-6 min-h-screen bg-white">
       <Helmet>
         <title>Terms of Service | Cirqle</title>
         <meta name="description" content="Terms of service for Cirqle Design – the conditions governing use of our website and services." />
@@ -75,6 +75,6 @@ export function Terms() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

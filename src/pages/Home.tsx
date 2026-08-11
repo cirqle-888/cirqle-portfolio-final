@@ -3,11 +3,11 @@ import { Hero } from "../sections/Hero";
 import { ShowcaseGrid } from "../sections/ShowcaseGrid";
 import { SupermarketFlyers } from "../sections/SupermarketFlyers";
 import { WhyCirqle } from "../sections/WhyCirqle";
-import { AboutSection } from "../sections/AboutSection";
+import { ContactSection } from "../sections/ContactSection";
 
 export function Home() {
   return (
-    <main>
+    <>
       <Helmet>
         <title>Creative Design Agency in Kerala | Graphic Design, Video &amp; Social Media | Cirqle</title>
         <meta name="description" content="Cirqle is a Kerala-based creative design agency offering graphic design, video production, social media content, Meta Ads, and brand identity services. Premium quality, fast delivery." />
@@ -26,7 +26,7 @@ export function Home() {
       <ShowcaseGrid />
       <SupermarketFlyers limit={8} />
       <WhyCirqle />
-      <AboutSection />
-    </main>
+      <ContactSection headingTag="h2" />
+    </>
   );
 }

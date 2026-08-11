@@ -12,7 +12,7 @@ export function BrandIdentity() {
   }, []);
 
   return (
-    <main className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
         <title>Brand Identity Design in Kerala | Logo &amp; Visual System | Cirqle</title>
         <meta name="description" content="Cirqle crafts complete brand identity systems in Kerala — logos, typography, colour palettes, and brand guidelines that make your business instantly recognisable." />
@@ -40,17 +40,30 @@ export function BrandIdentity() {
            transition={{ duration: 0.8, delay: 0.2 }}
            className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
         >
-          <img src="https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1920" alt="Brand Identity presentation" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
+          <img src="https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=1280" alt="Brand Identity presentation" className="w-full h-full object-cover" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </motion.div>
 
         <section className="mb-24">
           <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {["Logo Mark & Logotypes", "Color & Typography System", "Comprehensive Brand Guidelines"].map((item, i) => (
-              <div key={i} className="liquid-glass-card p-8 rounded-3xl edge-glow-hover transition-all">
-                <h3 className="text-xl font-medium mb-4">{item}</h3>
-                <p className="text-gray-600">Premium quality assets designed to scale effortlessly across digital and print mediums.</p>
+            {[
+              {
+                title: "Logo Mark & Logotypes",
+                desc: "A primary logo plus the variations you actually need — stacked, horizontal, icon-only — delivered in every format.",
+              },
+              {
+                title: "Color & Typography System",
+                desc: "A palette and type pairing chosen for your industry, tested on both screens and print.",
+              },
+              {
+                title: "Brand Guidelines",
+                desc: "A practical usage guide so anyone — your team or another printer — keeps the brand consistent.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="liquid-glass-card p-8 rounded-3xl transition-all">
+                <h3 className="text-xl font-medium mb-4">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -60,17 +73,17 @@ export function BrandIdentity() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center py-16 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
+          className="text-center py-20 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
         >
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
-            <h2 className="text-4xl font-medium mb-6">Ready to elevate your brand?</h2>
+            <h2 className="text-4xl font-medium mb-6">Ready to build your brand?</h2>
             <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
-              Get in Touch
+              Get a Quote
             </Button>
           </div>
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

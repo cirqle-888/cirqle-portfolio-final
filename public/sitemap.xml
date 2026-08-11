@@ -3,26 +3,56 @@
   <url>
     <loc>https://cirqle.work/</loc>
     <priority>1.0</priority>
-    <changefreq>daily</changefreq>
-  </url>
-  <url>
-    <loc>https://cirqle.work/about</loc>
-    <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://cirqle.work/services</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/services/brand-identity</loc>
     <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/services/event-branding</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/services/ui-ux-design</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/highlights/supermarket-campaign</loc>
+    <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://cirqle.work/portfolio</loc>
+    <loc>https://cirqle.work/products/marketing-pack</loc>
     <priority>0.8</priority>
-    <changefreq>daily</changefreq>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/portfolio</loc>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/about</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://cirqle.work/careers</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://cirqle.work/contact</loc>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
 </urlset>

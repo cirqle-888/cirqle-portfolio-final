@@ -90,14 +90,14 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
       setIsPortrait(window.innerWidth <= window.innerHeight);
     };
     const delayed = () => setTimeout(update, 150);
+    const onFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     window.addEventListener("resize", update);
     window.addEventListener("orientationchange", delayed);
-    document.addEventListener("fullscreenchange", () =>
-      setIsFullscreen(!!document.fullscreenElement)
-    );
+    document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => {
       window.removeEventListener("resize", update);
       window.removeEventListener("orientationchange", delayed);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
   }, []);
 
@@ -179,7 +179,6 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
     display: "flex",
     flexDirection: "column",
     background: "rgba(6, 6, 12, 0.97)",
-    cursor: "none", // let CustomCursor render on top
   };
 
   // ── Top bar ──────────────────────────────────────────────────────────────────

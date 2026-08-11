@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Mail, Phone, MapPin, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
-import cirqleLogo from "figma:asset/a79873ff7b54a9a37128bda14561149e5eeb12b3.png";
+import cirqleLogo from "../assets/cirqle-logo.png";
 
 export const Footer = memo(function Footer() {
   const currentYear = new Date().getFullYear();
@@ -22,18 +22,19 @@ export const Footer = memo(function Footer() {
                 className="h-10 w-auto brightness-0 invert"
               />
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Premium design ecosystem delivering excellence across all creative services.
+            <p className="text-gray-300 text-sm leading-relaxed">
+              A creative design agency in Kerala, India — supermarket campaigns, branding, social
+              media, and video.
             </p>
           </div>
 
           {/* Services */}
           <div>
             <h3 className="text-lg mb-6">Services</h3>
-            <ul className="space-y-3 text-sm text-gray-400">
+            <ul className="space-y-3 text-sm text-gray-300">
               <li>
                 <Link
-                  to="/services"
+                  to="/highlights/supermarket-campaign"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
                   Supermarket Campaigns
@@ -41,26 +42,34 @@ export const Footer = memo(function Footer() {
               </li>
               <li>
                 <Link
-                  to="/services"
+                  to="/services/brand-identity"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
-                  Brand Design
+                  Brand Identity
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/services"
+                  to="/services/event-branding"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
-                  Digital Solutions
+                  Event Branding
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/services"
+                  to="/services/ui-ux-design"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
                   UI/UX Design
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/services"
+                  className="hover:text-white transition-colors hover:translate-x-1 inline-block"
+                >
+                  All Services
                 </Link>
               </li>
             </ul>
@@ -69,7 +78,7 @@ export const Footer = memo(function Footer() {
           {/* Company */}
           <div>
             <h3 className="text-lg mb-6">Company</h3>
-            <ul className="space-y-3 text-sm text-gray-400">
+            <ul className="space-y-3 text-sm text-gray-300">
               <li>
                 <Link
                   to="/about"
@@ -88,10 +97,10 @@ export const Footer = memo(function Footer() {
               </li>
               <li>
                 <Link
-                  to="/#ecosystem"
+                  to="/careers"
                   className="hover:text-white transition-colors hover:translate-x-1 inline-block"
                 >
-                  Ecosystem
+                  Careers
                 </Link>
               </li>
               <li>
@@ -108,7 +117,7 @@ export const Footer = memo(function Footer() {
           {/* Contact Info */}
           <div>
             <h3 className="text-lg mb-6">Connect</h3>
-            <ul className="space-y-4 text-sm text-gray-400">
+            <ul className="space-y-4 text-sm text-gray-300">
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#A259FF]" />
                 <a
@@ -131,7 +140,7 @@ export const Footer = memo(function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#A259FF]" />
-                <span>India</span>
+                <span>Kerala, India</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="flex items-center gap-5">
@@ -183,7 +192,7 @@ export const Footer = memo(function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-10 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-300">
             <p>© {currentYear} Cirqle Design. All rights reserved.</p>
             <div className="flex gap-8">
               <NavLink to="/privacy" className="hover:text-white transition-colors">

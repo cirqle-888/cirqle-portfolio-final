@@ -5,16 +5,16 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
     "class-variance-authority": "^0.7.1",
-    "clsx": "*",
+    "clsx": "^2.1.1",
     "contentful": "^11.10.5",
     "lucide-react": "^0.487.0",
-    "motion": "*",
+    "motion": "^12.35.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^3.0.0",
     "react-pageflip": "^2.0.3",
     "react-router-dom": "^7.13.1",
-    "tailwind-merge": "*"
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

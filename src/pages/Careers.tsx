@@ -1,0 +1,208 @@
+import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { motion } from "motion/react";
+import {
+  Palette,
+  Video,
+  Megaphone,
+  BarChart3,
+  MonitorSmartphone,
+  Code2,
+  ArrowRight,
+} from "lucide-react";
+
+/**
+ * Application link — points to Cirqle's CRM-hosted public application form
+ * (src/app/careers/apply in cirqle-app), NOT email. Applications submitted
+ * there land directly in the Recruitment module (job_applications table) —
+ * see RECRUITMENT_MODULE.md in cirqle-app for the full pipeline.
+ * Override via VITE_CAREERS_APPLY_URL in .env if the CRM route ever changes.
+ */
+const APPLY_URL: string =
+  (import.meta.env.VITE_CAREERS_APPLY_URL as string | undefined) ||
+  "https://app.cirqle.work/careers/apply";
+
+const gradientText =
+  "bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent";
+
+const roles = [
+  { icon: Palette, title: "Graphic Designers" },
+  { icon: Video, title: "Video Editors" },
+  { icon: Megaphone, title: "Social Media Creators" },
+  { icon: BarChart3, title: "Ads Specialists" },
+  { icon: MonitorSmartphone, title: "UI/UX Designers" },
+  { icon: Code2, title: "Developers" },
+];
+
+const steps = [
+  { title: "Apply", text: "Send your portfolio — your work speaks, not your CV." },
+  { title: "Contribute", text: "Pick up real tasks; every contribution is tracked transparently." },
+  { title: "Earn", text: "Paid monthly, based on what you deliver. Remote and flexible." },
+];
+
+export function Careers() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="pt-16">
+      <Helmet>
+        <title>Careers | Work with Cirqle — Earn by What You Create</title>
+        <meta
+          name="description"
+          content="Join Cirqle's contribution-based creative team. Transparent, performance-based earnings for designers, video editors, social media creators, ads specialists and developers. Remote and flexible."
+        />
+        <meta property="og:title" content="Careers | Work with Cirqle — Earn by What You Create" />
+        <meta
+          property="og:description"
+          content="Join Cirqle's contribution-based creative team. Transparent, performance-based earnings. Remote and flexible."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://cirqle.work/careers" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Careers | Work with Cirqle" />
+        <meta
+          name="twitter:description"
+          content="Contribution-based creative careers. Earn by what you create."
+        />
+        <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
+        <link rel="canonical" href="https://cirqle.work/careers" />
+      </Helmet>
+
+      {/* ── Hero ── */}
+      <section className="py-28 px-6 bg-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
+              <span className="text-sm">Careers at Cirqle</span>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
+              Earn by what you <span className={gradientText}>create</span>
+            </h1>
+
+            <p className="text-xl text-gray-600 leading-relaxed max-w-xl mx-auto mb-10">
+              No fixed salaries — every task you deliver is tracked, valued, and
+              paid transparently. Remote, flexible, and open to self-driven creators.
+            </p>
+
+            <a
+              href={APPLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Apply now <ArrowRight className="w-4 h-4" />
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Roles ── */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="max-w-3xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-2xl md:text-3xl mb-10 tracking-tight text-center"
+          >
+            Who we're looking for
+          </motion.h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {roles.map((role, i) => (
+              <motion.div
+                key={role.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white shadow-sm px-4 py-4"
+              >
+                <role.icon className="w-5 h-5 text-[#A259FF] shrink-0" />
+                <span className="text-sm text-gray-800">{role.title}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it works ── */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-2xl md:text-3xl mb-10 tracking-tight text-center"
+          >
+            How it works
+          </motion.h2>
+
+          <ol className="space-y-6">
+            {steps.map((step, i) => (
+              <motion.li
+                key={step.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="flex items-start gap-4"
+              >
+                <span className="w-8 h-8 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white text-sm font-semibold flex items-center justify-center shrink-0">
+                  {i + 1}
+                </span>
+                <div>
+                  <h3 className="text-lg mb-1">{step.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{step.text}</p>
+                </div>
+              </motion.li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="max-w-2xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl mb-4 tracking-tight">
+              Ready to <span className={gradientText}>join the circle</span>?
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Show us what you create — we usually reply within a few days.
+            </p>
+            <a
+              href={APPLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              Start your application <ArrowRight className="w-4 h-4" />
+            </a>
+            <p className="text-sm text-gray-500 mt-6">
+              Prefer email?{" "}
+              <a href="mailto:team@cirqle.work" className="underline hover:text-gray-700">
+                team@cirqle.work
+              </a>
+            </p>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+}
