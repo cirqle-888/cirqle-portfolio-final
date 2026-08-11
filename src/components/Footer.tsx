@@ -131,11 +131,11 @@ export const Footer = memo(function Footer() {
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#4CC3FF]" />
                 <a
-                  href="tel:+918129534377"
+                  href="tel:+918301839488"
                   aria-label="Call Cirqle"
                   className="hover:text-white transition-colors"
                 >
-                  +91 8129 5343 77
+                  +91 8301 8394 88
                 </a>
               </li>
               <li className="flex items-start gap-3">

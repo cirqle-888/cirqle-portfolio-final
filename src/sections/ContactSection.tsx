@@ -22,7 +22,7 @@ interface FormErrors {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const WHATSAPP_NUMBER = "+91 8129 5343 77";
+const WHATSAPP_NUMBER = "+91 8301 8394 88";
 
 interface ContactSectionProps {
   headingTag?: "h1" | "h2";
@@ -213,7 +213,7 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
                       name="whatsapp"
                       value={values.whatsapp}
                       onChange={handleChange}
-                      placeholder="+91 8129 5343 77"
+                      placeholder="+91 8301 8394 88"
                       aria-label="WhatsApp Number"
                       className="rounded-2xl border-gray-200 focus:border-[#A259FF] h-14 transition-all liquid-glass-card bg-transparent"
                     />
