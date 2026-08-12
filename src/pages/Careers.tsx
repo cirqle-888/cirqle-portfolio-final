@@ -36,8 +36,11 @@ const roles = [
 
 const steps = [
   { title: "Apply", text: "Send your portfolio — your work speaks, not your CV." },
-  { title: "Contribute", text: "Pick up real tasks; every contribution is tracked transparently." },
-  { title: "Earn", text: "Paid monthly, based on what you deliver. Remote and flexible." },
+  { title: "Contribute", text: "Pick up real client tasks alongside the team, remotely and flexibly." },
+  {
+    title: "Monthly payout",
+    text: "Earnings are calculated from your contributions that month, and your payslip includes a quality breakdown of the work you delivered.",
+  },
 ];
 
 export function Careers() {
@@ -48,15 +51,15 @@ export function Careers() {
   return (
     <div className="pt-16">
       <Helmet>
-        <title>Careers | Work with Cirqle — Earn by What You Create</title>
+        <title>Careers | Join the Cirqle Creative Team</title>
         <meta
           name="description"
-          content="Join Cirqle's contribution-based creative team. Transparent, performance-based earnings for designers, video editors, social media creators, ads specialists and developers. Remote and flexible."
+          content="Join Cirqle's creative team — designers, video editors, social media creators, ads specialists and developers. Contribution-based monthly earnings, remote and flexible."
         />
-        <meta property="og:title" content="Careers | Work with Cirqle — Earn by What You Create" />
+        <meta property="og:title" content="Careers | Join the Cirqle Creative Team" />
         <meta
           property="og:description"
-          content="Join Cirqle's contribution-based creative team. Transparent, performance-based earnings. Remote and flexible."
+          content="Join Cirqle's creative team. Contribution-based monthly earnings, remote and flexible."
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://cirqle.work/careers" />
@@ -65,7 +68,7 @@ export function Careers() {
         <meta name="twitter:title" content="Careers | Work with Cirqle" />
         <meta
           name="twitter:description"
-          content="Contribution-based creative careers. Earn by what you create."
+          content="Join Cirqle's creative team. Contribution-based monthly earnings, remote and flexible."
         />
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/careers" />
@@ -84,12 +87,13 @@ export function Careers() {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
-              Earn by what you <span className={gradientText}>create</span>
+              Create with <span className={gradientText}>Cirqle</span>
             </h1>
 
             <p className="text-xl text-gray-600 leading-relaxed max-w-xl mx-auto mb-10">
-              No fixed salaries — every task you deliver is tracked, valued, and
-              paid transparently. Remote, flexible, and open to self-driven creators.
+              A remote, flexible creative team. Earnings are contribution-based —
+              calculated each month from the work you deliver, with a monthly
+              report showing your contribution and its quality breakdown.
             </p>
 
             <a
