@@ -15,7 +15,7 @@ export function SupermarketCampaign() {
   return (
     <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Supermarket Promotional Campaign Design | Highlights | Cirqle Kerala</title>
+        <title>Supermarket Promotional Campaign Design | Highlights | Cirqle</title>
         <meta name="description" content="A behind-the-scenes look at how Cirqle designs high-impact supermarket promotional campaigns — offer flyers, shelf banners, and in-store visual systems that drive sales." />
       </Helmet>
 

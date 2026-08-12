@@ -114,14 +114,17 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
           className="text-center mb-16"
         >
           <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
-            <span className="text-sm">Get a Quote</span>
+            <span className="text-sm">Talk to the team</span>
           </div>
 
           <Heading className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
-            Tell us what you need
+            Have a brief?{" "}
+            <span className="font-display-i bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
+              Bring it to the circle.
+            </span>
           </Heading>
           <p className="text-xl text-gray-600 leading-relaxed">
-            Send the details below, or message us directly on WhatsApp — we reply within 24 hours.
+            Send the details below, or message us on WhatsApp — we reply within one working day.
           </p>
         </motion.div>
 

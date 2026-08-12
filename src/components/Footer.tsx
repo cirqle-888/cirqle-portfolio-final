@@ -23,8 +23,8 @@ export const Footer = memo(function Footer() {
               />
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              A creative design agency in Kerala, India — supermarket campaigns, branding, social
-              media, and video.
+              A team of skilled creators working worldwide — supermarket campaigns, branding,
+              social media, and video, from one circle.
             </p>
           </div>
 
@@ -140,7 +140,7 @@ export const Footer = memo(function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#A259FF]" />
-                <span>Kerala, India</span>
+                <span>Working Globally</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="flex items-center gap-5">

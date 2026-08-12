@@ -14,7 +14,7 @@ export function MarketingPack() {
   return (
     <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Marketing Pack | Ready-to-Deploy Social Media &amp; Ad Design | Cirqle Kerala</title>
+        <title>Marketing Pack | Ready-to-Deploy Social Media &amp; Ad Design | Cirqle</title>
         <meta name="description" content="Cirqle's Marketing Pack gives you a complete, ready-to-deploy set of social media graphics, ad creatives, and promotional materials — scalable for any platform or campaign." />
       </Helmet>
 

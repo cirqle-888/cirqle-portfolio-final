@@ -10,16 +10,16 @@ export function About() {
   return (
     <div className="pt-16">
       <Helmet>
-        <title>About Us | Creative Design Agency in Kerala | Cirqle</title>
-        <meta name="description" content="Cirqle is a Kerala-based creative agency built for ambitious brands. We deliver graphic design, video production, social media content, and Meta Ads — all under one roof." />
-        <meta property="og:title" content="About Us | Creative Design Agency in Kerala | Cirqle" />
-        <meta property="og:description" content="Cirqle is a Kerala-based creative agency built for ambitious brands. We deliver graphic design, video production, social media content, and Meta Ads — all under one roof." />
+        <title>About Us | Creative Design Agency | Cirqle</title>
+        <meta name="description" content="Cirqle means a circle of skilled people — designers, video editors, marketers, and developers working as one team for supermarket campaigns, branding, social media, and video." />
+        <meta property="og:title" content="About Us | Creative Design Agency | Cirqle" />
+        <meta property="og:description" content="Cirqle means a circle of skilled people — designers, video editors, marketers, and developers working as one team for supermarket campaigns, branding, social media, and video." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://cirqle.work/about" />
         <meta property="og:image" content="https://cirqle.work/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About Us | Creative Design Agency in Kerala | Cirqle" />
-        <meta name="twitter:description" content="Cirqle is a Kerala-based creative agency built for ambitious brands. We deliver graphic design, video production, social media content, and Meta Ads — all under one roof." />
+        <meta name="twitter:title" content="About Us | Creative Design Agency | Cirqle" />
+        <meta name="twitter:description" content="Cirqle means a circle of skilled people — designers, video editors, marketers, and developers working as one team for supermarket campaigns, branding, social media, and video." />
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/about" />
       </Helmet>

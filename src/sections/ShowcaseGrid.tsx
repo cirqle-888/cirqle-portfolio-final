@@ -83,6 +83,25 @@ export function ShowcaseGrid({ items, headingTag = "h2" }: ShowcaseGridProps = {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             A snapshot of what we make — tap any tile to explore
           </p>
+
+          {/* Category chips */}
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
+            {[
+              { label: "Flyers", href: "/highlights/supermarket-campaign" },
+              { label: "Branding", href: "/services/brand-identity" },
+              { label: "Events", href: "/services/event-branding" },
+              { label: "Web", href: "/services/ui-ux-design" },
+            ].map((chip) => (
+              <Link
+                key={chip.label}
+                to={chip.href}
+                className="text-sm font-medium px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:text-black transition-colors"
+                style={{ background: "var(--c-surface-raised)" }}
+              >
+                {chip.label}
+              </Link>
+            ))}
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

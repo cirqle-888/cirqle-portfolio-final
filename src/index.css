@@ -2967,3 +2967,394 @@ html {
   outline-offset: 3px;
   border-radius: 6px;
 }
+
+/* ============================================================
+   Cirqle theme system + hand-written components (2026-08 redesign)
+   The compiled Tailwind above cannot grow new utilities, so all
+   new styling lives here as plain CSS.
+   ============================================================ */
+
+/* --- Serif display accent (Fraunces, loaded in index.html) --- */
+.font-display {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+}
+.font-display-i {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-weight: 550;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+/* --- Theme tokens --- */
+:root {
+  --c-body: #ffffff;
+  --c-body-tint: #f8f7fc;
+  --c-surface: #ffffff;
+  --c-surface-raised: #ffffff;
+  --c-ink: #111013;
+  --c-ink-soft: #4b4760;
+  --c-ink-muted: #736e8a;
+  --c-hairline: rgba(122, 89, 255, 0.18);
+  --c-hairline-soft: rgba(122, 89, 255, 0.10);
+  --nav-backdrop-a: rgba(245, 241, 255, 0.98);
+  --nav-backdrop-b: rgba(236, 246, 255, 0.98);
+  --nav-backdrop-c: rgba(248, 240, 255, 0.98);
+  --nav-node-bg: rgba(255, 255, 255, 0.78);
+  --nav-node-text: #26203c;
+  --nav-hub-fill: #ffffff;
+  --nav-grid-line: rgba(122, 89, 255, 0.045);
+  --nav-label: rgba(100, 80, 160, 0.55);
+}
+html.dark {
+  color-scheme: dark;
+  --c-body: #0e0c15;
+  --c-body-tint: #131020;
+  --c-surface: #161320;
+  --c-surface-raised: #1b1728;
+  --c-ink: #eceaf4;
+  --c-ink-soft: #c9c4dc;
+  --c-ink-muted: #a9a4bc;
+  --c-hairline: rgba(162, 89, 255, 0.30);
+  --c-hairline-soft: rgba(162, 89, 255, 0.16);
+  --nav-backdrop-a: rgba(18, 15, 28, 0.98);
+  --nav-backdrop-b: rgba(15, 17, 28, 0.98);
+  --nav-backdrop-c: rgba(20, 15, 30, 0.98);
+  --nav-node-bg: rgba(30, 26, 44, 0.85);
+  --nav-node-text: #eceaf4;
+  --nav-hub-fill: #1b1728;
+  --nav-grid-line: rgba(162, 89, 255, 0.07);
+  --nav-label: rgba(190, 176, 230, 0.55);
+}
+
+/* --- Dark-mode recolor of the utility classes this site uses --- */
+html.dark body { background: var(--c-body); color: var(--c-ink); }
+html.dark .bg-white { background-color: var(--c-body); }
+html.dark .bg-gray-50 { background-color: var(--c-body-tint); }
+html.dark .bg-gray-100 { background-color: #1c1929; }
+html.dark .bg-gray-900 { background-color: #050408; }
+html.dark .from-white { --tw-gradient-from: var(--c-body); }
+html.dark .to-white { --tw-gradient-to: var(--c-body); }
+html.dark .via-gray-50\/30 { --tw-gradient-via: rgba(19, 16, 32, 0.3); }
+html.dark .from-gray-50 { --tw-gradient-from: var(--c-body-tint); }
+html.dark .to-gray-50 { --tw-gradient-to: var(--c-body-tint); }
+html.dark .text-black { color: var(--c-ink); }
+html.dark .text-gray-900 { color: var(--c-ink); }
+html.dark .text-gray-800 { color: var(--c-ink-soft); }
+html.dark .text-gray-700 { color: var(--c-ink-soft); }
+html.dark .text-gray-600 { color: var(--c-ink-muted); }
+html.dark .text-gray-500 { color: #8b86a3; }
+html.dark .hover\:text-black:hover { color: #ffffff; }
+html.dark .border-gray-100 { border-color: var(--c-hairline-soft); }
+html.dark .border-gray-200 { border-color: var(--c-hairline); }
+html.dark .shadow-sm, html.dark .shadow-xl, html.dark .shadow-2xl, html.dark .shadow-lg {
+  --tw-shadow-color: rgba(0, 0, 0, 0.55);
+}
+html.dark input::placeholder, html.dark textarea::placeholder { color: #6f6987; }
+
+/* Glass surfaces in dark mode */
+html.dark .liquid-glass {
+  background: linear-gradient(135deg, rgba(22, 19, 32, 0.92) 0%, rgba(18, 15, 28, 0.9) 100%);
+  border-color: rgba(162, 89, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+html.dark .liquid-glass-card {
+  background: linear-gradient(135deg, rgba(27, 23, 40, 0.96) 0%, rgba(22, 19, 32, 0.94) 100%);
+  border-color: rgba(162, 89, 255, 0.20);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+html.dark .liquid-glass-thumbnail {
+  background: rgba(27, 23, 40, 0.9);
+  border-color: rgba(162, 89, 255, 0.18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Hero outline button that flips with the theme (replaces border-black/text-black) */
+.btn-outline-ink {
+  border: 2px solid var(--c-ink);
+  color: var(--c-ink);
+  background: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-outline-ink:hover {
+  background: var(--c-ink);
+  color: var(--c-body);
+}
+
+/* --- Theme toggle button --- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-surface-raised);
+  color: var(--c-ink-soft);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.theme-toggle:hover { box-shadow: 0 4px 14px rgba(122, 89, 255, 0.18); }
+
+/* --- Floating "Let's Talk" pill --- */
+.float-pill {
+  position: fixed;
+  right: max(1.25rem, env(safe-area-inset-right, 0px));
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  text-decoration: none;
+  background:
+    linear-gradient(var(--c-surface-raised), var(--c-surface-raised)) padding-box,
+    linear-gradient(135deg, #a259ff, #4cc3ff) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 6px 24px rgba(122, 89, 255, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.float-pill:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(122, 89, 255, 0.3); }
+.float-pill .float-pill-dot { color: #25d366; display: inline-flex; }
+
+/* --- How Cirqle Works flow diagram --- */
+.cirqle-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto;
+  max-width: 960px;
+}
+@media (min-width: 900px) {
+  .cirqle-flow { flex-direction: row; justify-content: center; gap: 0.5rem; }
+}
+.flow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-surface-raised);
+  color: var(--c-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(122, 89, 255, 0.10);
+}
+.flow-chip .chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a259ff, #4cc3ff);
+}
+.flow-arrow {
+  color: var(--c-ink-muted);
+  display: inline-flex;
+  flex-shrink: 0;
+  transform: rotate(90deg);
+}
+@media (min-width: 900px) {
+  .flow-arrow { transform: none; }
+}
+.flow-orbit {
+  position: relative;
+  width: 230px;
+  height: 230px;
+  flex-shrink: 0;
+}
+.flow-orbit-ring {
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--c-hairline);
+}
+.flow-orbit-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(var(--nav-hub-fill), var(--nav-hub-fill)) padding-box,
+    linear-gradient(135deg, #a259ff, #4cc3ff) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 8px 28px rgba(122, 89, 255, 0.25);
+}
+.flow-orbit-node {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-hairline);
+  color: var(--c-ink-soft);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(122, 89, 255, 0.10);
+}
+
+/* --- At-a-glance proof row --- */
+.glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+@media (min-width: 900px) {
+  .glance-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.glance-tile {
+  border-radius: 1.25rem;
+  border: 1px solid var(--c-hairline-soft);
+  background: var(--c-surface-raised);
+  padding: 1.25rem 1.1rem;
+  text-align: left;
+}
+.glance-tile h3 {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--c-ink);
+  margin: 0 0 0.3rem;
+}
+.glance-tile p {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--c-ink-muted);
+  margin: 0;
+}
+
+/* --- FAQ accordion (native details/summary) --- */
+.faq-item {
+  border: 1px solid var(--c-hairline-soft);
+  border-radius: 1.1rem;
+  background: var(--c-surface-raised);
+  overflow: hidden;
+}
+.faq-item + .faq-item { margin-top: 0.75rem; }
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.3rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  font-size: 0.97rem;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "+";
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #a259ff;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item .faq-body {
+  padding: 0 1.3rem 1.15rem;
+  color: var(--c-ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* Members ring (About page motif) */
+.members-ring {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+/* Dark mode: the logo artwork is near-black — invert it to white in the header
+   (the footer already ships its own inverted copy via utility classes). */
+html.dark header a img {
+  filter: brightness(0) invert(1);
+}
+
+/* --- Services: editorial capability rows --- */
+.svc-list { max-width: 1100px; margin: 0 auto; }
+.svc-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  padding: 2.5rem 0;
+  border-top: 1px solid var(--c-hairline-soft);
+}
+.svc-row:last-child { border-bottom: 1px solid var(--c-hairline-soft); }
+@media (min-width: 900px) {
+  .svc-row {
+    grid-template-columns: 3.5rem 1.1fr 1fr;
+    gap: 2.5rem;
+    padding: 3rem 0;
+  }
+}
+.svc-index {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #a259ff;
+  padding-top: 0.35rem;
+}
+.svc-title {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+  margin: 0 0 0.6rem;
+}
+@media (min-width: 900px) { .svc-title { font-size: 1.9rem; } }
+.svc-desc {
+  color: var(--c-ink-muted);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 34ch;
+}
+.svc-caps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem 1.5rem;
+}
+@media (min-width: 560px) { .svc-caps { grid-template-columns: 1fr 1fr; } }
+.svc-caps li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  color: var(--c-ink-soft);
+}
+.svc-caps li::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #a259ff, #4cc3ff);
+  transform: translateY(-2px);
+}

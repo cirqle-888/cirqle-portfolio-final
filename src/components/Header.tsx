@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import cirqleLogo from "../assets/cirqle-logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Instagram, Facebook, Linkedin, Youtube, LucideIcon, Menu, X } from "lucide-react";
+import { Instagram, Facebook, Linkedin, Youtube, LucideIcon, Menu, X, Sun, Moon } from "lucide-react";
 
 interface NavItem { label: string; path: string; hint: string; }
 interface SocialLink { icon: LucideIcon; href: string; label: string; hoverColorClass: string; }
@@ -31,6 +31,37 @@ const SOCIAL_LINKS: readonly SocialLink[] = [
  * the contextual hint, and the social row (plus safe-area). Everything scales
  * down together on small phones; nothing may leave the viewport.
  */
+/** Light/dark switcher: toggles html.dark, persists, updates theme-color meta. */
+function ThemeToggle() {
+  const [dark, setDark] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("cirqle-theme", next ? "dark" : "light");
+    } catch {
+      /* private mode */
+    }
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", next ? "#0E0C15" : "#7C5CFF");
+  };
+  return (
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={toggle}
+      aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
+      title={dark ? "Light theme" : "Dark theme"}
+    >
+      {dark ? <Sun style={{ width: 17, height: 17 }} /> : <Moon style={{ width: 17, height: 17 }} />}
+    </button>
+  );
+}
+
 function orbitLayout(vw: number, vh: number) {
   const halfW = vw / 2 - 8;                    // horizontal breathing room
   const halfH = (vh - 128 - 168) / 2;          // reserve: header+label / hint+socials
@@ -155,20 +186,24 @@ export const Header = memo(function Header() {
                     <Icon className="w-4 h-4" />
                   </a>
                 ))}
+                <ThemeToggle />
               </div>
             </nav>
 
-            {/* Hamburger — mobile only */}
+            {/* Theme toggle + hamburger — mobile only */}
+            <div className="md:hidden flex items-center gap-3" style={{ zIndex: 60 }}>
+            <ThemeToggle />
             <button
               ref={hamburgerRef}
-              className="md:hidden flex-shrink-0 relative"
-              style={{ zIndex: 60, padding: 8, borderRadius: 8, color: "#374151" }}
+              className="flex-shrink-0 relative"
+              style={{ padding: 8, borderRadius: 8, color: "var(--c-ink-soft)" }}
               onClick={() => setMobileMenuOpen((v) => !v)}
               aria-label="Toggle mobile menu"
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <X style={{ width: 26, height: 26 }} /> : <Menu style={{ width: 26, height: 26 }} />}
             </button>
+            </div>
 
           </div>
         </div>
@@ -195,7 +230,7 @@ export const Header = memo(function Header() {
               style={{
                 position: "absolute",
                 inset: 0,
-                background: "linear-gradient(165deg, #fbfaff 0%, #f6f4fd 55%, #f3f6fe 100%)",
+                background: "linear-gradient(165deg, var(--nav-backdrop-a) 0%, var(--nav-backdrop-b) 55%, var(--nav-backdrop-c) 100%)",
               }}
             />
             <div
@@ -205,7 +240,7 @@ export const Header = memo(function Header() {
                 inset: 0,
                 pointerEvents: "none",
                 backgroundImage:
-                  "linear-gradient(rgba(122,89,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(122,89,255,0.045) 1px, transparent 1px)",
+                  "linear-gradient(var(--nav-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--nav-grid-line) 1px, transparent 1px)",
                 backgroundSize: "48px 48px",
                 maskImage: "radial-gradient(ellipse 90% 80% at 50% 45%, black 30%, transparent 100%)",
                 WebkitMaskImage: "radial-gradient(ellipse 90% 80% at 50% 45%, black 30%, transparent 100%)",
@@ -282,7 +317,7 @@ export const Header = memo(function Header() {
                 fontWeight: 600,
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
-                color: "rgba(100,80,160,0.55)",
+                color: "var(--nav-label)",
                 pointerEvents: "none",
                 userSelect: "none",
               }}
@@ -357,7 +392,7 @@ export const Header = memo(function Header() {
                       userSelect: "none",
                       background: isContact
                         ? "linear-gradient(135deg, #A259FF 0%, #4CC3FF 100%)"
-                        : "rgba(255,255,255,0.78)",
+                        : "var(--nav-node-bg)",
                       border: isContact ? "1px solid rgba(255,255,255,0.5)" : "1px solid rgba(122,89,255,0.22)",
                       boxShadow: isContact
                         ? lit
@@ -390,7 +425,7 @@ export const Header = memo(function Header() {
                         fontWeight: 700,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
-                        color: isContact ? "#fff" : "#26203c",
+                        color: isContact ? "#fff" : "var(--nav-node-text)",
                       }}
                     >
                       {item.label}
@@ -419,7 +454,7 @@ export const Header = memo(function Header() {
                 height: HUB,
                 borderRadius: "50%",
                 background:
-                  "linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg,#A259FF,#4CC3FF) border-box",
+                  "linear-gradient(var(--nav-hub-fill),var(--nav-hub-fill)) padding-box, linear-gradient(135deg,#A259FF,#4CC3FF) border-box",
                 border: "1.5px solid transparent",
                 boxShadow: "0 10px 36px rgba(162,89,255,0.22), 0 0 0 6px rgba(162,89,255,0.05)",
                 display: "flex",
@@ -461,10 +496,10 @@ export const Header = memo(function Header() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
                   >
-                    <p style={{ margin: 0, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#5b4b8a" }}>
+                    <p style={{ margin: 0, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--nav-node-text)" }}>
                       {NAV_ITEMS[focusNode].label}
                     </p>
-                    <p style={{ margin: 0, fontSize: "0.72rem", color: "rgba(91,75,138,0.65)" }}>
+                    <p style={{ margin: 0, fontSize: "0.72rem", color: "var(--nav-label)" }}>
                       {NAV_ITEMS[focusNode].hint}
                     </p>
                   </motion.div>
@@ -495,9 +530,9 @@ export const Header = memo(function Header() {
                     width: 38, height: 38,
                     borderRadius: "50%",
                     border: "1px solid rgba(122,89,255,0.22)",
-                    background: "rgba(255,255,255,0.6)",
+                    background: "var(--nav-node-bg)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "rgba(100,80,160,0.75)",
+                    color: "var(--nav-label)",
                   }}
                 >
                   <Icon style={{ width: 15, height: 15 }} />

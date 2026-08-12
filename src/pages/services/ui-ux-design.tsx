@@ -14,8 +14,8 @@ export function UIUXDesign() {
   return (
     <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>UI/UX Design Services in Kerala | App &amp; Web Design | Cirqle</title>
-        <meta name="description" content="Cirqle delivers intuitive UI/UX design for apps and websites in Kerala — user research, wireframes, and polished interfaces mapped precisely to your customer journey." />
+        <title>UI/UX Design Services | App &amp; Web Design | Cirqle</title>
+        <meta name="description" content="Cirqle delivers intuitive UI/UX design for apps and websites — user research, wireframes, and polished interfaces mapped precisely to your customer journey." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">

@@ -14,8 +14,8 @@ export function EventBranding() {
   return (
     <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Event Branding in Kerala | Stage, Exhibition &amp; Event Design | Cirqle</title>
-        <meta name="description" content="Cirqle designs immersive event branding experiences in Kerala — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
+        <title>Event Branding | Stage, Exhibition &amp; Event Design | Cirqle</title>
+        <meta name="description" content="Cirqle designs immersive event branding experiences — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">

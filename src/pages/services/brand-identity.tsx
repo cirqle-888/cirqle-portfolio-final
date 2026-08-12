@@ -14,8 +14,8 @@ export function BrandIdentity() {
   return (
     <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <Helmet>
-        <title>Brand Identity Design in Kerala | Logo &amp; Visual System | Cirqle</title>
-        <meta name="description" content="Cirqle crafts complete brand identity systems in Kerala — logos, typography, colour palettes, and brand guidelines that make your business instantly recognisable." />
+        <title>Brand Identity Design | Logo &amp; Visual System | Cirqle</title>
+        <meta name="description" content="Cirqle crafts complete brand identity systems — logos, typography, colour palettes, and brand guidelines that make your business instantly recognisable." />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
