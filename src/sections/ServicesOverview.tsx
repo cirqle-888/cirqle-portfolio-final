@@ -1,9 +1,20 @@
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  ShoppingBag,
+  Fingerprint,
+  Megaphone,
+  Clapperboard,
+  MonitorSmartphone,
+  Target,
+  CalendarDays,
+  LucideIcon,
+} from "lucide-react";
 
 interface Service {
+  icon: LucideIcon;
   title: string;
   desc: string;
   caps: string[];
@@ -12,6 +23,7 @@ interface Service {
 
 const SERVICES: Service[] = [
   {
+    icon: ShoppingBag,
     title: "Retail & Promotions",
     desc: "Offer artwork built to move products off shelves — our core craft, on weekly deadlines.",
     href: "/highlights/supermarket-campaign",
@@ -25,6 +37,7 @@ const SERVICES: Service[] = [
     ],
   },
   {
+    icon: Fingerprint,
     title: "Brand & Identity",
     desc: "The mark, the rules, and the language that make a brand recognisable anywhere.",
     href: "/services/brand-identity",
@@ -38,6 +51,7 @@ const SERVICES: Service[] = [
     ],
   },
   {
+    icon: Megaphone,
     title: "Social & Content",
     desc: "A feed that stays active, on-brand, and worth following.",
     caps: [
@@ -50,6 +64,7 @@ const SERVICES: Service[] = [
     ],
   },
   {
+    icon: Clapperboard,
     title: "Video Production",
     desc: "Video cut for the platform it lives on, not repurposed as an afterthought.",
     caps: [
@@ -62,6 +77,7 @@ const SERVICES: Service[] = [
     ],
   },
   {
+    icon: MonitorSmartphone,
     title: "Digital & Web",
     desc: "Interfaces that are easy to use, easy to update, and ready for developers.",
     href: "/services/ui-ux-design",
@@ -75,6 +91,7 @@ const SERVICES: Service[] = [
     ],
   },
   {
+    icon: Target,
     title: "Advertising",
     desc: "Creative and campaigns pointed at results, not impressions.",
     caps: [
@@ -87,6 +104,7 @@ const SERVICES: Service[] = [
     ],
   },
   {
+    icon: CalendarDays,
     title: "Events & Spaces",
     desc: "Everything an event needs to look like one brand, from entrance to stage.",
     href: "/services/event-branding",
@@ -149,44 +167,56 @@ export function ServicesOverview() {
       {/* Capability rows */}
       <section id="services" className="pb-28 px-6 bg-white">
         <div className="svc-list">
-          {SERVICES.map((service, i) => (
-            <motion.div
-              key={service.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "80px" }}
-              transition={{ duration: 0.5 }}
-              className="svc-row"
-            >
-              <div className="svc-index">{String(i + 1).padStart(2, "0")}</div>
+          {SERVICES.map((service, i) => {
+            const Icon = service.icon;
+            return (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "80px" }}
+                transition={{ duration: 0.5 }}
+                className="svc-row"
+              >
+                <div className="svc-head">
+                  <div className="svc-badge" aria-hidden="true">
+                    <Icon style={{ width: 24, height: 24 }} />
+                    <span className="svc-num">{String(i + 1).padStart(2, "0")}</span>
+                  </div>
+                  {/* On mobile the title sits beside the badge; on desktop it moves to its own column */}
+                  <h2 className="svc-title svc-title-mobile">
+                    {service.title}
+                  </h2>
+                </div>
 
-              <div>
-                <h2 className="svc-title">{service.title}</h2>
-                <p className="svc-desc">{service.desc}</p>
-                {service.href && (
-                  <button
-                    type="button"
-                    onClick={() => navigate(service.href!)}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium mt-4"
-                    style={{ color: "#A259FF" }}
-                  >
-                    See examples <ArrowRight style={{ width: 14, height: 14 }} />
-                  </button>
-                )}
-              </div>
+                <div>
+                  <h2 className="svc-title svc-title-desktop">{service.title}</h2>
+                  <p className="svc-desc">{service.desc}</p>
+                  {service.href && (
+                    <button
+                      type="button"
+                      onClick={() => navigate(service.href!)}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium mt-4"
+                      style={{ color: "#A259FF" }}
+                    >
+                      See examples <ArrowRight style={{ width: 14, height: 14 }} />
+                    </button>
+                  )}
+                </div>
 
-              <ul className="svc-caps">
-                {service.caps.map((cap) => (
-                  <li key={cap}>{cap}</li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
+                <ul className="svc-caps">
+                  {service.caps.map((cap) => (
+                    <li key={cap}>{cap}</li>
+                  ))}
+                </ul>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
       {/* Closing */}
-      <section className="py-24 px-6 bg-gray-50">
+      <section className="py-28 px-6 bg-gray-50">
         <div className="max-w-2xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
