@@ -165,7 +165,7 @@ export function ServicesOverview() {
       </section>
 
       {/* Capability rows */}
-      <section id="services" className="pb-28 px-6 bg-white">
+      <section id="services" className="px-6 bg-white">
         <div className="svc-list">
           {SERVICES.map((service, i) => {
             const Icon = service.icon;
@@ -216,7 +216,7 @@ export function ServicesOverview() {
       </section>
 
       {/* Closing */}
-      <section className="py-28 px-6 bg-gray-50">
+      <section className="py-20 px-6 bg-gray-50">
         <div className="max-w-2xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
