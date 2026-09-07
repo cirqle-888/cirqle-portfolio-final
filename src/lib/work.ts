@@ -57,7 +57,10 @@ export interface WorkItem {
   /** "<brand>/<slug>" — unique within a collection */
   id: string;
   slug: string;
+  /** File-derived name. Used for alt text and search, never shown on a tile. */
   title: string;
+  /** What the tile says, when someone has written one. */
+  caption?: string;
   kind: WorkKind;
   format: WorkFormat;
   /** Playable file we host — only for kind "video" */
@@ -109,6 +112,7 @@ export interface WorkCollection {
 interface RawItem {
   slug: string;
   title: string;
+  caption?: string | null;
   width: number;
   height: number;
   variants: WorkVariant[] | null;
@@ -142,14 +146,32 @@ interface RawCollection {
 // The newer columns are requested together and dropped together: PostgREST
 // rejects the whole select for one unknown field, and a site that shipped
 // before the migrations ran would otherwise show no portfolio at all.
-const itemFields = (withNewColumns: boolean) =>
-  "work_items(slug,title,width,height,variants,position,kind," +
-  (withNewColumns ? "format,collection_position," : "") +
-  "media_path,external_url,duration_seconds)";
+interface Extras {
+  brand: readonly string[];
+  item: readonly string[];
+}
 
-const selectFor = (withNewColumns: boolean) =>
+const selectFor = ({ brand, item }: Extras) =>
   "slug,eyebrow,title,description,seo_title,seo_description,position," +
-  `work_brands(slug,name,tagline,position,${withNewColumns ? "logo_path," : ""}${itemFields(withNewColumns)})`;
+  `work_brands(slug,name,tagline,position,${brand.map((c) => `${c},`).join("")}` +
+  `work_items(slug,title,width,height,variants,position,kind,` +
+  `${item.map((c) => `${c},`).join("")}media_path,external_url,duration_seconds))`;
+
+/**
+ * What to ask for, best first, giving up ONE column per step.
+ *
+ * PostgREST rejects an entire select for a single unknown field, so a site
+ * deployed ahead of its migrations has to be able to climb down. One at a time
+ * and newest first, because the migrations land in that order: a database with
+ * logos but no captions should still return the logos.
+ */
+const SELECTS: readonly Extras[] = [
+  { brand: ["logo_path"], item: ["format", "collection_position", "caption"] },
+  { brand: ["logo_path"], item: ["format", "collection_position"] },
+  { brand: ["logo_path"], item: ["format"] },
+  { brand: [], item: ["format"] },
+  { brand: [], item: [] },
+];
 
 /**
  * Format for a row that has none — either because the database has not been
@@ -195,6 +217,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 id: `${b.slug}/${it.slug}`,
                 slug: it.slug,
                 title: it.title,
+                caption: it.caption?.trim() || undefined,
                 kind,
                 format: it.format ?? inferFormat(it, c.slug),
                 videoUrl: it.media_path ? publicUrl(WORK_BUCKET, it.media_path) : undefined,
@@ -255,6 +278,15 @@ function shape(raw: RawCollection[]): WorkCollection[] {
           ),
       };
     });
+}
+
+/**
+ * How a creative should be described out loud — alt text, aria labels, the
+ * lightbox heading. Its caption when there is one, otherwise just the brand:
+ * the file-derived title never reaches a visitor.
+ */
+export function describeItem(item: Pick<WorkItem, "brandName" | "caption">): string {
+  return item.caption ? `${item.brandName} — ${item.caption}` : item.brandName;
 }
 
 /** Recognise the host so the button can say "Watch on Instagram". */
@@ -327,25 +359,24 @@ export function loadWork(): Promise<WorkCollection[]> {
   // field — which would blank the entire portfolio. Retrying without it keeps
   // the gallery up; every creative simply reads as a post until the column
   // lands, and the format chips stay hidden.
-  const request = (withFormat: boolean) =>
-    fetch(`${restUrl("work_collections")}?select=${encodeURIComponent(selectFor(withFormat))}`, {
+  const request = (extras: Extras) =>
+    fetch(`${restUrl("work_collections")}?select=${encodeURIComponent(selectFor(extras))}`, {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
     });
 
-  inflight = request(true)
-    .then(async (res) => {
-      if (res.status === 400) {
-        const retry = await request(false);
-        if (!retry.ok) throw new Error(`Portfolio request failed (${retry.status})`);
+  inflight = (async () => {
+    let res = await request(SELECTS[0]);
+    for (let i = 1; i < SELECTS.length && res.status === 400; i++) {
+      if (i === 1) {
         console.warn(
-          "Portfolio: a newer column is missing — run the pending files in cirqle-website/supabase " +
-            "(add-work-format.sql, add-work-collection-order.sql)."
+          "Portfolio: a newer column is missing — run the pending files in cirqle-website/supabase."
         );
-        return shape((await retry.json()) as RawCollection[]);
       }
-      if (!res.ok) throw new Error(`Portfolio request failed (${res.status})`);
-      return shape((await res.json()) as RawCollection[]);
-    })
+      res = await request(SELECTS[i]);
+    }
+    if (!res.ok) throw new Error(`Portfolio request failed (${res.status})`);
+    return shape((await res.json()) as RawCollection[]);
+  })()
     .catch((err) => {
       console.error("Could not load portfolio:", err);
       failedAt = Date.now();

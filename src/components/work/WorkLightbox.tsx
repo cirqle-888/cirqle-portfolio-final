@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Link2, Download, Check, ExternalLink, Play } from "lucide-react";
 import type { WorkItem } from "../../lib/work";
-import { absoluteUrl, PLATFORM_LABEL, youtubeId } from "../../lib/work";
+import { describeItem, absoluteUrl, PLATFORM_LABEL, youtubeId } from "../../lib/work";
 
 interface WorkLightboxProps {
   items: WorkItem[];
@@ -102,7 +102,7 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
       <div className="work-lb__embed" key={item.id}>
         <iframe
           src={`https://www.youtube-nocookie.com/embed/${embedId}?autoplay=1&rel=0`}
-          title={`${item.brandName} — ${item.title}`}
+          title={describeItem(item)}
           allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
           allowFullScreen
           referrerPolicy="strict-origin-when-cross-origin"
@@ -121,7 +121,7 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
         rel="noopener noreferrer"
       >
         {item.src ? (
-          <img className="work-lb__media" src={item.src} alt={`${item.brandName} — ${item.title}`} />
+          <img className="work-lb__media" src={item.src} alt={describeItem(item)} />
         ) : (
           <span className="work-lb__blank" />
         )}
@@ -143,7 +143,7 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
         sizes="100vw"
         width={item.width}
         height={item.height}
-        alt={`${item.brandName} — ${item.title}`}
+        alt={describeItem(item)}
       />
     );
   }
@@ -151,7 +151,7 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
   const canDownload = item.kind === "image" && item.src;
 
   return createPortal(
-    <div className="work-lb" role="dialog" aria-modal="true" aria-label={`${item.brandName} — ${item.title}`}>
+    <div className="work-lb" role="dialog" aria-modal="true" aria-label={describeItem(item)}>
       <div className="work-lb__bar">
         <span className="work-lb__counter">
           {(index as number) + 1} / {items.length}
@@ -214,7 +214,7 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
 
       <div className="work-lb__cap">
         <p className="work-lb__cap-brand">{item.brandName}</p>
-        <p className="work-lb__cap-title">{item.title}</p>
+        {item.caption && <p className="work-lb__cap-title">{item.caption}</p>}
         <p className="work-lb__hint">{items.length > 1 ? "Swipe or use arrow keys · Esc to close" : "Esc to close"}</p>
       </div>
     </div>,

@@ -108,6 +108,10 @@ alter table public.work_items add column if not exists format text not null defa
 -- See supabase/add-work-collection-order.sql.
 alter table public.work_items add column if not exists collection_position integer;
 
+-- What the creative is called on the website, as opposed to the file name that
+-- became its title. See supabase/add-work-caption.sql.
+alter table public.work_items add column if not exists caption text;
+
 
 do $$ begin
   alter table public.work_items add constraint work_items_format_check

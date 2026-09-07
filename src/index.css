@@ -3583,34 +3583,43 @@ html.dark .hover\:text-gray-700:hover { color: var(--c-ink); }
   max-width: 60rem;
   margin: 2rem auto 0;
 }
+/* Filters, not buttons: no pill, no border, no fill. Weight and colour carry
+   the state instead, and a hairline under the chosen one says which is on.
+   With a logo in place of a name, a box around it read as part of the logo —
+   which is exactly what a brand mark must not have. */
 .work-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  border: 1px solid var(--c-hairline);
-  background: var(--c-surface-raised);
-  color: var(--c-ink-soft);
-  font-size: 0.85rem;
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  border-bottom: 1.5px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--c-ink-muted);
+  font-size: 0.88rem;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
-  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
-.work-chip:hover { color: var(--c-ink); border-color: #a259ff; }
+.work-chip:hover { color: var(--c-ink); }
+.work-chip:focus-visible { outline: 2px solid #a259ff; outline-offset: 3px; border-radius: 2px; }
 .work-chip[aria-pressed="true"] {
-  background: linear-gradient(90deg, #a259ff, #4cc3ff);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(162, 89, 255, 0.28);
+  color: var(--c-ink);
+  border-bottom-color: #a259ff;
 }
 .work-chip__count {
-  font-size: 0.72rem;
-  opacity: 0.65;
+  font-size: 0.68rem;
+  opacity: 0.5;
   font-variant-numeric: tabular-nums;
 }
+
+/* The rows need more air once the pills are gone — spacing is what separates
+   one filter from the next now. */
+.work-filter { gap: 0.35rem 1.35rem; }
+.work-filter--format { gap: 0.35rem 1.1rem; margin-top: 0.9rem; }
 
 /* Active-brand bar under the filter (shareable brand link) */
 .work-active {
@@ -4176,15 +4185,93 @@ video.work-lb__media {
   display: block;
 }
 
-/* A brand chip can show the client's logo instead of their name. Capped in
-   height so a tall mark and a wide wordmark sit on the same row, and never
-   stretched — a squashed logo is worse than no logo. */
+/* Format chips are an icon at rest and grow to say their name when pointed at
+   or chosen. The label is clipped by max-width rather than removed: the text
+   stays in the accessibility tree, and width animates where display cannot. */
+.work-chip--format { gap: 0.35rem; }
+.work-chip--format svg { display: block; flex: none; }
+
+.work-chip__label {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  /* Slower on the way out than in: a label that snaps shut as the pointer
+     leaves feels like a glitch, one that eases out feels deliberate. */
+  transition: max-width 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.work-chip--format:hover .work-chip__label,
+.work-chip--format:focus-visible .work-chip__label,
+.work-chip--format[aria-pressed="true"] .work-chip__label {
+  max-width: 8rem;
+  opacity: 1;
+  transition: max-width 0.34s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease 0.04s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-chip__label { transition: none; }
+}
+
+/* Coarse pointers never hover, so a chip that only names itself on hover is a
+   chip that never names itself. On touch they are labelled from the start. */
+@media (hover: none) {
+  .work-chip__label { max-width: 8rem; opacity: 1; }
+}
+
+/* A brand chip can show the client's logo instead of their name.
+   ONE fixed box for every logo, whatever its proportions: a row of chips whose
+   marks are all different sizes looks like an accident. Tall symbols and wide
+   wordmarks are both contained inside it, never stretched. */
 .work-chip__logo {
-  height: 1.15rem;
-  max-width: 6.5rem;
-  width: auto;
-  object-fit: contain;
+  position: relative;
   display: block;
+  width: 5.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+/* Resting state: the logo's own silhouette, filled with the chip's text
+   colour. Because it is currentColor it is light on the dark chips, dark in
+   light mode, and white on the active chip — one asset, right in every case,
+   and no second upload to keep in step.
+   This is why the upload erases a flat background: a mask reads the alpha
+   channel, so a logo still on its white rectangle would mask AS a rectangle. */
+.work-chip__logo-mono {
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  -webkit-mask-image: var(--logo);
+          mask-image: var(--logo);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  transition: opacity 0.25s ease;
+}
+
+/* Hover reveals the real thing, in its own colours. */
+.work-chip__logo-colour {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.work-chip:hover .work-chip__logo-colour,
+.work-chip:focus-visible .work-chip__logo-colour,
+.work-chip[aria-pressed="true"] .work-chip__logo-colour { opacity: 1; }
+.work-chip:hover .work-chip__logo-mono,
+.work-chip:focus-visible .work-chip__logo-mono,
+.work-chip[aria-pressed="true"] .work-chip__logo-mono { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .work-chip__logo-mono, .work-chip__logo-colour { transition: none; }
 }
 
 /* ── Supermarket flyer shelf ───────────────────────────────────────────────

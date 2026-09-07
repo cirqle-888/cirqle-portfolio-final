@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Play } from "lucide-react";
 import type { WorkItem } from "../../lib/work";
-import { formatDuration, srcFor } from "../../lib/work";
+import { describeItem, formatDuration, srcFor } from "../../lib/work";
 
 interface WorkTileProps {
   item: WorkItem;
@@ -68,7 +68,7 @@ export function WorkTile({ item, onOpen, crop = false, eager = false, sizes }: W
       onBlur={stopPreview}
       className={`work-tile${crop ? " work-tile--crop" : ""}`}
       style={crop ? undefined : { aspectRatio: `${item.aspect}` }}
-      aria-label={`${isMotion ? "Play" : "Open"} ${item.brandName} — ${item.title}`}
+      aria-label={`${isMotion ? "Play" : "Open"} ${describeItem(item)}`}
     >
       {item.src ? (
         <img
@@ -79,7 +79,7 @@ export function WorkTile({ item, onOpen, crop = false, eager = false, sizes }: W
           height={item.height}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          alt={`${item.brandName} — ${item.title}`}
+          alt={describeItem(item)}
         />
       ) : (
         // A linked reel with no cover still needs a face.
@@ -119,7 +119,10 @@ export function WorkTile({ item, onOpen, crop = false, eager = false, sizes }: W
 
       <span className="work-tile__meta">
         <span className="work-tile__brand">{item.brandName}</span>
-        <span className="work-tile__title">{item.title}</span>
+        {/* Only a caption someone wrote. The title is the uploaded file's
+            name — useful for finding the piece in the dashboard, never
+            something a visitor should read. */}
+        {item.caption && <span className="work-tile__title">{item.caption}</span>}
       </span>
     </button>
   );

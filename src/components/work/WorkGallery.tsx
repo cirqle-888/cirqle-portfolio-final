@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { WorkTile } from "./WorkTile";
+import { FormatIcon } from "./FormatIcon";
 import { WorkLightbox } from "./WorkLightbox";
 import { FORMAT_LABEL, FORMATS, type WorkBrand, type WorkFormat, type WorkItem } from "../../lib/work";
 
@@ -160,7 +161,25 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
                   it, so the chip still reads as the brand to a screen reader
                   and to a search engine. */}
               {b.logo ? (
-                <img className="work-chip__logo" src={b.logo} alt={b.name} loading="lazy" decoding="async" />
+                // Two layers in one fixed-size box. The span paints the logo's
+                // own alpha channel in currentColor — one flat colour that
+                // follows the chip in light and dark alike — and the real
+                // image fades in over it on hover. The <img> is always in the
+                // DOM, transparent rather than absent, so the brand name is
+                // still announced and indexed.
+                <span
+                  className="work-chip__logo"
+                  style={{ ["--logo" as string]: `url(${JSON.stringify(b.logo)})` }}
+                >
+                  <span aria-hidden className="work-chip__logo-mono" />
+                  <img
+                    className="work-chip__logo-colour"
+                    src={b.logo}
+                    alt={b.name}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
               ) : (
                 b.name
               )}
@@ -185,11 +204,16 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
             <button
               key={format}
               type="button"
-              className="work-chip"
+              className="work-chip work-chip--format"
               aria-pressed={activeFormat === format}
               onClick={() => setFormat(format)}
             >
-              {FORMAT_LABEL[format]}
+              <FormatIcon format={format} />
+              {/* The label is always in the DOM — clipped to nothing until the
+                  chip is pointed at or chosen — so the filter still has a real
+                  name for a screen reader and for search, and the reveal is a
+                  width animation rather than an appearance. */}
+              <span className="work-chip__label">{FORMAT_LABEL[format]}</span>
               <span className="work-chip__count">{count}</span>
             </button>
           ))}
