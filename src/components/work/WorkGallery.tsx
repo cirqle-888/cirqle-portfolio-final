@@ -70,8 +70,8 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
     [byBrand, activeFormat]
   );
 
-  // Counts follow the brand already chosen, and a format with nothing in it is
-  // not offered — an empty chip is just a dead end.
+  // The counts are not shown any more, but they still decide WHICH formats are
+  // offered: a chip for a format with nothing in it is a dead end.
   const formatCounts = useMemo(() => {
     const counts = new Map<WorkFormat, number>();
     for (const item of byBrand) counts.set(item.format, (counts.get(item.format) ?? 0) + 1);
@@ -147,7 +147,6 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
             onClick={() => setBrand(null)}
           >
             All
-            <span className="work-chip__count">{items.length}</span>
           </button>
           {brands.map((b) => (
             <button
@@ -183,7 +182,6 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
               ) : (
                 b.name
               )}
-              <span className="work-chip__count">{b.items.length}</span>
             </button>
           ))}
         </div>
@@ -193,14 +191,14 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
         <div className="work-filter work-filter--format" role="group" aria-label="Filter by format">
           <button
             type="button"
-            className="work-chip"
+            className="work-chip work-chip--format"
             aria-pressed={!activeFormat}
             onClick={() => setFormat(null)}
           >
-            All formats
-            <span className="work-chip__count">{byBrand.length}</span>
+            <FormatIcon format="all" />
+            <span className="work-chip__label">All formats</span>
           </button>
-          {formatCounts.map(({ format, count }) => (
+          {formatCounts.map(({ format }) => (
             <button
               key={format}
               type="button"
@@ -214,7 +212,6 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
                   name for a screen reader and for search, and the reveal is a
                   width animation rather than an appearance. */}
               <span className="work-chip__label">{FORMAT_LABEL[format]}</span>
-              <span className="work-chip__count">{count}</span>
             </button>
           ))}
         </div>

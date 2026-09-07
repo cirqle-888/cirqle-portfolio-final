@@ -120,7 +120,6 @@ export function WorkBrandPage() {
               {others.map((b) => (
                 <Link key={b.slug} to={`/portfolio/${data.slug}/${b.slug}`} className="work-chip">
                   {b.name}
-                  <span className="work-chip__count">{b.items.length}</span>
                 </Link>
               ))}
             </div>

@@ -7,7 +7,7 @@ import type { WorkFormat } from "../../lib/work";
  * in, and it keeps them consistent: same 16px box, same 1.6 stroke, same
  * rounded ends, so a row of chips reads as one set.
  */
-export function FormatIcon({ format }: { format: WorkFormat }) {
+export function FormatIcon({ format }: { format: WorkFormat | "all" }) {
   const common = {
     width: 15,
     height: 15,
@@ -22,6 +22,14 @@ export function FormatIcon({ format }: { format: WorkFormat }) {
   };
 
   switch (format) {
+    // Everything: overlapping sheets, one behind the other.
+    case "all":
+      return (
+        <svg {...common}>
+          <rect x="8.6" y="3.2" width="12.2" height="12.2" rx="2.8" />
+          <path d="M15.4 20.8H6.2a3 3 0 0 1-3-3V8.6" />
+        </svg>
+      );
     // A framed square: the grid post.
     case "post":
       return (

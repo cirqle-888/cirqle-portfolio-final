@@ -3610,15 +3610,9 @@ html.dark .hover\:text-gray-700:hover { color: var(--c-ink); }
   color: var(--c-ink);
   border-bottom-color: #a259ff;
 }
-.work-chip__count {
-  font-size: 0.68rem;
-  opacity: 0.5;
-  font-variant-numeric: tabular-nums;
-}
-
 /* The rows need more air once the pills are gone — spacing is what separates
    one filter from the next now. */
-.work-filter { gap: 0.35rem 1.35rem; }
+.work-filter { gap: 0.5rem 1.5rem; }
 .work-filter--format { gap: 0.35rem 1.1rem; margin-top: 0.9rem; }
 
 /* Active-brand bar under the filter (shareable brand link) */
@@ -4223,11 +4217,15 @@ video.work-lb__media {
    ONE fixed box for every logo, whatever its proportions: a row of chips whose
    marks are all different sizes looks like an accident. Tall symbols and wide
    wordmarks are both contained inside it, never stretched. */
+/* Sized like a client strip: one HEIGHT for every mark, each keeping its own
+   width. A fixed box would shrink a square symbol to a stamp beside a wide
+   wordmark; matching the height instead is what makes a row of unrelated logos
+   look deliberate. The colour layer sits in normal flow and gives the box its
+   width; the mono layer lies over it. */
 .work-chip__logo {
   position: relative;
-  display: block;
-  width: 5.25rem;
-  height: 1.25rem;
+  display: inline-block;
+  height: 2rem;
   flex: none;
 }
 
@@ -4240,6 +4238,9 @@ video.work-lb__media {
 .work-chip__logo-mono {
   position: absolute;
   inset: 0;
+  /* Slightly held back at rest, the way a client wall sits under the copy
+     around it, and brought up to full strength on hover with the colour. */
+  opacity: 0.75;
   background-color: currentColor;
   -webkit-mask-image: var(--logo);
           mask-image: var(--logo);
@@ -4254,10 +4255,12 @@ video.work-lb__media {
 
 /* Hover reveals the real thing, in its own colours. */
 .work-chip__logo-colour {
-  position: absolute;
-  inset: 0;
-  width: 100%;
+  display: block;
   height: 100%;
+  width: auto;
+  /* A very wide wordmark would otherwise run away with the row. */
+  max-width: 9.5rem;
+  min-width: 2rem;
   object-fit: contain;
   object-position: center;
   opacity: 0;
@@ -4269,6 +4272,9 @@ video.work-lb__media {
 .work-chip:hover .work-chip__logo-mono,
 .work-chip:focus-visible .work-chip__logo-mono,
 .work-chip[aria-pressed="true"] .work-chip__logo-mono { opacity: 0; }
+
+/* A logo chip needs a little more room around it than a word does. */
+.work-chip:has(.work-chip__logo) { padding-inline: 0.4rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .work-chip__logo-mono, .work-chip__logo-colour { transition: none; }
