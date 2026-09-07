@@ -22,11 +22,24 @@ export interface WorkVariant {
   bytes?: number;
 }
 
+/** What a portfolio entry actually is. */
+export type WorkKind = "image" | "video" | "reel";
+
+/** Where a linked reel lives, used to label the button that opens it. */
+export type Platform = "instagram" | "youtube" | "facebook" | "tiktok" | "vimeo" | "other";
+
 export interface WorkItem {
   /** "<brand>/<slug>" — unique within a collection */
   id: string;
   slug: string;
   title: string;
+  kind: WorkKind;
+  /** Playable file we host — only for kind "video" */
+  videoUrl?: string;
+  /** Where it lives on a social platform; openable for any kind */
+  externalUrl?: string;
+  platform?: Platform;
+  durationSeconds?: number;
   collectionSlug: string;
   brandSlug: string;
   brandName: string;
@@ -70,6 +83,10 @@ interface RawItem {
   height: number;
   variants: WorkVariant[] | null;
   position: number;
+  kind: WorkKind | null;
+  media_path: string | null;
+  external_url: string | null;
+  duration_seconds: number | null;
 }
 interface RawBrand {
   slug: string;
@@ -92,7 +109,7 @@ interface RawCollection {
 const SELECT =
   "slug,eyebrow,title,description,seo_title,seo_description,position," +
   "work_brands(slug,name,tagline,position," +
-  "work_items(slug,title,width,height,variants,position))";
+  "work_items(slug,title,width,height,variants,position,kind,media_path,external_url,duration_seconds))";
 
 const byPosition = <T extends { position: number; slug: string }>(a: T, b: T) =>
   a.position - b.position || a.slug.localeCompare(b.slug, undefined, { numeric: true });
@@ -116,10 +133,16 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 .slice()
                 .sort((x, y) => y.width - x.width);
               const largest = variants[0];
+              const kind: WorkKind = it.kind ?? "image";
               return {
                 id: `${b.slug}/${it.slug}`,
                 slug: it.slug,
                 title: it.title,
+                kind,
+                videoUrl: it.media_path ? publicUrl(WORK_BUCKET, it.media_path) : undefined,
+                externalUrl: it.external_url ?? undefined,
+                platform: it.external_url ? platformOf(it.external_url) : undefined,
+                durationSeconds: it.duration_seconds ?? undefined,
                 collectionSlug: c.slug,
                 brandSlug: b.slug,
                 brandName: b.name,
@@ -133,8 +156,11 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                   .join(", "),
               };
             })
-            // An item with no renditions would render as a broken tile.
-            .filter((it) => it.src);
+            // A tile needs something to show: artwork, a clip we host, or at
+            // minimum a link to send the viewer to. Videos whose poster frame
+            // could not be captured have no renditions but are still playable,
+            // so `videoUrl` has to count here.
+            .filter((it) => it.src || it.videoUrl || it.externalUrl);
 
           return {
             slug: b.slug,
@@ -157,6 +183,52 @@ function shape(raw: RawCollection[]): WorkCollection[] {
         items: brands.flatMap((b) => b.items),
       };
     });
+}
+
+/** Recognise the host so the button can say "Watch on Instagram". */
+export function platformOf(url: string): Platform {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    if (host.endsWith("instagram.com")) return "instagram";
+    if (host.endsWith("youtube.com") || host === "youtu.be") return "youtube";
+    if (host.endsWith("facebook.com") || host === "fb.watch") return "facebook";
+    if (host.endsWith("tiktok.com")) return "tiktok";
+    if (host.endsWith("vimeo.com")) return "vimeo";
+    return "other";
+  } catch {
+    return "other";
+  }
+}
+
+export const PLATFORM_LABEL: Record<Platform, string> = {
+  instagram: "Instagram",
+  youtube: "YouTube",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+  vimeo: "Vimeo",
+  other: "the original",
+};
+
+/** YouTube video id, when the URL is one we can embed inline. */
+export function youtubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") return u.pathname.slice(1) || null;
+    if (!host.endsWith("youtube.com")) return null;
+    if (u.pathname === "/watch") return u.searchParams.get("v");
+    const m = u.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/);
+    return m ? m[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+/** "1:04" from a duration in seconds. */
+export function formatDuration(seconds?: number): string | null {
+  if (!seconds || seconds <= 0) return null;
+  const total = Math.round(seconds);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }
 
 // ── Loading ─────────────────────────────────────────────────────────────────

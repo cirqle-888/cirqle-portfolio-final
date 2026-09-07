@@ -110,6 +110,11 @@ async function upload(objectPath, buffer, contentType) {
  * project, and a second run must not undo titles or ordering changed since.
  */
 async function upsert(table, row, onConflict, match) {
+  // A missing `match` would only blow up on a real run, long after the dry run
+  // said everything was fine — fail loudly instead.
+  if (!match || !Object.keys(match).length) {
+    throw new Error(`upsert(${table}) called without a match key — this is a bug in the script`);
+  }
   // In a dry run, hand back a stand-in so the walk can continue offline.
   if (DRY_RUN) return { ...row, id: `dry-${table}-${row.slug}`, existed: false };
 
@@ -236,7 +241,8 @@ async function main() {
             published: true,
             position: itemPosition,
           },
-          "brand_id,slug"
+          "brand_id,slug",
+          { brand_id: brand.id, slug }
         );
         items++;
         const kb = Math.round(variants.reduce((n, v) => n + v.bytes, 0) / 1024);

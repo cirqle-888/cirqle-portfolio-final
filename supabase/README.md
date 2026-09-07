@@ -26,7 +26,11 @@ The Supabase free tier covers two projects.
 
 **2. Create the schema.** Open the SQL Editor, paste [`schema.sql`](schema.sql)
 and run it. It creates the content tables, the read-only policies, and the
-`work` and `flyers` storage buckets. It is safe to re-run.
+`work` and `flyers` storage buckets.
+
+`schema.sql` is the single source of truth and every statement is written to be
+safe to re-run, so **re-run the whole file whenever it changes** — that is how
+new columns and tables reach an existing project.
 
 **3. Point the site at it.** From the project's API settings, copy the URL and
 the anon (publishable) key into `.env`, and into the Vercel project's
@@ -79,9 +83,10 @@ paid add-on. Export them around 1200–1600 px wide before uploading.
 | --- | --- |
 | `work_collections` | A gallery, e.g. `social-media` → `/portfolio/social-media` |
 | `work_brands` | A client inside a collection → `/portfolio/social-media/cell-world` |
-| `work_items` | One creative, with its rendition list in `variants` |
-| `work` bucket | The portfolio image files |
-| `flyers` bucket | Weekly supermarket flyers |
+| `work_items` | One creative: `kind` is image, video or reel; `variants` holds its renditions |
+| `flyers` | Supermarket flyer pages, in page order |
+| `work` bucket | Portfolio images, videos and poster frames |
+| `flyers` bucket | Flyer page images |
 
 Writes are only possible with the service role key. The website's anon key can
 read published rows and nothing else.

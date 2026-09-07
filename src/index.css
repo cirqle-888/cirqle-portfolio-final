@@ -3893,7 +3893,7 @@ html.dark .work-share-btn--wa { color: #25d366; }
   touch-action: pan-y;
 }
 @media (max-width: 640px) { .work-lb__stage { padding: 0 10px; } }
-.work-lb__img {
+.work-lb__media {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -3964,4 +3964,193 @@ html.dark .work-share-btn--wa { color: #25d366; }
 }
 @media (prefers-reduced-motion: reduce) {
   .work-tile--skeleton { animation: none; }
+}
+
+/* ============================================================
+   Video and linked reels
+   ============================================================ */
+
+/* Placeholder when a linked reel has no thumbnail yet */
+.work-tile__blank,
+.work-lb__blank {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  background: linear-gradient(135deg, #2b2340 0%, #1a2740 100%);
+}
+
+/* Play badge on a moving tile */
+.work-tile__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(12, 10, 20, 0.55);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  pointer-events: none;
+  transition: transform 0.25s ease, background 0.25s ease;
+  /* nudge the triangle onto the optical centre */
+  padding-left: 3px;
+}
+.work-tile:hover .work-tile__play,
+.work-tile:focus-visible .work-tile__play {
+  transform: translate(-50%, -50%) scale(1.08);
+  background: rgba(12, 10, 20, 0.72);
+}
+
+.work-tile__duration {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(12, 10, 20, 0.68);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+/* Video fills the lightbox stage the same way an image does */
+.work-lb__media {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  background: #000;
+}
+video.work-lb__media {
+  width: auto;
+  height: 100%;
+}
+
+/* YouTube embed keeps a 16:9 box inside the stage */
+.work-lb__embed {
+  width: min(100%, 1100px);
+  aspect-ratio: 16 / 9;
+  max-height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  background: #000;
+}
+.work-lb__embed iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* A reel that cannot be embedded: poster plus a hand-off to the platform */
+.work-lb__link-card {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  line-height: 0;
+}
+.work-lb__link-card .work-lb__media { box-shadow: none; border-radius: 0; }
+.work-lb__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.18));
+  color: #fff;
+  line-height: 1.2;
+  transition: background 0.25s ease;
+}
+.work-lb__link-card:hover .work-lb__overlay { background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.3)); }
+.work-lb__play {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding-left: 4px;
+  transition: transform 0.25s ease;
+}
+.work-lb__link-card:hover .work-lb__play { transform: scale(1.06); }
+.work-lb__overlay-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-tile__play,
+  .work-lb__play,
+  .work-lb__overlay { transition: none; }
+}
+
+/* Silent hover preview on a tile */
+.work-tile__preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.work-tile__preview.is-playing { opacity: 1; }
+.work-tile__play.is-hidden { opacity: 0; }
+.work-tile__play { transition: transform 0.25s ease, background 0.25s ease, opacity 0.25s ease; }
+
+/* Lightbox player with a call to action underneath */
+.work-lb__player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+.work-lb__player .work-lb__media { min-height: 0; }
+.work-lb__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  height: 42px;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a259ff, #4cc3ff);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 10px 26px rgba(162, 89, 255, 0.35);
+  transition: transform 0.2s ease;
+}
+.work-lb__cta:hover { transform: translateY(-1px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .work-tile__preview,
+  .work-lb__cta { transition: none; }
 }

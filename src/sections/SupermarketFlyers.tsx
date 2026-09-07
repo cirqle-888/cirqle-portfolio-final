@@ -1,8 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "../components/ui/button";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { getSupermarketFlyers } from "../services/flyerService";
+import { getSupermarketFlyers, type Flyer } from "../services/flyerService";
 import { useNavigate } from "react-router-dom";
 
 // The flip-book reader (react-pageflip) is heavy — load it only when a flyer is opened.
@@ -14,13 +13,19 @@ interface SupermarketFlyersProps {
   limit?: number;
 }
 
-const FALLBACK_FLYER =
-  "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600";
-
-const FALLBACK_FLYERS = [FALLBACK_FLYER];
+// Shown until real flyers load, and if the project is unreachable.
+const FALLBACK_FLYERS: Flyer[] = [
+  {
+    title: "Sample flyer",
+    width: 600,
+    height: 800,
+    src: "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600",
+    srcset: "",
+  },
+];
 
 export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
-  const [flyers, setFlyers] = useState<string[]>(FALLBACK_FLYERS);
+  const [flyers, setFlyers] = useState<Flyer[]>(FALLBACK_FLYERS);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const navigate = useNavigate();
 
@@ -30,9 +35,9 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
     let cancelled = false;
 
     getSupermarketFlyers()
-      .then((urls) => {
+      .then((rows) => {
         if (cancelled) return;
-        if (urls.length > 0) setFlyers(urls);
+        if (rows.length > 0) setFlyers(rows);
       })
       .catch((err) => {
         console.error("Error fetching supermarket flyers:", err);
@@ -71,7 +76,7 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
 
         {/* Flyer samples */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-14">
-          {displayFlyers.map((image, i) => (
+          {displayFlyers.map((flyer, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 24 }}
@@ -87,11 +92,15 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
               >
                 <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-500">
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    <ImageWithFallback
-                      src={image}
-                      alt={`Supermarket campaign flyer ${i + 1}`}
-                      width={600}
-                      height={800}
+                    <img
+                      src={flyer.src}
+                      srcSet={flyer.srcset || undefined}
+                      sizes="(min-width: 1024px) 22vw, (min-width: 768px) 30vw, 45vw"
+                      alt={flyer.title || `Supermarket campaign flyer ${i + 1}`}
+                      width={flyer.width}
+                      height={flyer.height}
+                      loading={i < 4 ? "eager" : "lazy"}
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
@@ -117,7 +126,7 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
       {activeIndex !== null && (
         <Suspense fallback={null}>
           <BrochureReader
-            images={displayFlyers}
+            images={displayFlyers.map((f) => f.src)}
             activeIndex={activeIndex}
             setActiveIndex={setActiveIndex}
           />
