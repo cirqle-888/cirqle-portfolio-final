@@ -87,6 +87,8 @@ export interface WorkBrand {
   slug: string;
   name: string;
   tagline?: string;
+  /** Shown on the filter chip in place of the name, when one was uploaded. */
+  logo?: string;
   items: WorkItem[];
   cover: WorkItem;
 }
@@ -123,6 +125,7 @@ interface RawBrand {
   name: string;
   tagline: string | null;
   position: number;
+  logo_path?: string | null;
   work_items: RawItem[] | null;
 }
 interface RawCollection {
@@ -144,9 +147,9 @@ const itemFields = (withNewColumns: boolean) =>
   (withNewColumns ? "format,collection_position," : "") +
   "media_path,external_url,duration_seconds)";
 
-const selectFor = (withFormat: boolean) =>
+const selectFor = (withNewColumns: boolean) =>
   "slug,eyebrow,title,description,seo_title,seo_description,position," +
-  `work_brands(slug,name,tagline,position,${itemFields(withFormat)})`;
+  `work_brands(slug,name,tagline,position,${withNewColumns ? "logo_path," : ""}${itemFields(withNewColumns)})`;
 
 /**
  * Format for a row that has none — either because the database has not been
@@ -222,6 +225,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
             slug: b.slug,
             name: b.name,
             tagline: b.tagline ?? undefined,
+            logo: b.logo_path ? publicUrl(WORK_BUCKET, b.logo_path) : undefined,
             items,
             cover: items[0],
           };

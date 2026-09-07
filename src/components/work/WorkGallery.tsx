@@ -156,7 +156,14 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
               aria-pressed={activeBrand?.slug === b.slug}
               onClick={() => setBrand(b.slug)}
             >
-              {b.name}
+              {/* A logo replaces the name visually only: the alt text carries
+                  it, so the chip still reads as the brand to a screen reader
+                  and to a search engine. */}
+              {b.logo ? (
+                <img className="work-chip__logo" src={b.logo} alt={b.name} loading="lazy" decoding="async" />
+              ) : (
+                b.name
+              )}
               <span className="work-chip__count">{b.items.length}</span>
             </button>
           ))}

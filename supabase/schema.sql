@@ -56,6 +56,10 @@ create table if not exists public.work_brands (
   constraint work_brands_slug_format check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
 );
 
+-- Logo shown on the filter chips in place of the brand name; null falls back
+-- to the name. See supabase/add-brand-logos.sql.
+alter table public.work_brands add column if not exists logo_path text;
+
 -- -- Items (one creative) ----------------------------------------------------
 -- `variants` holds the rendition list produced at upload time, e.g.
 --   [{"width":480,"height":480,"path":"social-media/cell-world/ab12-480.webp","bytes":21544}, ...]

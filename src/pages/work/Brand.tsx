@@ -93,6 +93,11 @@ export function WorkBrandPage() {
           <span className="work-avatar" aria-hidden="true">
             {initials(brandData.name)}
           </span>
+          {/* The logo sits ABOVE the name here rather than replacing it: a
+              brand's own page is the one place the name should be spelled out. */}
+          {brandData.logo && (
+            <img className="work-brand-logo" src={brandData.logo} alt="" loading="eager" decoding="async" />
+          )}
           <h1 className="text-4xl md:text-6xl tracking-tight font-medium">{brandData.name}</h1>
           {brandData.tagline && <p className="work-tagline">{brandData.tagline}</p>}
 

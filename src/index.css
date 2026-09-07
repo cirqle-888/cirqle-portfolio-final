@@ -4166,6 +4166,27 @@ video.work-lb__media {
   .work-lb__cta { transition: none; }
 }
 
+/* The mark on a brand's own page, above its name. */
+.work-brand-logo {
+  height: 3.5rem;
+  max-width: 16rem;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto 1.25rem;
+  display: block;
+}
+
+/* A brand chip can show the client's logo instead of their name. Capped in
+   height so a tall mark and a wide wordmark sit on the same row, and never
+   stretched — a squashed logo is worse than no logo. */
+.work-chip__logo {
+  height: 1.15rem;
+  max-width: 6.5rem;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 /* ── Supermarket flyer shelf ───────────────────────────────────────────────
    Printed paper, not thumbnails. Sheets flutter down, land at a slight angle
    and lie in a loose pile: rows overlap, some corners are turned up, and no
