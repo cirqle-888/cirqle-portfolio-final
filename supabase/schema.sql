@@ -94,6 +94,17 @@ do $$ begin
     check (kind in ('image', 'video', 'reel'));
 exception when duplicate_object then null; end $$;
 
+-- -- Format ------------------------------------------------------------------
+-- Brands say WHO the work was for; format says WHAT SHAPE it is, so the site
+-- can filter "All / Posts / Reels / Stories" across every brand at once.
+-- See supabase/add-work-format.sql for the backfill applied to existing rows.
+alter table public.work_items add column if not exists format text not null default 'post';
+
+do $$ begin
+  alter table public.work_items add constraint work_items_format_check
+    check (format in ('post', 'reel', 'story'));
+exception when duplicate_object then null; end $$;
+
 do $$ begin
   alter table public.work_items add constraint work_items_media_present
     check (
@@ -106,6 +117,7 @@ exception when duplicate_object then null; end $$;
 create index if not exists work_brands_collection_idx on public.work_brands (collection_id, position);
 create index if not exists work_items_brand_idx       on public.work_items  (brand_id, position);
 create index if not exists work_items_published_idx   on public.work_items  (published) where published;
+create index if not exists work_items_format_idx      on public.work_items  (format);
 
 drop trigger if exists work_collections_touch on public.work_collections;
 create trigger work_collections_touch before update on public.work_collections

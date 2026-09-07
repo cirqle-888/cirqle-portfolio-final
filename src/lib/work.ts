@@ -25,6 +25,21 @@ export interface WorkVariant {
 /** What a portfolio entry actually is. */
 export type WorkKind = "image" | "video" | "reel";
 
+/**
+ * What shape the piece was designed for — the second way the gallery can be
+ * filtered. Independent of `kind`: a story frame may be a still or a clip.
+ */
+export type WorkFormat = "post" | "reel" | "story";
+
+export const FORMAT_LABEL: Record<WorkFormat, string> = {
+  post: "Posts",
+  reel: "Reels",
+  story: "Stories",
+};
+
+/** Chip order on the site. */
+export const FORMATS: readonly WorkFormat[] = ["post", "reel", "story"] as const;
+
 /** Where a linked reel lives, used to label the button that opens it. */
 export type Platform = "instagram" | "youtube" | "facebook" | "tiktok" | "vimeo" | "other";
 
@@ -34,6 +49,7 @@ export interface WorkItem {
   slug: string;
   title: string;
   kind: WorkKind;
+  format: WorkFormat;
   /** Playable file we host — only for kind "video" */
   videoUrl?: string;
   /** Where it lives on a social platform; openable for any kind */
@@ -84,6 +100,7 @@ interface RawItem {
   variants: WorkVariant[] | null;
   position: number;
   kind: WorkKind | null;
+  format: WorkFormat | null;
   media_path: string | null;
   external_url: string | null;
   duration_seconds: number | null;
@@ -106,10 +123,27 @@ interface RawCollection {
   work_brands: RawBrand[] | null;
 }
 
-const SELECT =
+const itemFields = (withFormat: boolean) =>
+  "work_items(slug,title,width,height,variants,position,kind," +
+  (withFormat ? "format," : "") +
+  "media_path,external_url,duration_seconds)";
+
+const selectFor = (withFormat: boolean) =>
   "slug,eyebrow,title,description,seo_title,seo_description,position," +
-  "work_brands(slug,name,tagline,position," +
-  "work_items(slug,title,width,height,variants,position,kind,media_path,external_url,duration_seconds))";
+  `work_brands(slug,name,tagline,position,${itemFields(withFormat)})`;
+
+/**
+ * Format for a row that has none — either because the database has not been
+ * migrated yet, or because the row predates the column. Same rule as the
+ * backfill in supabase/add-work-format.sql, so the site never disagrees with
+ * what the dashboard will show once the column lands: anything that plays is a
+ * reel, a tall still is a story frame, everything else is a post.
+ */
+function inferFormat(it: RawItem): WorkFormat {
+  if (it.kind === "reel" || it.kind === "video") return "reel";
+  if (it.width > 0 && it.height / it.width >= 1.5) return "story";
+  return "post";
+}
 
 const byPosition = <T extends { position: number; slug: string }>(a: T, b: T) =>
   a.position - b.position || a.slug.localeCompare(b.slug, undefined, { numeric: true });
@@ -139,6 +173,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 slug: it.slug,
                 title: it.title,
                 kind,
+                format: it.format ?? inferFormat(it),
                 videoUrl: it.media_path ? publicUrl(WORK_BUCKET, it.media_path) : undefined,
                 externalUrl: it.external_url ?? undefined,
                 platform: it.external_url ? platformOf(it.external_url) : undefined,
@@ -250,10 +285,24 @@ export function loadWork(): Promise<WorkCollection[]> {
   }
   if (!isSupabaseConfigured) return Promise.resolve([]);
 
-  inflight = fetch(`${restUrl("work_collections")}?select=${encodeURIComponent(SELECT)}`, {
-    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-  })
+  // `format` is a newer column. If the site ships before the migration has been
+  // run on the database, PostgREST rejects the WHOLE select for one unknown
+  // field — which would blank the entire portfolio. Retrying without it keeps
+  // the gallery up; every creative simply reads as a post until the column
+  // lands, and the format chips stay hidden.
+  const request = (withFormat: boolean) =>
+    fetch(`${restUrl("work_collections")}?select=${encodeURIComponent(selectFor(withFormat))}`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+    });
+
+  inflight = request(true)
     .then(async (res) => {
+      if (res.status === 400) {
+        const retry = await request(false);
+        if (!retry.ok) throw new Error(`Portfolio request failed (${retry.status})`);
+        console.warn('Portfolio: the "format" column is missing — run supabase/add-work-format.sql.');
+        return shape((await retry.json()) as RawCollection[]);
+      }
       if (!res.ok) throw new Error(`Portfolio request failed (${res.status})`);
       return shape((await res.json()) as RawCollection[]);
     })

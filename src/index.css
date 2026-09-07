@@ -3631,21 +3631,32 @@ html.dark .hover\:text-gray-700:hover { color: var(--c-ink); }
 .work-active a:hover { text-decoration: underline; }
 
 /* Masonry of natural-ratio tiles */
+/* Second chip row (format). Sits tight under the brand row so the two read as
+   one control, not two unrelated toolbars. */
+.work-filter--format { margin-top: 0.5rem; }
+.work-filter--format .work-chip { font-size: 0.78rem; }
+
 .work-masonry {
-  columns: 2;
-  column-gap: 0.85rem;
+  /* Real columns, filled round-robin in WorkGallery.tsx, NOT CSS
+     multi-column: `columns` flows tile 1-4 down the first column, which made
+     the published order unreadable across the top row. */
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
   /* Breathing room under whatever precedes the grid — the brand filter on a
      collection page, the header on a brand page. Set here rather than under
      the filter so it also applies when no filter is rendered; adjacent
      margins collapse, so a larger header margin still wins. */
   margin-top: 2.5rem;
 }
-@media (min-width: 640px) { .work-masonry { columns: 3; column-gap: 1.1rem; margin-top: 3rem; } }
-@media (min-width: 1024px) { .work-masonry { columns: 4; column-gap: 1.4rem; } }
+@media (min-width: 640px) { .work-masonry { gap: 1.1rem; margin-top: 3rem; } }
+@media (min-width: 1024px) { .work-masonry { gap: 1.4rem; } }
+
+.work-masonry__col { flex: 1 1 0; min-width: 0; }
 /* Cap the column count when a brand has only a few pieces */
-.work-masonry[data-max="1"] { columns: 1 !important; max-width: 30rem; margin-inline: auto; }
-.work-masonry[data-max="2"] { columns: 2 !important; max-width: 46rem; margin-inline: auto; }
-@media (min-width: 1024px) { .work-masonry[data-max="3"] { columns: 3; max-width: 64rem; margin-inline: auto; } }
+.work-masonry[data-max="1"] { max-width: 30rem; margin-inline: auto; }
+.work-masonry[data-max="2"] { max-width: 46rem; margin-inline: auto; }
+@media (min-width: 1024px) { .work-masonry[data-max="3"] { max-width: 64rem; margin-inline: auto; } }
 
 .work-tile {
   position: relative;

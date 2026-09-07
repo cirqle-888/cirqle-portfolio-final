@@ -1,8 +1,36 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { WorkTile } from "./WorkTile";
 import { WorkLightbox } from "./WorkLightbox";
-import type { WorkBrand, WorkItem } from "../../lib/work";
+import { FORMAT_LABEL, FORMATS, type WorkBrand, type WorkFormat, type WorkItem } from "../../lib/work";
+
+/**
+ * How many masonry columns are on screen right now.
+ *
+ * The layout used to be CSS multi-column (`columns: 4`), which fills
+ * COLUMN-BY-COLUMN: with 16 tiles the first column held creatives 1-4, the
+ * second 5-8, and so on — so reading the grid left-to-right showed 1, 5, 9,
+ * 13 and the order set in the dashboard looked scrambled. Distributing the
+ * items across real columns in JS is the only way to keep the staggered
+ * masonry look while reading in the authored order, and that needs the live
+ * column count here.
+ */
+function useColumnCount(max: number): number {
+  const read = () => {
+    if (typeof window === "undefined") return Math.min(4, max);
+    const w = window.innerWidth;
+    const base = w >= 1024 ? 4 : w >= 640 ? 3 : 2;
+    return Math.max(1, Math.min(base, max));
+  };
+  const [cols, setCols] = useState(read);
+  useEffect(() => {
+    const onResize = () => setCols(read());
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [max]);
+  return cols;
+}
 
 interface WorkGalleryProps {
   items: WorkItem[];
@@ -25,11 +53,29 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
   const brandParam = params.get("brand");
   const viewParam = params.get("v");
 
+  const formatParam = params.get("format");
+
   const activeBrand = brands?.find((b) => b.slug === brandParam);
-  const shown = useMemo(
+  const activeFormat = FORMATS.find((f) => f === formatParam);
+
+  // Brand and format are independent axes — a Roots Bahrain story is reachable
+  // from either chip row, and from both together.
+  const byBrand = useMemo(
     () => (activeBrand ? items.filter((i) => i.brandSlug === activeBrand.slug) : items),
     [items, activeBrand]
   );
+  const shown = useMemo(
+    () => (activeFormat ? byBrand.filter((i) => i.format === activeFormat) : byBrand),
+    [byBrand, activeFormat]
+  );
+
+  // Counts follow the brand already chosen, and a format with nothing in it is
+  // not offered — an empty chip is just a dead end.
+  const formatCounts = useMemo(() => {
+    const counts = new Map<WorkFormat, number>();
+    for (const item of byBrand) counts.set(item.format, (counts.get(item.format) ?? 0) + 1);
+    return FORMATS.filter((f) => counts.has(f)).map((f) => ({ format: f, count: counts.get(f)! }));
+  }, [byBrand]);
 
   // The open creative lives in the URL (?v=<slug>) rather than in local state,
   // so every view is directly shareable and nothing has to be synced.
@@ -50,6 +96,18 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
     const next = new URLSearchParams(params);
     if (slug) next.set("brand", slug);
     else next.delete("brand");
+    // The chosen format may not exist inside the new brand, which would show an
+    // empty gallery with both chips lit. Dropping it is the kinder default.
+    const pool = slug ? items.filter((i) => i.brandSlug === slug) : items;
+    if (activeFormat && !pool.some((i) => i.format === activeFormat)) next.delete("format");
+    next.delete("v");
+    setParams(next, { replace: true });
+  };
+
+  const setFormat = (format: WorkFormat | null) => {
+    const next = new URLSearchParams(params);
+    if (format) next.set("format", format);
+    else next.delete("format");
     next.delete("v");
     setParams(next, { replace: true });
   };
@@ -63,6 +121,19 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
   }
 
   const maxColumns = Math.min(shown.length, 4);
+  const columnCount = useColumnCount(maxColumns);
+
+  // Round-robin, so tile n lands in column n % columnCount. Reading across the
+  // top row gives creatives 1, 2, 3, 4 — the dashboard order — while each
+  // column still flows at its own height.
+  const columns = useMemo(() => {
+    const cols: { item: WorkItem; index: number }[][] = Array.from(
+      { length: columnCount },
+      () => []
+    );
+    shown.forEach((item, index) => cols[index % columnCount].push({ item, index }));
+    return cols;
+  }, [shown, columnCount]);
 
   return (
     <>
@@ -92,19 +163,55 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
         </div>
       )}
 
+      {formatCounts.length > 1 && (
+        <div className="work-filter work-filter--format" role="group" aria-label="Filter by format">
+          <button
+            type="button"
+            className="work-chip"
+            aria-pressed={!activeFormat}
+            onClick={() => setFormat(null)}
+          >
+            All formats
+            <span className="work-chip__count">{byBrand.length}</span>
+          </button>
+          {formatCounts.map(({ format, count }) => (
+            <button
+              key={format}
+              type="button"
+              className="work-chip"
+              aria-pressed={activeFormat === format}
+              onClick={() => setFormat(format)}
+            >
+              {FORMAT_LABEL[format]}
+              <span className="work-chip__count">{count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {activeBrand && brandLinkBase && (
         <p className="work-active">
           <span>
-            Showing {activeBrand.items.length}{" "}
-            {activeBrand.items.length === 1 ? "creative" : "creatives"} for {activeBrand.name}
+            Showing {shown.length} {shown.length === 1 ? "creative" : "creatives"} for{" "}
+            {activeBrand.name}
+            {activeFormat ? ` · ${FORMAT_LABEL[activeFormat].toLowerCase()}` : ""}
           </span>
           <a href={`${brandLinkBase}/${activeBrand.slug}`}>Open its own page →</a>
         </p>
       )}
 
       <div className="work-masonry" data-max={maxColumns}>
-        {shown.map((item, i) => (
-          <WorkTile key={item.id} item={item} onOpen={() => setIndex(i)} eager={i < 4} />
+        {columns.map((col, c) => (
+          <div className="work-masonry__col" key={c}>
+            {col.map(({ item, index }) => (
+              <WorkTile
+                key={item.id}
+                item={item}
+                onOpen={() => setIndex(index)}
+                eager={index < 4}
+              />
+            ))}
+          </div>
         ))}
       </div>
 
