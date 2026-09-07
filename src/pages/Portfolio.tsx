@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import { ShowcaseGrid } from "../sections/ShowcaseGrid";
 import { SupermarketFlyers } from "../sections/SupermarketFlyers";
+import { WorkPreview } from "../sections/WorkPreview";
 
 export function Portfolio() {
   const location = useLocation();
@@ -37,6 +38,7 @@ export function Portfolio() {
         <link rel="canonical" href="https://cirqle.work/portfolio" />
       </Helmet>
       <ShowcaseGrid headingTag="h1" />
+      <WorkPreview collection="social-media" limit={8} />
       <SupermarketFlyers />
     </div>
   );

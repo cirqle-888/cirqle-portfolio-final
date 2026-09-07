@@ -4,7 +4,11 @@ import viteCompression from "vite-plugin-compression";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react(), viteCompression({ algorithm: 'brotliCompress' }), viteCompression({ algorithm: 'gzip' })],
+  plugins: [
+    react(),
+    viteCompression({ algorithm: 'brotliCompress' }),
+    viteCompression({ algorithm: 'gzip' }),
+  ],
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
     alias: {
@@ -22,7 +26,6 @@ export default defineConfig({
           vendor: ["react", "react-dom", "react-router-dom", "react-helmet-async"],
           ui: ["lucide-react", "clsx", "tailwind-merge"],
           motion: ["motion"],
-          contentful: ["contentful"],
         },
       },
     },

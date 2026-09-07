@@ -3552,3 +3552,416 @@ html.dark .hover\:text-gray-700:hover { color: var(--c-ink); }
 .prose-gray { color: var(--c-ink-soft); }
 .-inset-10 { inset: calc(var(--spacing) * -10); }
 .drop-shadow-\[0_20px_60px_rgba\(0\,0\,0\,0\.8\)\] { filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8)); }
+
+/* ============================================================
+   Work gallery — file-based portfolio (src/content/work)
+   Collection page, brand page, preview section and lightbox.
+   ============================================================ */
+
+/* Header stats: "17 creatives · 11 brands" */
+.work-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.1rem;
+  margin-top: 1.25rem;
+  color: var(--c-ink-muted);
+  font-size: 0.92rem;
+}
+.work-stats span + span::before {
+  content: "·";
+  margin-right: 1.1rem;
+  opacity: 0.5;
+}
+
+/* Brand filter chips */
+.work-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 60rem;
+  margin: 2rem auto 0;
+}
+.work-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-surface-raised);
+  color: var(--c-ink-soft);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.work-chip:hover { color: var(--c-ink); border-color: #a259ff; }
+.work-chip[aria-pressed="true"] {
+  background: linear-gradient(90deg, #a259ff, #4cc3ff);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(162, 89, 255, 0.28);
+}
+.work-chip__count {
+  font-size: 0.72rem;
+  opacity: 0.65;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Active-brand bar under the filter (shareable brand link) */
+.work-active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  margin: 1.25rem auto 0;
+  color: var(--c-ink-muted);
+  font-size: 0.9rem;
+}
+.work-active a {
+  color: #a259ff;
+  font-weight: 500;
+  text-decoration: none;
+}
+.work-active a:hover { text-decoration: underline; }
+
+/* Masonry of natural-ratio tiles */
+.work-masonry {
+  columns: 2;
+  column-gap: 0.85rem;
+  /* Breathing room under whatever precedes the grid — the brand filter on a
+     collection page, the header on a brand page. Set here rather than under
+     the filter so it also applies when no filter is rendered; adjacent
+     margins collapse, so a larger header margin still wins. */
+  margin-top: 2.5rem;
+}
+@media (min-width: 640px) { .work-masonry { columns: 3; column-gap: 1.1rem; margin-top: 3rem; } }
+@media (min-width: 1024px) { .work-masonry { columns: 4; column-gap: 1.4rem; } }
+/* Cap the column count when a brand has only a few pieces */
+.work-masonry[data-max="1"] { columns: 1 !important; max-width: 30rem; margin-inline: auto; }
+.work-masonry[data-max="2"] { columns: 2 !important; max-width: 46rem; margin-inline: auto; }
+@media (min-width: 1024px) { .work-masonry[data-max="3"] { columns: 3; max-width: 64rem; margin-inline: auto; } }
+
+.work-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  border: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--c-surface-raised);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  box-shadow: 0 12px 32px -14px rgba(28, 16, 64, 0.28);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateZ(0);
+}
+@media (min-width: 640px) { .work-tile { margin-bottom: 1.1rem; } }
+@media (min-width: 1024px) { .work-tile { margin-bottom: 1.4rem; } }
+.work-tile:hover,
+.work-tile:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 48px -18px rgba(28, 16, 64, 0.4);
+}
+html.dark .work-tile { box-shadow: 0 12px 32px -14px rgba(0, 0, 0, 0.7); }
+.work-tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--c-body-tint);
+}
+/* Uniform-crop variant used in the preview section */
+.work-tile--crop img {
+  aspect-ratio: 4 / 5;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.work-tile__meta {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 2.75rem 0.9rem 0.85rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.work-tile:hover .work-tile__meta,
+.work-tile:focus-visible .work-tile__meta { opacity: 1; }
+.work-tile__brand {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.work-tile__title {
+  margin-top: 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* Preview section grid (fixed 4:5 crops) */
+.work-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+@media (min-width: 768px) { .work-preview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.4rem; } }
+.work-preview-grid .work-tile { margin: 0; }
+
+/* Brand header on the brand page */
+.work-brand-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.9rem;
+}
+.work-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: "Outfit", "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #fff;
+  background: linear-gradient(135deg, #a259ff, #4cc3ff);
+  box-shadow: 0 10px 28px rgba(162, 89, 255, 0.3);
+}
+.work-brand-head .work-tagline {
+  color: var(--c-ink-muted);
+  font-size: 1.05rem;
+}
+
+/* Share row (brand + collection pages) */
+.work-share {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+.work-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 42px;
+  padding: 0 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-surface-raised);
+  color: var(--c-ink);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.work-share-btn:hover {
+  border-color: #a259ff;
+  box-shadow: 0 8px 22px rgba(122, 89, 255, 0.18);
+  transform: translateY(-1px);
+}
+.work-share-btn--primary {
+  background: linear-gradient(90deg, #a259ff, #4cc3ff);
+  border-color: transparent;
+  color: #fff;
+}
+.work-share-btn--primary:hover { box-shadow: 0 10px 26px rgba(162, 89, 255, 0.35); }
+.work-share-btn--wa { color: #128c7e; }
+html.dark .work-share-btn--wa { color: #25d366; }
+
+/* Small toast ("Link copied") */
+.work-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 9100;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: #111013;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* Back link */
+.work-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--c-ink-muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+}
+.work-back:hover { color: #a259ff; }
+
+/* Brand strip: "More brands in this collection" */
+.work-brand-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+/* Empty state */
+.work-empty {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  color: var(--c-ink-muted);
+  border: 1px dashed var(--c-hairline);
+  border-radius: 1.5rem;
+}
+
+/* ---------- Lightbox ---------- */
+.work-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 9000; /* below the custom cursor (9999) */
+  display: flex;
+  flex-direction: column;
+  background: rgba(6, 6, 12, 0.96);
+  color: #fff;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.work-lb__bar {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 14px;
+}
+.work-lb__counter {
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+.work-lb__actions { display: flex; align-items: center; gap: 8px; }
+.work-lb__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.work-lb__btn:hover { background: rgba(255, 255, 255, 0.18); }
+.work-lb__btn--icon { width: 36px; padding: 0; }
+@media (max-width: 640px) { .work-lb__btn span { display: none; } .work-lb__btn { width: 36px; padding: 0; } }
+.work-lb__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 72px;
+  touch-action: pan-y;
+}
+@media (max-width: 640px) { .work-lb__stage { padding: 0 10px; } }
+.work-lb__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: work-lb-in 0.25s ease;
+}
+@keyframes work-lb-in {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+.work-lb__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.work-lb__nav:hover { background: rgba(255, 255, 255, 0.18); }
+.work-lb__nav--prev { left: 14px; }
+.work-lb__nav--next { right: 14px; }
+@media (max-width: 640px) { .work-lb__nav { display: none; } }
+.work-lb__cap {
+  flex-shrink: 0;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+.work-lb__cap-brand {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.work-lb__cap-title {
+  margin-top: 3px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.work-lb__hint {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* Loading placeholders for the portfolio grid */
+.work-tile--skeleton {
+  background: linear-gradient(100deg, var(--c-body-tint) 30%, var(--c-surface-raised) 50%, var(--c-body-tint) 70%);
+  background-size: 300% 100%;
+  animation: work-shimmer 1.4s ease-in-out infinite;
+  box-shadow: none;
+  cursor: default;
+}
+@keyframes work-shimmer {
+  from { background-position: 150% 0; }
+  to   { background-position: -50% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-tile--skeleton { animation: none; }
+}

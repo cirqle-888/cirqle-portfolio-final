@@ -55,6 +55,8 @@ const EventBranding = lazy(() => import("./pages/services/event-branding").then(
 const UIUXDesign = lazy(() => import("./pages/services/ui-ux-design").then((m) => ({ default: m.UIUXDesign })));
 const MarketingPack = lazy(() => import("./pages/products/marketing-pack").then((m) => ({ default: m.MarketingPack })));
 const SupermarketCampaign = lazy(() => import("./pages/highlights/supermarket-campaign").then((m) => ({ default: m.SupermarketCampaign })));
+const WorkCollectionPage = lazy(() => import("./pages/work/Collection").then((m) => ({ default: m.WorkCollectionPage })));
+const WorkBrandPage = lazy(() => import("./pages/work/Brand").then((m) => ({ default: m.WorkBrandPage })));
 
 export default function App() {
   return (
@@ -73,6 +75,8 @@ export default function App() {
               <Route path="/services/event-branding" element={<EventBranding />} />
               <Route path="/services/ui-ux-design" element={<UIUXDesign />} />
               <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/:collection" element={<WorkCollectionPage />} />
+              <Route path="/portfolio/:collection/:brand" element={<WorkBrandPage />} />
               <Route path="/about" element={<About />} />
               <Route path="/careers" element={<Careers />} />
               <Route path="/contact" element={<Contact />} />

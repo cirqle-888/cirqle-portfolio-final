@@ -1,8 +1,8 @@
 node_modules
 dist
-.env
-.vercel
-dist
 build
 dist_*
+.env
+.vercel
 .DS_Store
+supabase/.temp

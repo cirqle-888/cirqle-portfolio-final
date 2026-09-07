@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Hero } from "../sections/Hero";
 import { ShowcaseGrid } from "../sections/ShowcaseGrid";
 import { SupermarketFlyers } from "../sections/SupermarketFlyers";
+import { WorkPreview } from "../sections/WorkPreview";
 import { HowCirqleWorks } from "../sections/HowCirqleWorks";
 import { FaqSection, FAQS } from "../sections/FaqSection";
 import { ContactSection } from "../sections/ContactSection";
@@ -36,6 +37,7 @@ export function Home() {
       </Helmet>
       <Hero />
       <ShowcaseGrid />
+      <WorkPreview collection="social-media" limit={8} />
       <SupermarketFlyers limit={8} />
       <HowCirqleWorks />
       <FaqSection />

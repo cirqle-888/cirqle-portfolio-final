@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "../components/ui/button";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { contentfulAssetUrl, getSupermarketFlyers } from "../services/contentService";
+import { getSupermarketFlyers } from "../services/flyerService";
 import { useNavigate } from "react-router-dom";
 
 // The flip-book reader (react-pageflip) is heavy — load it only when a flyer is opened.
@@ -30,22 +30,9 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
     let cancelled = false;
 
     getSupermarketFlyers()
-      .then((items) => {
+      .then((urls) => {
         if (cancelled) return;
-
-        const flyersField = items?.[0]?.fields?.flyers;
-        const flyersFromCms = Array.isArray(flyersField)
-          ? (flyersField
-              .map((asset: any) => {
-                if (typeof asset === "string") return asset;
-                return contentfulAssetUrl(asset);
-              })
-              .filter(Boolean) as string[])
-          : [];
-
-        if (flyersFromCms.length > 0) {
-          setFlyers(flyersFromCms);
-        }
+        if (urls.length > 0) setFlyers(urls);
       })
       .catch((err) => {
         console.error("Error fetching supermarket flyers:", err);

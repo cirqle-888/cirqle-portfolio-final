@@ -43,7 +43,7 @@ const projects = [
     category: "Digital Creatives",
     image:
       "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/services",
+    href: "/portfolio/social-media",
   },
 ];
 
@@ -91,6 +91,7 @@ export function ShowcaseGrid({ items, headingTag = "h2" }: ShowcaseGridProps = {
               { label: "Branding", href: "/services/brand-identity" },
               { label: "Events", href: "/services/event-branding" },
               { label: "Web", href: "/services/ui-ux-design" },
+              { label: "Social", href: "/portfolio/social-media" },
             ].map((chip) => (
               <Link
                 key={chip.label}
