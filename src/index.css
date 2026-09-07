@@ -4165,3 +4165,190 @@ video.work-lb__media {
   .work-tile__preview,
   .work-lb__cta { transition: none; }
 }
+
+/* ── Supermarket flyer shelf ───────────────────────────────────────────────
+   Printed paper, not thumbnails. Sheets flutter down, land at a slight angle
+   and lie in a loose pile: rows overlap, some corners are turned up, and no
+   two sheets sit at the same height. A booklet is drawn as an open spread and
+   takes two columns, so a folded brochure reads as one object.
+
+   The fold is why the shadow is a filter and not a box-shadow. A turned corner
+   means clipping the page diagonally, and box-shadow would be clipped with it;
+   drop-shadow follows the actual silhouette — cut corner, raised flap and all. */
+.flyer-shelf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Column gap stays generous, row gap goes negative: sheets that landed
+     earlier are partly under the ones that landed after them. */
+  column-gap: 1.1rem;
+  row-gap: 0;
+  align-items: start;
+  perspective: 1600px;
+}
+@media (min-width: 768px) { .flyer-shelf { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 1.5rem; } }
+@media (min-width: 1280px) { .flyer-shelf { column-gap: 2rem; } }
+
+.flyer-piece { position: relative; }
+.flyer-piece--booklet { grid-column: span 2; }
+
+/* The pile: every row after the first rides up over the one above it, and each
+   sheet sits a little off its neighbours. Later sheets stack in front. */
+.flyer-piece:nth-child(n + 3) { margin-top: -1.5rem; }
+@media (min-width: 768px) { .flyer-piece:nth-child(n + 5) { margin-top: -2rem; } }
+.flyer-piece:nth-child(4n + 1) { margin-left: -0.4rem; }
+.flyer-piece:nth-child(4n + 2) { margin-top: 1.4rem; }
+.flyer-piece:nth-child(4n + 3) { margin-top: 0.5rem; margin-right: -0.5rem; }
+.flyer-piece:nth-child(4n)     { margin-top: 2rem; }
+
+.flyer-paper {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform-origin: 50% 90%;
+  /* Contact shadow plus cast shadow. Both follow the cut corner. */
+  filter:
+    drop-shadow(0 1px 1px rgba(28, 16, 64, 0.22))
+    drop-shadow(0 16px 26px rgba(28, 16, 64, 0.26));
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.5s ease;
+}
+.flyer-paper:hover,
+.flyer-paper:focus-visible {
+  /* Picked up off the pile: lifts, straightens, and the shadow drops away. */
+  transform: translateY(-14px) rotate(-0.5deg) scale(1.02);
+  filter:
+    drop-shadow(0 2px 2px rgba(28, 16, 64, 0.2))
+    drop-shadow(0 38px 52px rgba(28, 16, 64, 0.34));
+  z-index: 5;
+}
+.flyer-paper:focus-visible { outline: 2px solid #a259ff; outline-offset: 6px; }
+/* A hovered sheet has to come out from under the ones stacked over it. */
+.flyer-piece:hover { z-index: 5; }
+
+/* The printed page. Clipped only when a corner is turned. */
+.flyer-sheet {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #fffdf8;
+  /* Very fine cross-hatch — paper grain, invisible until you look for it. */
+  background-image:
+    repeating-linear-gradient(45deg, rgba(120, 110, 90, 0.022) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(-45deg, rgba(120, 110, 90, 0.018) 0 2px, transparent 2px 4px);
+}
+
+.flyer-paper--fold-br .flyer-sheet {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--fold)), calc(100% - var(--fold)) 100%, 0 100%);
+}
+.flyer-paper--fold-bl .flyer-sheet {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--fold) 100%, 0 calc(100% - var(--fold)));
+}
+
+/* The turned-up corner itself: the blank back of the sheet, lit from the same
+   direction as everything else, darkest at the tip where it lifts furthest. */
+.flyer-fold {
+  position: absolute;
+  width: var(--fold);
+  height: var(--fold);
+  pointer-events: none;
+}
+.flyer-paper--fold-br .flyer-fold {
+  right: 0;
+  bottom: 0;
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+  background: linear-gradient(135deg, #fffdf8 0%, #f1ede2 46%, #d5cfbe 78%, #bdb6a2 100%);
+  box-shadow: -5px -5px 12px rgba(28, 16, 64, 0.16);
+}
+.flyer-paper--fold-bl .flyer-fold {
+  left: 0;
+  bottom: 0;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  background: linear-gradient(225deg, #fffdf8 0%, #f1ede2 46%, #d5cfbe 78%, #bdb6a2 100%);
+  box-shadow: 5px -5px 12px rgba(28, 16, 64, 0.16);
+}
+
+/* Shading on the page where the fold casts onto it, so the corner reads as
+   lifted rather than as a triangle pasted on. */
+.flyer-fold-shade {
+  position: absolute;
+  width: calc(var(--fold) * 1.6);
+  height: calc(var(--fold) * 1.6);
+  pointer-events: none;
+}
+.flyer-paper--fold-br .flyer-fold-shade {
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 100% 100%, rgba(28, 16, 64, 0.22), transparent 70%);
+}
+.flyer-paper--fold-bl .flyer-fold-shade {
+  left: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 0% 100%, rgba(28, 16, 64, 0.22), transparent 70%);
+}
+
+.flyer-leaf { display: block; position: relative; overflow: hidden; background: #f5f4f0; }
+.flyer-leaf img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Whole page, never cropped: the offers ARE the artwork. */
+  object-fit: contain;
+}
+
+/* Open spread: two leaves meeting at a spine. */
+.flyer-spread { display: grid; grid-template-columns: 1fr 1fr; position: relative; }
+.flyer-spread .flyer-leaf--left  { box-shadow: inset -16px 0 22px -16px rgba(28, 16, 64, 0.6); }
+.flyer-spread .flyer-leaf--right { box-shadow: inset  16px 0 22px -16px rgba(28, 16, 64, 0.6); }
+.flyer-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to right,
+    rgba(28, 16, 64, 0) 0%,
+    rgba(28, 16, 64, 0.3) 45%,
+    rgba(255, 255, 255, 0.6) 55%,
+    rgba(28, 16, 64, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* Hover sheen, swept by transform rather than by animating a gradient stop —
+   a gradient keyframe repaints the whole sheet on every frame. */
+.flyer-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.5) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flyer-paper:hover .flyer-sheen,
+.flyer-paper:focus-visible .flyer-sheen { transform: translateX(120%); }
+
+.flyer-badge {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(17, 12, 34, 0.72);
+  color: #fff;
+  font-size: 0.68rem;
+  backdrop-filter: blur(4px);
+}
+/* A left-hand fold would sit under the badge. */
+.flyer-paper--fold-bl .flyer-badge { left: auto; right: 0.6rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flyer-paper, .flyer-sheen { transition: none; }
+  .flyer-paper:hover, .flyer-paper:focus-visible { transform: none; }
+}

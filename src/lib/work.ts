@@ -29,16 +29,26 @@ export type WorkKind = "image" | "video" | "reel";
  * What shape the piece was designed for — the second way the gallery can be
  * filtered. Independent of `kind`: a story frame may be a still or a clip.
  */
-export type WorkFormat = "post" | "reel" | "story";
+export type WorkFormat =
+  // social media
+  | "post" | "reel" | "story"
+  // brand identity — one collection, mixed deliverables: some clients get a
+  // logo and nothing else, some a full brandbook, some a single chart.
+  | "logo" | "guidelines" | "brandbook" | "chart";
 
 export const FORMAT_LABEL: Record<WorkFormat, string> = {
   post: "Posts",
   reel: "Reels",
   story: "Stories",
+  logo: "Logos",
+  guidelines: "Guidelines",
+  brandbook: "Brandbooks",
+  chart: "Brand charts",
 };
 
-/** Chip order on the site. */
-export const FORMATS: readonly WorkFormat[] = ["post", "reel", "story"] as const;
+/** Chip order on the site. Only formats actually present are ever shown. */
+export const FORMATS: readonly WorkFormat[] =
+  ["post", "reel", "story", "logo", "guidelines", "brandbook", "chart"] as const;
 
 /** Where a linked reel lives, used to label the button that opens it. */
 export type Platform = "instagram" | "youtube" | "facebook" | "tiktok" | "vimeo" | "other";
@@ -64,6 +74,8 @@ export interface WorkItem {
   height: number;
   /** width / height */
   aspect: number;
+  /** Hand-picked place in the collection's All view; null when never dragged. */
+  collectionPosition: number | null;
   variants: WorkVariant[];
   /** Largest rendition — used by the lightbox and the download button */
   src: string;
@@ -99,6 +111,7 @@ interface RawItem {
   height: number;
   variants: WorkVariant[] | null;
   position: number;
+  collection_position?: number | null;
   kind: WorkKind | null;
   format: WorkFormat | null;
   media_path: string | null;
@@ -123,9 +136,12 @@ interface RawCollection {
   work_brands: RawBrand[] | null;
 }
 
-const itemFields = (withFormat: boolean) =>
+// The newer columns are requested together and dropped together: PostgREST
+// rejects the whole select for one unknown field, and a site that shipped
+// before the migrations ran would otherwise show no portfolio at all.
+const itemFields = (withNewColumns: boolean) =>
   "work_items(slug,title,width,height,variants,position,kind," +
-  (withFormat ? "format," : "") +
+  (withNewColumns ? "format,collection_position," : "") +
   "media_path,external_url,duration_seconds)";
 
 const selectFor = (withFormat: boolean) =>
@@ -139,7 +155,11 @@ const selectFor = (withFormat: boolean) =>
  * what the dashboard will show once the column lands: anything that plays is a
  * reel, a tall still is a story frame, everything else is a post.
  */
-function inferFormat(it: RawItem): WorkFormat {
+function inferFormat(it: RawItem, collectionSlug: string): WorkFormat {
+  // Outside social media there is nothing in the file to infer from — a logo
+  // and a brandbook page look alike to a computer — so the neutral first type
+  // stands in until someone sets it in the dashboard.
+  if (collectionSlug === "brand-identity") return "logo";
   if (it.kind === "reel" || it.kind === "video") return "reel";
   if (it.width > 0 && it.height / it.width >= 1.5) return "story";
   return "post";
@@ -173,7 +193,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 slug: it.slug,
                 title: it.title,
                 kind,
-                format: it.format ?? inferFormat(it),
+                format: it.format ?? inferFormat(it, c.slug),
                 videoUrl: it.media_path ? publicUrl(WORK_BUCKET, it.media_path) : undefined,
                 externalUrl: it.external_url ?? undefined,
                 platform: it.external_url ? platformOf(it.external_url) : undefined,
@@ -184,6 +204,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 width: it.width,
                 height: it.height,
                 aspect: it.width && it.height ? it.width / it.height : 1,
+                collectionPosition: it.collection_position ?? null,
                 variants,
                 src: largest ? publicUrl(WORK_BUCKET, largest.path) : "",
                 srcset: variants
@@ -215,7 +236,19 @@ function shape(raw: RawCollection[]): WorkCollection[] {
         seoTitle: c.seo_title ?? `${c.title} | Cirqle`,
         seoDescription: c.seo_description ?? c.description,
         brands,
-        items: brands.flatMap((b) => b.items),
+        // brands.flatMap gives brand order, then order inside each brand —
+        // which is what a brand page wants. The All view can override it: an
+        // item dragged there carries a collectionPosition and sorts by it,
+        // ahead of everything never placed by hand. sort() is stable, so the
+        // untouched tail keeps exactly the order it already had.
+        items: brands
+          .flatMap((b) => b.items)
+          .slice()
+          .sort(
+            (a, b) =>
+              (a.collectionPosition ?? Number.MAX_SAFE_INTEGER) -
+              (b.collectionPosition ?? Number.MAX_SAFE_INTEGER)
+          ),
       };
     });
 }
@@ -300,7 +333,10 @@ export function loadWork(): Promise<WorkCollection[]> {
       if (res.status === 400) {
         const retry = await request(false);
         if (!retry.ok) throw new Error(`Portfolio request failed (${retry.status})`);
-        console.warn('Portfolio: the "format" column is missing — run supabase/add-work-format.sql.');
+        console.warn(
+          "Portfolio: a newer column is missing — run the pending files in cirqle-website/supabase " +
+            "(add-work-format.sql, add-work-collection-order.sql)."
+        );
         return shape((await retry.json()) as RawCollection[]);
       }
       if (!res.ok) throw new Error(`Portfolio request failed (${res.status})`);

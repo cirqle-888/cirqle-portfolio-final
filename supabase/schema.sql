@@ -99,10 +99,18 @@ exception when duplicate_object then null; end $$;
 -- can filter "All / Posts / Reels / Stories" across every brand at once.
 -- See supabase/add-work-format.sql for the backfill applied to existing rows.
 alter table public.work_items add column if not exists format text not null default 'post';
+-- Hand-picked order for the collection-wide "All" view, where `position` (which
+-- orders inside one brand) has nothing to say. Null = not placed by hand.
+-- See supabase/add-work-collection-order.sql.
+alter table public.work_items add column if not exists collection_position integer;
+
 
 do $$ begin
   alter table public.work_items add constraint work_items_format_check
-    check (format in ('post', 'reel', 'story'));
+    check (format in (
+      'post', 'reel', 'story',                        -- social media
+      'logo', 'guidelines', 'brandbook', 'chart'      -- brand identity
+    ));
 exception when duplicate_object then null; end $$;
 
 do $$ begin
@@ -147,6 +155,11 @@ create table if not exists public.flyers (
   updated_at timestamptz not null default now(),
   constraint flyers_variants_is_array check (jsonb_typeof(variants) = 'array')
 );
+
+-- Pages that belong to the same folded brochure. See
+-- supabase/add-flyer-booklets.sql — a run of pages flagged true, together with
+-- the page before them, is one booklet on the site.
+alter table public.flyers add column if not exists booklet_continues boolean not null default false;
 
 create index if not exists flyers_position_idx on public.flyers (position) where published;
 

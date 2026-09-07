@@ -29,7 +29,9 @@ export function WorkPreview({ collection = "social-media", limit = 8, headingTag
   const items = data.items.slice(0, limit);
 
   return (
-    <section id="social-media-work" className="py-28 px-6 bg-white">
+    // The id follows the collection: the portfolio page now renders more than
+    // one of these, and two sections sharing an id break in-page links.
+    <section id={`${data.slug}-work`} className="py-28 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

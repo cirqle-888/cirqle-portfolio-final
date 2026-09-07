@@ -39,6 +39,7 @@ export function Portfolio() {
       </Helmet>
       <ShowcaseGrid headingTag="h1" />
       <WorkPreview collection="social-media" limit={8} />
+      <WorkPreview collection="brand-identity" limit={8} />
       <SupermarketFlyers />
     </div>
   );
