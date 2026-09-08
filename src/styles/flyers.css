@@ -1,79 +1,79 @@
-/* Isolated studio space: no global styles or artwork filters. */
-.sf-section { background: #faf9f6; padding-top: 64px; padding-bottom: 56px; }
-.sf-section .text-center.mb-16 { margin-bottom: 24px; }
+/* Only the supermarket section: all pages in normal document flow. */
+.sf-section { background: #faf9f6; padding-top: 64px; padding-bottom: 48px; overflow: clip; }
 .dark .sf-section { background: #17151b; }
+.sf-section .text-center.mb-16 { margin-bottom: 18px; }
 .sf-field {
-  position: relative; height: clamp(570px, 58vw, 700px);
-  max-width: 1180px; margin: 0 auto;
-  overflow: hidden; overflow: clip;
-  perspective: 1500px; perspective-origin: 50% 45%; isolation: isolate;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center; gap: 28px 26px; max-width: 1160px;
+  margin: 0 auto; padding: 42px 26px;
 }
+.sf-slot { min-width: 0; padding: 20px 8px; perspective: 1300px; }
 .sf-item {
-  position: absolute; left: var(--x); top: var(--y);
-  width: clamp(160px, 21vw, 250px);
-  padding: 0; border: 0; border-radius: 0; background: none; cursor: pointer;
-  transform: translate(-50%, -50%) translateZ(var(--z)) rotateX(3deg) rotateZ(var(--rz));
+  position: relative; display: block; width: 100%; padding: 0;
+  border: 0; border-radius: 0; background: none; cursor: pointer;
   transform-style: preserve-3d;
-  --bend: 0.35deg; --shadow-opacity: 0.19;
+  transform: translateZ(var(--z)) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));
+  --bend: 0deg;
 }
-.sf-item[data-layer="lead"] { width: clamp(195px, 25vw, 290px); z-index: 3; }
-.sf-item[data-layer="middle"] { z-index: 2; }
-.sf-item[data-layer="back"] { z-index: 1; filter: blur(0.35px); --shadow-opacity: 0.1; }
 .sf-item:focus-visible { outline: 2px solid #7c5cff; outline-offset: 8px; }
-.sf-paper { position: relative; display: block; transform-style: preserve-3d; }
-.sf-face {
-  display: block; width: 100%; height: auto; border-radius: 0;
-  background: #fff; backface-visibility: hidden;
+.sf-paper {
+  position: relative; display: block; transform-style: preserve-3d;
+  --curl-x: var(--curl-width); --curl-y: var(--curl-height);
 }
 .sf-face {
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--curl)), calc(100% - var(--curl)) 100%, 0 100%);
+  position: relative; display: block; width: 100%; height: auto;
+  border-radius: 0; background: #fff;
+  clip-path: polygon(0 0,100% 0,100% calc(100% - var(--curl-y)),calc(100% - var(--curl-x)) 100%,0 100%);
 }
-.sf-paper--left .sf-face {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--curl) 100%, 0 calc(100% - var(--curl)));
+.sf-paper--bl .sf-face {
+  clip-path: polygon(0 0,100% 0,100% 100%,var(--curl-x) 100%,0 calc(100% - var(--curl-y)));
+}
+.sf-paper--tr .sf-face {
+  clip-path: polygon(0 0,calc(100% - var(--curl-x)) 0,100% var(--curl-y),100% 100%,0 100%);
+}
+.sf-paper--tl .sf-face {
+  clip-path: polygon(var(--curl-x) 0,100% 0,100% 100%,0 100%,0 var(--curl-y));
 }
 .sf-corner {
-  display: block; position: absolute; right: 0; bottom: 0;
-  width: var(--curl); height: var(--curl);
-  transform-origin: 50% 50%; transform: rotate3d(1, -1, 0, var(--bend));
-  filter: drop-shadow(-3px -3px 3px #302b2540);
+  position: absolute; display: block; right: 0; bottom: 0;
+  width: var(--curl-x); height: var(--curl-y);
+  --flip-x: 1; --flip-y: 1;
+  transform: scale(var(--flip-x),var(--flip-y)) rotate3d(1,-1,0,var(--bend));
+  transform-origin: center;
+  filter: drop-shadow(-2px -3px 2px #302b2540);
   pointer-events: none;
 }
 .sf-corner svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.sf-paper--left .sf-corner { right: auto; left: 0; transform: scaleX(-1) rotate3d(1, -1, 0, var(--bend)); }
-.sf-item:hover .sf-corner { filter: drop-shadow(-3px -4px 4px #302b2530); }
-/* No full rectangular backing: it exposed a cream band whenever Safari
-   flattened the old clipped duplicate-image layer. Only a thin edge remains. */
-.sf-paper {
-  filter: drop-shadow(0 1px 0.6px #635c5040);
-}
+.sf-paper--bl .sf-corner { left: 0; right: auto; --flip-x: -1; }
+.sf-paper--tr .sf-corner { top: 0; bottom: auto; --flip-y: -1; }
+.sf-paper--tl .sf-corner { left: 0; right: auto; top: 0; bottom: auto; --flip-x: -1; --flip-y: -1; }
 .sf-shadow {
-  display: block; position: absolute; inset: 4% -2% -4% 2%;
-  background: #51483d; filter: blur(18px); opacity: var(--shadow-opacity);
-  transform: translate3d(7px, 20px, -35px) scale(0.96); pointer-events: none;
+  position: absolute; display: block; inset: 3% 0 0 3%;
+  background: #403b34; filter: blur(18px); opacity: var(--shadow-opacity);
+  transform: translate3d(4px,14px,-20px) scale(0.97);
+  pointer-events: none; transition: opacity 0.4s, transform 0.4s;
 }
-.sf-controls, .sf-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; }
-.sf-controls { margin: 12px 0 24px; min-height: 44px; color: #655f69; font-size: 14px; }
-.sf-controls button { min-height: 44px; padding: 8px 4px; background: none; border: 0; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
-.sf-controls button:disabled { opacity: 0.4; cursor: default; }
+.sf-item[data-model="1"] .sf-shadow { transform: translate3d(-6px,18px,-25px) scale(0.93,0.97); }
+.sf-item[data-model="2"] .sf-shadow { inset: 8% 2% -1% 8%; filter: blur(22px); }
+.sf-item:hover .sf-shadow, .sf-item:focus-visible .sf-shadow { opacity: 0.22; transform: translate3d(4px,20px,-28px) scale(1); }
+.sf-controls { display: flex; justify-content: flex-end; max-width: 1120px; margin: 0 auto; color: #655f69; font-size: 14px; }
+.sf-controls button { min-height: 44px; padding: 8px; background: none; border: 0; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .sf-controls button:focus-visible { outline: 2px solid #7c5cff; outline-offset: 3px; }
 .sf-empty { min-height: 260px; display: grid; place-items: center; text-align: center; color: #655f69; }
 .sf-image-error { display: grid; place-content: center; min-height: 250px; padding: 20px; background: #fff; color: #51483d; }
 .dark .sf-controls, .dark .sf-empty { color: #c1bcc8; }
-@media (max-width: 1023px) and (min-width: 640px) {
-  .sf-field { height: 610px; perspective: 1800px; }
-  .sf-item { width: 21vw; }
-  .sf-item[data-layer="lead"] { width: 26vw; }
+@media (max-width: 1023px) {
+  .sf-field { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 26px 18px; padding: 32px 18px; }
 }
 @media (max-width: 639px) {
-  .sf-field { height: 490px; perspective: 2200px; }
-  .sf-item { width: 43%; }
-  .sf-item[data-layer="lead"] { width: 52%; }
-  .sf-item[data-layer="back"] { filter: none; }
-  .sf-shadow { filter: blur(12px); transform: translate3d(3px, 10px, -15px); opacity: 0.12; }
-  .sf-pagination { gap: 12px; }
+  .sf-field { grid-template-columns: minmax(0,1fr); gap: 20px; padding: 16px 24px; max-width: 430px; }
+  .sf-slot { padding: 12px 4px; perspective: 2200px; }
+  .sf-item { transform: rotateZ(var(--rz)) scale(0.95); }
+  .sf-paper { --curl-x: calc(var(--curl-width) * 0.75); --curl-y: calc(var(--curl-height) * 0.75); }
+  .sf-shadow, .sf-item[data-model="2"] .sf-shadow { filter: blur(12px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sf-item { transform: translate(-50%, -50%) translateZ(var(--z)) rotateZ(var(--rz)); }
-  .sf-corner { transform: none; }
-  .sf-paper--left .sf-corner { transform: scaleX(-1); }
+  .sf-corner { transform: scale(var(--flip-x),var(--flip-y)); }
+  .sf-shadow { transition: none; }
+  .sf-item:hover .sf-shadow { opacity: var(--shadow-opacity); }
 }
