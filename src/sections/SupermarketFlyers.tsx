@@ -1,5 +1,5 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { motion } from "motion/react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { getSupermarketFlyers, groupFlyers, type Flyer, type FlyerGroup } from "../services/flyerService";
@@ -14,18 +14,6 @@ interface SupermarketFlyersProps {
   limit?: number;
 }
 
-// Shown until the real flyers arrive, and if the project is unreachable.
-const FALLBACK_FLYERS: Flyer[] = [
-  {
-    title: "Sample flyer",
-    width: 600,
-    height: 800,
-    src: "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600",
-    srcset: "",
-    bookletContinues: false,
-  },
-];
-
 /**
  * The flyers, as printed sheets.
  *
@@ -36,18 +24,24 @@ const FALLBACK_FLYERS: Flyer[] = [
  * styles/flyers.css.
  */
 export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
-  const [flyers, setFlyers] = useState<Flyer[]>(FALLBACK_FLYERS);
+  const [flyers, setFlyers] = useState<Flyer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const navigate = useNavigate();
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     let cancelled = false;
     getSupermarketFlyers()
       .then((rows) => {
         if (cancelled) return;
-        if (rows.length > 0) setFlyers(rows);
+        setFlyers(rows);
+        setLoading(false);
       })
-      .catch((err) => console.error("Error fetching supermarket flyers:", err));
+      .catch((err) => {
+        console.error("Error fetching supermarket flyers:", err);
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -61,10 +55,10 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
   }, [flyers, limit]);
 
   return (
-    <section id="supermarket-flyers" className="py-28 px-6 bg-white relative">
+    <section id="supermarket-flyers" className="sf-section py-28 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={reduced ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "100px" }}
           transition={{ duration: 0.7 }}
@@ -86,16 +80,13 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
           </p>
         </motion.div>
 
-        <div className="sf-grid">
-          {groups.map((group, i) => (
-            <FlyerSheet
-              key={group.startIndex}
-              group={group}
-              index={i}
-              onOpen={() => setActiveIndex(group.startIndex)}
-            />
-          ))}
-        </div>
+        {groups.length ? (
+          <FlyerField groups={groups} paused={activeIndex !== null} onOpen={setActiveIndex} />
+        ) : (
+          <div className="sf-empty" role="status" aria-busy={loading}>
+            {loading ? "Loading flyers…" : "Flyers are unavailable right now. Please check back shortly."}
+          </div>
+        )}
 
         {limit !== undefined && (
           <div className="text-center mt-6">
@@ -135,118 +126,191 @@ function jitter(seed: number): number {
   return (x - Math.floor(x)) * 2 - 1;
 }
 
-/** How one sheet sits, and how it breathes. */
-function poseOf(seed: number) {
-  const a = jitter(seed + 1);
-  const b = jitter(seed + 13);
-  const c = jitter(seed + 29);
+/** Positions are art-directed; only the small variations are seeded.
+ * The central sheet remains readable while peripheral sheets cross the space.
+ */
+const PLACES = [
+  [50, 42, 95, -3], [19, 30, -90, -10], [81, 25, -165, 9],
+  [24, 77, -35, 7], [76, 76, 15, -7], [51, 87, -230, 5],
+];
+const PHONE_PLACES = [[50, 28, 20, -2], [26, 73, -30, -5], [77, 70, -50, 5]];
 
-  return {
-    /** Tipped back, but not all by the same amount. */
-    rx: 4.5 + a * 2.5,
-    /** Turned away from the viewer — sometimes left, sometimes right. */
-    ry: b * 15,
-    /** A degree or so of lie, which is what stops a grid looking set out. */
-    rz: c * 1.4,
-    /** Curled corner: which one, and how far it has lifted. */
-    curlCorner: b > 0 ? "br" : "bl",
-    curl: Math.round(26 + Math.abs(c) * 22),
-    /** Slow, and no two sheets on the same clock. */
-    drift: (8 + Math.abs(a) * 5).toFixed(1),
-    driftDelay: (Math.abs(b) * 4).toFixed(1),
-    driftTilt: (0.15 + Math.abs(c) * 0.3).toFixed(2),
-  } as const;
-}
-
-/** One sheet, or one open brochure. */
-function FlyerSheet({
-  group, index, onOpen,
-}: {
-  group: FlyerGroup;
-  index: number;
-  onOpen: () => void;
+function FlyerField({ groups, paused, onOpen }: {
+  groups: FlyerGroup[]; paused: boolean; onOpen: (index: number) => void;
 }) {
-  const pages = group.pages;
-  const spread = pages.length > 1;
-  const pose = poseOf(group.startIndex);
+  const stage = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const [mobile, setMobile] = useState(() => window.matchMedia("(max-width: 639px)").matches);
+  const [page, setPage] = useState(0);
+  const [stopped, setStopped] = useState(false);
+  const size = mobile ? 3 : 6;
+  const pageCount = Math.ceil(groups.length / size);
+  const currentPage = Math.min(page, pageCount - 1);
+  const shown = useMemo(() => groups.slice(currentPage * size, (currentPage + 1) * size),
+    [groups, currentPage, size]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 639px)");
+    const update = () => { setMobile(query.matches); setPage(0); };
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const field = stage.current;
+    if (!field || reduced || stopped || paused) return;
+    const sheets = Array.from(field.querySelectorAll<HTMLButtonElement>(".sf-item"));
+    const places = mobile ? PHONE_PLACES : PLACES;
+    const states = sheets.map((_, i) => ({
+      t: 0, y: 0, vy: 0, turn: 0, spin: 0, hover: 0,
+      phase: (jitter(shown[i].startIndex + 11) + 1) * Math.PI,
+    }));
+    let frame = 0, last = 0, visible = false, amount = 0, activity = 0;
+    let rect = field.getBoundingClientRect();
+    let scroll = 0, px = 0, py = 0, mx = 0, my = 0;
+    const measure = () => {
+      rect = field.getBoundingClientRect();
+      scroll = Math.max(-1, Math.min(1,
+        (window.innerHeight / 2 - rect.top - rect.height / 2) / (window.innerHeight / 2 + rect.height / 2)));
+    };
+    const pointer = (event: PointerEvent) => {
+      if (mobile || event.pointerType !== "mouse") return;
+      px = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      py = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+    };
+    const leave = () => { px = 0; py = 0; };
+    const tick = (now: number) => {
+      frame = 0;
+      if (!visible || document.hidden) { last = 0; return; }
+      const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+      last = now;
+      const ease = 1 - Math.exp(-dt * 2.4);
+      activity += (amount - activity) * ease;
+      mx += (px - mx) * ease; my += (py - my) * ease;
+      sheets.forEach((sheet, i) => {
+        const s = states[i], p = places[i];
+        const focused = sheet.matches(":hover, :focus-within");
+        s.hover += ((focused ? 1 : 0) - s.hover) * (1 - Math.exp(-dt * 6));
+        // Damped gravity with a slow, varying air current. No per-frame React
+        // state, layout reads, spawning, or timers for individual sheets.
+        const step = dt * activity * (1 - s.hover);
+        s.t += step;
+        const wind = Math.sin(s.t * 0.19 + s.phase) + 0.35 * Math.sin(s.t * 0.071 + s.phase * 2);
+        s.vy += (1.6 + jitter(i + 3) * 0.35 - 0.45 * s.vy + wind * 0.18) * step;
+        s.y += s.vy * step;
+        s.spin += (Math.sin(s.t * 0.23 + s.phase) * 0.3 - s.spin * 0.8) * step;
+        s.turn += s.spin * step;
+        // Five sheets stay within composition lanes, suspended by air. Only
+        // the sixth, distant sheet traverses the boundary; the field never
+        // drains to one flyer after a visitor spends a minute here.
+        const travel = mobile || i < 5
+          ? Math.sin(s.t * 0.08 + s.phase) * (mobile ? 8 : i === 0 ? 16 : 26)
+            + (i === 0 ? 0 : Math.min(s.y, mobile ? 5 : 18))
+          : s.y;
+        const threshold = rect.height * (1 - p[1] / 100) + rect.height * 0.65;
+        if (s.y > threshold) { s.y = -rect.height * (p[1] / 100 + 0.65); }
+        const strength = mobile ? 0.32 : 1;
+        const z = p[2] + Math.sin(s.t * 0.13 + s.phase) * 14 * strength + scroll * 14 * strength;
+        const x = wind * 13 * strength + mx * 3 * strength;
+        const y = travel + scroll * (i % 2 ? 20 : -14) * strength - s.hover * 7;
+        const rx = (3 + Math.sin(s.t * 0.3 + s.phase) * 4 + my) * strength;
+        const ry = (Math.sin(s.t * 0.21 + s.phase) * 7 - mx) * strength;
+        const rz = p[3] + Math.sin(s.turn) * 3 * strength;
+        sheet.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${(z + s.hover * 14).toFixed(2)}px) rotateX(${(rx * (1 - s.hover * 0.65)).toFixed(2)}deg) rotateY(${(ry * (1 - s.hover * 0.7)).toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+        sheet.style.setProperty("--bend", `${(Math.sin(s.t * 0.6 + s.phase) * 0.65 * strength * (1 - s.hover)).toFixed(3)}deg`);
+        sheet.style.setProperty("--shadow-opacity", String((0.1 + (z + 240) / 340 * 0.12 + s.hover * 0.035).toFixed(3)));
+      });
+      frame = requestAnimationFrame(tick);
+    };
+    const resume = () => {
+      if (visible && !document.hidden && !frame) { last = 0; frame = requestAnimationFrame(tick); }
+      else if (document.hidden && frame) { cancelAnimationFrame(frame); frame = 0; last = 0; }
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      amount = Math.min(1, entry.intersectionRatio * 2);
+      if (!visible) { cancelAnimationFrame(frame); frame = 0; last = 0; }
+      else resume();
+    }, { threshold: [0, 0.05, 0.15, 0.3, 0.5, 0.75, 1] });
+    observer.observe(field);
+    const resize = new ResizeObserver(measure);
+    resize.observe(field);
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    field.addEventListener("pointermove", pointer, { passive: true });
+    field.addEventListener("pointerleave", leave);
+    document.addEventListener("visibilitychange", resume);
+    return () => {
+      cancelAnimationFrame(frame); observer.disconnect(); resize.disconnect();
+      window.removeEventListener("scroll", measure); window.removeEventListener("resize", measure);
+      field.removeEventListener("pointermove", pointer); field.removeEventListener("pointerleave", leave);
+      document.removeEventListener("visibilitychange", resume);
+      sheets.forEach(sheet => {
+        sheet.style.removeProperty("transform");
+        sheet.style.removeProperty("--bend");
+        sheet.style.removeProperty("--shadow-opacity");
+      });
+    };
+  }, [shown, mobile, reduced, stopped, paused]);
 
   return (
-    <motion.button
-      type="button"
-      className={[
-        "sf-item",
-        spread ? "sf-item--spread" : `sf-item--curl-${pose.curlCorner}`,
-      ].join(" ")}
-      style={
-        {
-          "--rx": `${pose.rx.toFixed(2)}deg`,
-          "--ry": `${pose.ry.toFixed(2)}deg`,
-          "--rz": `${pose.rz.toFixed(2)}deg`,
-          "--curl": `${pose.curl}px`,
-          "--drift": `${pose.drift}s`,
-          "--drift-delay": `${pose.driftDelay}s`,
-          "--drift-tilt": `${pose.driftTilt}deg`,
-        } as React.CSSProperties
-      }
-      onClick={onOpen}
-      aria-label={
-        spread
-          ? `Open the ${pages.length}-page brochure ${index + 1}`
-          : `Open supermarket flyer ${index + 1}`
-      }
-      // Sheets arrive one after another as the section comes into view, close
-      // enough together to read as one movement rather than as a queue.
-      initial={{ opacity: 0, y: 26 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.75, delay: Math.min(index * 0.07, 0.6), ease: [0.22, 1, 0.36, 1] }}
-    >
-      <span className="sf-float">
-        <span className={spread ? "sf-paper sf-spread" : "sf-paper"}>
-          {spread ? (
-            <>
-              <span className="sf-half sf-half--left">
-                <PageFace page={pages[0]} eager={index < 3} />
-                <span aria-hidden className="sf-gutter" />
-              </span>
-              <span className="sf-half sf-half--right">
-                <PageFace page={pages[1]} eager={index < 3} />
-                <span aria-hidden className="sf-gutter" />
-              </span>
-            </>
-          ) : (
-            <>
-              {/* Behind the printed side: the rest of the stack, giving the
-                  sheet an edge to show at this angle. */}
-              <span aria-hidden className="sf-leaf sf-leaf--1" />
-              <span aria-hidden className="sf-leaf sf-leaf--2" />
-              <span aria-hidden className="sf-leaf sf-leaf--3" />
-              <PageFace page={pages[0]} eager={index < 3} />
-              {/* Drawn after the face, over the corner the face gave up. */}
-              <span aria-hidden className="sf-curl-shade" />
-              <span aria-hidden className="sf-curl" />
-            </>
-          )}
-
-          <span aria-hidden className="sf-shadow" />
-        </span>
-      </span>
-    </motion.button>
+    <>
+      <div ref={stage} className="sf-field" aria-label="Supermarket flyer portfolio">
+        {shown.map((group, index) => (
+          <FlyerSheet key={group.startIndex} group={group} index={index} mobile={mobile}
+            count={shown.length} onOpen={() => onOpen(group.startIndex)} />
+        ))}
+      </div>
+      <div className="sf-controls">
+        {!reduced && <button type="button" onClick={() => setStopped(!stopped)} aria-pressed={stopped}>
+          {stopped ? "Resume motion" : "Pause motion"}
+        </button>}
+        {pageCount > 1 && (
+          <div className="sf-pagination" aria-label="Flyer sets">
+            <button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous flyers</button>
+            <span role="status">{currentPage + 1} / {pageCount}</span>
+            <button type="button" disabled={currentPage === pageCount - 1} onClick={() => setPage(currentPage + 1)}>Next flyers</button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
-function PageFace({ page, eager }: { page: Flyer; eager: boolean }) {
+function FlyerSheet({ group, index, mobile, count, onOpen }: {
+  group: FlyerGroup; index: number; mobile: boolean; count: number; onOpen: () => void;
+}) {
+  const page = group.pages[0];
+  const [failed, setFailed] = useState(false);
+  const p = (mobile ? PHONE_PLACES : PLACES)[index];
+  const single = count === 1;
   return (
-    <img
-      className="sf-face"
-      src={page.src}
-      srcSet={page.srcset || undefined}
-      sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
-      alt={page.title || "Supermarket campaign flyer"}
-      width={page.width}
-      height={page.height}
-      loading={eager ? "eager" : "lazy"}
-      decoding="async"
-    />
+    <button type="button" className="sf-item" data-layer={index === 0 ? "lead" : index === 2 || index === 5 ? "back" : "middle"}
+      style={{
+        "--x": `${single ? 50 : p[0]}%`, "--y": `${single ? 48 : p[1]}%`,
+        "--z": `${p[2]}px`, "--rz": `${p[3]}deg`,
+        "--aspect": page.width / page.height,
+      } as CSSProperties}
+      aria-label={group.pages.length > 1 ? `Open the ${group.pages.length}-page brochure: ${page.title || "Supermarket campaign"}` : `Open ${page.title || "supermarket flyer"}`}
+      onClick={onOpen}>
+      <span className="sf-paper">
+        <span aria-hidden="true" className="sf-shadow" />
+        {failed ? <span className="sf-image-error">{page.title || "Supermarket flyer"}<br />Open flyer</span> : (
+          <>
+            <img className="sf-face" src={page.src} srcSet={page.srcset || undefined}
+              sizes="(max-width: 639px) 48vw, (max-width: 1023px) 28vw, 320px"
+              alt={page.title || "Supermarket campaign flyer"} width={page.width} height={page.height}
+              loading="lazy" decoding="async" onError={() => setFailed(true)} />
+            {/* The last 12% of the SAME print flexes less than a degree.
+                No canvas, colour filter, artificial artwork or cropped prices. */}
+            <span className="sf-flex" aria-hidden="true">
+              <img src={page.src} srcSet={page.srcset || undefined}
+                sizes="(max-width: 639px) 48vw, (max-width: 1023px) 28vw, 320px"
+                alt="" width={page.width} height={page.height} loading="lazy" decoding="async" />
+            </span>
+          </>
+        )}
+      </span>
+    </button>
   );
 }

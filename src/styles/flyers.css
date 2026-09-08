@@ -1,281 +1,65 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   Supermarket flyers — printed sheets, photographed on a table.
-
-   Written for this section alone and imported by it, so nothing here leaks
-   into the rest of the site and nothing from the rest of the site reaches in.
-   Every class is prefixed sf-.
-
-   Two rules govern the whole file:
-
-   1. The artwork is never touched. No filter, no blend mode, no overlay on top
-      of a flyer — an offer sheet is colour-critical work and a 4% gloss layer
-      is still a lie about what was printed. Everything that makes a sheet look
-      three-dimensional happens in geometry and in the shadow BENEATH it.
-
-   2. The dimensionality is real, not drawn. The sheet is a transformed plane
-      in a perspective space with layers behind it standing in for paper
-      thickness, so the foreshortening, the edge and the shadow all agree with
-      one another at any size.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.sf-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  /* Wide gaps: a tilted sheet needs room beside it or the shadow of one lands
-     on its neighbour and the illusion of separate objects goes. */
-  gap: 4.5rem 3rem;
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: 1rem 0 2rem;
+/* Isolated studio space: no global styles or artwork filters. */
+.sf-section { background: #faf9f6; }
+.dark .sf-section { background: #17151b; }
+.sf-field {
+  position: relative; height: clamp(620px, 64vw, 820px);
+  max-width: 1180px; margin: 0 auto;
+  overflow: hidden; overflow: clip;
+  perspective: 1500px; perspective-origin: 50% 45%; isolation: isolate;
 }
-@media (min-width: 640px) { .sf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .sf-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5rem 3.5rem; } }
-
-/* An open brochure is twice as wide as a single sheet, so it takes two columns.
-   Squeezed into one, its pages render at half scale and the row goes ragged —
-   the piece would read as smaller work rather than as a bigger object. */
-@media (min-width: 640px) { .sf-item--spread { grid-column: span 2; } }
-
-/* The stage owns the perspective. Putting it on each sheet instead would give
-   every sheet its own vanishing point, which reads as a collage of separate
-   photographs rather than one table of paper. */
 .sf-item {
-  position: relative;
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  perspective: 1400px;
-  perspective-origin: 50% 40%;
-}
-.sf-item:focus-visible { outline: none; }
-.sf-item:focus-visible .sf-paper { outline: 2px solid #a259ff; outline-offset: 10px; }
-
-/* Three elements, one transform each, because they change on different clocks:
-   the button fades in once, the float breathes forever, and the paper holds
-   the pose. Stacking all three on one element would have them overwrite each
-   other and the sheet would jump. */
-.sf-float {
-  display: block;
-  animation: sf-drift var(--drift, 9s) ease-in-out var(--drift-delay, 0s) infinite;
-}
-
-@keyframes sf-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50% { transform: translate3d(0, -5px, 0) rotate(var(--drift-tilt, 0.25deg)); }
-}
-
-.sf-paper {
-  position: relative;
-  display: block;
+  position: absolute; left: var(--x); top: var(--y);
+  width: clamp(170px, 23vw, 290px); aspect-ratio: var(--aspect);
+  padding: 0; border: 0; border-radius: 0; background: none; cursor: pointer;
+  transform: translate(-50%, -50%) translateZ(var(--z)) rotateX(3deg) rotateZ(var(--rz));
   transform-style: preserve-3d;
-  /* Every sheet sits at its own angle. Paper set down by hand never lands
-     twice the same way, and a grid of identically turned sheets reads as a
-     template within a second or two. The numbers come from the item's index,
-     so they are stable across renders rather than re-rolled on every paint. */
-  transform:
-    rotateX(var(--rx, 6deg))
-    rotateY(var(--ry, -13deg))
-    rotateZ(var(--rz, -0.4deg));
-  transform-origin: 50% 60%;
-  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  --bend: 0.35deg; --shadow-opacity: 0.19;
 }
-/* Pointing at a sheet squares it up, the way you would turn one to read it. */
-.sf-item:hover .sf-paper,
-.sf-item:focus-visible .sf-paper {
-  transform: rotateX(1.5deg) rotateY(-2deg) rotateZ(0deg) translateY(-8px) scale(1.02);
+.sf-item[data-layer="lead"] { width: clamp(210px, 27vw, 330px); z-index: 3; }
+.sf-item[data-layer="middle"] { z-index: 2; }
+.sf-item[data-layer="back"] { z-index: 1; filter: blur(0.35px); --shadow-opacity: 0.1; }
+.sf-item:focus-visible { outline: 2px solid #7c5cff; outline-offset: 8px; }
+.sf-paper { position: relative; display: block; transform-style: preserve-3d; }
+.sf-face, .sf-flex img {
+  display: block; width: 100%; height: auto; border-radius: 0;
+  background: #fff; backface-visibility: hidden;
 }
-
-/* The printed side. Nothing is layered over this element, ever. */
-.sf-face {
-  position: relative;
-  z-index: 2;
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 2px;
-  background: #fff;
-  /* Light from the upper left, so the sheet has a lit and a shaded edge. */
-  box-shadow:
-    -1px 1px 0 rgba(255, 255, 255, 0.5),
-    0 1px 1px rgba(20, 12, 45, 0.14);
-  backface-visibility: hidden;
+.sf-face { clip-path: inset(0 0 11.9%); }
+.sf-flex {
+  display: block; position: absolute; inset: 0; clip-path: inset(88% 0 0);
+  transform-origin: 50% 88%; transform: rotateX(var(--bend)); pointer-events: none;
 }
-
-/* Paper has thickness. Three sheets of it, set back a fraction of a millimetre
-   each, catch the perspective at the tilt angle and give the edge something to
-   be — cheaper and steadier than modelling a solid. */
-.sf-leaf {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: 2px;
-  background: #f2efe8;
-  box-shadow: 0 0 0 1px rgba(20, 12, 45, 0.06);
-}
-.sf-leaf--1 { transform: translateZ(-1.1px) translate(1.5px, 1px); }
-.sf-leaf--2 { transform: translateZ(-2.2px) translate(3px, 2px); background: #e9e5dc; }
-.sf-leaf--3 { transform: translateZ(-3.3px) translate(4.5px, 3px); background: #ded9cf; }
-
-/* Cast shadow, on the table rather than on the sheet: a separate plane laid
-   flat under it, so it foreshortens with the perspective instead of sliding
-   about as a box-shadow would. */
 .sf-shadow {
-  position: absolute;
-  left: 6%;
-  right: -2%;
-  bottom: -3%;
-  height: 22%;
-  z-index: 0;
-  border-radius: 50%;
-  background: radial-gradient(60% 100% at 50% 50%, rgba(20, 12, 45, 0.42), rgba(20, 12, 45, 0) 72%);
-  filter: blur(14px);
-  transform: translateZ(-40px) rotateX(72deg) scale(1.06);
-  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  opacity: 0.85;
-  pointer-events: none;
+  display: block; position: absolute; inset: 4% -2% -4% 2%;
+  background: #51483d; filter: blur(22px); opacity: var(--shadow-opacity);
+  transform: translate3d(7px, 20px, -35px) scale(0.96); pointer-events: none;
 }
-.sf-item:hover .sf-shadow,
-.sf-item:focus-visible .sf-shadow {
-  /* Lifted paper throws a wider, fainter shadow. */
-  opacity: 0.6;
-  transform: translateZ(-40px) rotateX(72deg) scale(1.22) translateY(6px);
+.sf-paper::before {
+  content: ""; position: absolute; inset: 0; background: #eeeae1;
+  transform: translate3d(0.3px, 0.6px, -0.6px); box-shadow: 0 1px 2px #51483d26;
 }
-
-/* ── An open brochure ──────────────────────────────────────────────────────
-   Two leaves meeting at a spine, each turned toward the viewer, which is what
-   makes a folded piece read as folded rather than as two flyers side by side. */
-.sf-spread {
-  display: flex;
-  align-items: flex-start;
-  transform-style: preserve-3d;
+.sf-controls, .sf-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; }
+.sf-controls { margin: 12px 0 24px; min-height: 44px; color: #655f69; font-size: 14px; }
+.sf-controls button { min-height: 44px; padding: 8px 4px; background: none; border: 0; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.sf-controls button:disabled { opacity: 0.4; cursor: default; }
+.sf-controls button:focus-visible { outline: 2px solid #7c5cff; outline-offset: 3px; }
+.sf-empty { min-height: 260px; display: grid; place-items: center; text-align: center; color: #655f69; }
+.sf-image-error { display: grid; place-content: center; min-height: 250px; padding: 20px; background: #fff; color: #51483d; }
+.dark .sf-controls, .dark .sf-empty { color: #c1bcc8; }
+@media (max-width: 1023px) and (min-width: 640px) {
+  .sf-field { height: 700px; perspective: 1800px; }
+  .sf-item { width: 23vw; }
+  .sf-item[data-layer="lead"] { width: 29vw; }
 }
-.sf-spread .sf-half {
-  position: relative;
-  flex: 1 1 50%;
-  transform-style: preserve-3d;
+@media (max-width: 639px) {
+  .sf-field { height: 600px; perspective: 2200px; }
+  .sf-item { width: 43%; }
+  .sf-item[data-layer="lead"] { width: 52%; }
+  .sf-item[data-layer="back"] { filter: none; }
+  .sf-shadow { filter: blur(12px); transform: translate3d(3px, 10px, -15px); opacity: 0.12; }
+  .sf-pagination { gap: 12px; }
 }
-.sf-spread .sf-half--left {
-  transform-origin: 100% 50%;
-  transform: rotateY(11deg);
-}
-.sf-spread .sf-half--right {
-  transform-origin: 0% 50%;
-  transform: rotateY(-11deg);
-}
-.sf-spread .sf-face { border-radius: 1px; }
-/* The gutter: the only place a gradient sits over artwork, because a fold
-   genuinely does darken the paper as it turns away from the light. */
-.sf-gutter {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 3;
-  width: 8%;
-  pointer-events: none;
-}
-.sf-half--left .sf-gutter {
-  right: 0;
-  background: linear-gradient(to right, rgba(20, 12, 45, 0) 0%, rgba(20, 12, 45, 0.16) 100%);
-}
-.sf-half--right .sf-gutter {
-  left: 0;
-  background: linear-gradient(to left, rgba(20, 12, 45, 0) 0%, rgba(20, 12, 45, 0.16) 100%);
-}
-
-
-/* ── The corner curl ──────────────────────────────────────────────────────
-   The corner of the sheet is genuinely cut away and the lifted flap drawn in
-   its place, so the curl covers the artwork exactly where a real one would and
-   nowhere else. Light comes from the upper left, so the flap is bright along
-   the fold and darkens toward the tip as it turns away. */
-.sf-face {
-  clip-path: polygon(
-    0 0,
-    100% 0,
-    100% calc(100% - var(--curl, 34px)),
-    calc(100% - var(--curl, 34px)) 100%,
-    0 100%
-  );
-}
-.sf-item--curl-bl .sf-face {
-  clip-path: polygon(
-    0 0,
-    100% 0,
-    100% 100%,
-    var(--curl, 34px) 100%,
-    0 calc(100% - var(--curl, 34px))
-  );
-}
-/* A spread's fold is its feature; a curl on top of it is one crease too many. */
-.sf-spread .sf-face { clip-path: none; }
-
-.sf-curl {
-  position: absolute;
-  z-index: 3;
-  width: var(--curl, 34px);
-  height: var(--curl, 34px);
-  pointer-events: none;
-  /* Paper, not card: warm white turning to a grey-beige underside, with the
-     faintest fibre across it. */
-  background-image:
-    repeating-linear-gradient(115deg, rgba(120, 110, 88, 0.05) 0 1px, transparent 1px 3px),
-    linear-gradient(135deg, #fffdf7 0%, #f3efe4 38%, #ddd6c6 72%, #c2bba9 100%);
-}
-.sf-item--curl-br .sf-curl {
-  right: 0;
-  bottom: 0;
-  clip-path: polygon(100% 0, 0 100%, 100% 100%);
-  box-shadow: -7px -7px 16px rgba(20, 12, 45, 0.22);
-}
-.sf-item--curl-bl .sf-curl {
-  left: 0;
-  bottom: 0;
-  clip-path: polygon(0 0, 0 100%, 100% 100%);
-  background-image:
-    repeating-linear-gradient(65deg, rgba(120, 110, 88, 0.05) 0 1px, transparent 1px 3px),
-    linear-gradient(225deg, #fffdf7 0%, #f3efe4 38%, #ddd6c6 72%, #c2bba9 100%);
-  box-shadow: 7px -7px 16px rgba(20, 12, 45, 0.22);
-}
-.sf-spread .sf-curl { display: none; }
-
-/* What the lifted corner casts back onto the page. Without it the flap looks
-   pasted on rather than raised. */
-.sf-curl-shade {
-  position: absolute;
-  z-index: 2;
-  width: calc(var(--curl, 34px) * 1.9);
-  height: calc(var(--curl, 34px) * 1.9);
-  pointer-events: none;
-}
-.sf-item--curl-br .sf-curl-shade {
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 100% 100%, rgba(20, 12, 45, 0.3), rgba(20, 12, 45, 0) 68%);
-}
-.sf-item--curl-bl .sf-curl-shade {
-  left: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 0% 100%, rgba(20, 12, 45, 0.3), rgba(20, 12, 45, 0) 68%);
-}
-.sf-spread .sf-curl-shade { display: none; }
-
-/* Motion is the one thing here that is decorative. */
 @media (prefers-reduced-motion: reduce) {
-  .sf-paper, .sf-shadow { transition: none; }
-  .sf-float { animation: none; }
-  .sf-item:hover .sf-paper, .sf-item:focus-visible .sf-paper {
-    transform: rotateX(var(--rx, 6deg)) rotateY(var(--ry, -13deg)) rotateZ(var(--rz, -0.4deg));
-  }
-}
-
-/* A phone is too narrow for a turned sheet to read as anything but skewed. */
-@media (max-width: 520px) {
-  .sf-paper { transform: none; }
-  .sf-float { animation: none; }
-  .sf-item:hover .sf-paper, .sf-item:focus-visible .sf-paper { transform: translateY(-6px); }
-  .sf-shadow { transform: translateZ(0) scale(1); opacity: 0.5; }
+  .sf-item { transform: translate(-50%, -50%) translateZ(var(--z)) rotateZ(var(--rz)); }
+  .sf-flex { transform: none; }
 }
