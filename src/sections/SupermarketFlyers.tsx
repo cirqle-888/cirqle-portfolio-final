@@ -1,35 +1,20 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
-import { Button } from "../components/ui/button";
-import { getSupermarketFlyers, groupFlyers, type Flyer } from "../services/flyerService";
+import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { getSupermarketFlyers, groupFlyers, type Flyer, type FlyerGroup } from "../services/flyerService";
+import "../styles/flyers.css";
 
-// The flip-book reader (react-pageflip) is heavy — load it only when a flyer is opened.
+// The flip-book reader is heavy — it loads when a flyer is actually opened.
 const BrochureReader = lazy(() =>
   import("../components/ui/BrochureReader").then((m) => ({ default: m.BrochureReader }))
 );
-
-// So is three.js. It only ever renders this one section, so it is fetched when
-// the section is, not with the rest of the site.
-const FlyerPaper = lazy(() =>
-  import("../components/work/FlyerPaper").then((m) => ({ default: m.FlyerPaper }))
-);
-
-/** WebGL can be absent (old device, hardened browser) — then we show stills. */
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
-  } catch {
-    return false;
-  }
-}
 
 interface SupermarketFlyersProps {
   limit?: number;
 }
 
-// Shown until real flyers load, and if the project is unreachable.
+// Shown until the real flyers arrive, and if the project is unreachable.
 const FALLBACK_FLYERS: Flyer[] = [
   {
     title: "Sample flyer",
@@ -41,57 +26,49 @@ const FALLBACK_FLYERS: Flyer[] = [
   },
 ];
 
+/**
+ * The flyers, as printed sheets.
+ *
+ * The artwork is drawn by the browser's own image pipeline and nothing is
+ * placed over it: these are offer sheets, where a colour is a decision someone
+ * signed off, and a canvas or a gloss layer changes it. The three-dimensional
+ * part is entirely geometry and shadow around the picture — see
+ * styles/flyers.css.
+ */
 export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
   const [flyers, setFlyers] = useState<Flyer[]>(FALLBACK_FLYERS);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const navigate = useNavigate();
-  const reduceMotion = useReducedMotion();
-  // Checked once, lazily, on first render. This app has no server render, so
-  // document is available and an effect would only cost a second pass.
-  const [webgl] = useState(hasWebGL);
 
   useEffect(() => {
     let cancelled = false;
-
     getSupermarketFlyers()
       .then((rows) => {
         if (cancelled) return;
         if (rows.length > 0) setFlyers(rows);
       })
-      .catch((err) => {
-        console.error("Error fetching supermarket flyers:", err);
-      });
-
+      .catch((err) => console.error("Error fetching supermarket flyers:", err));
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // Fold the pages into booklets first, THEN apply the limit — a limit that
-  // cut a brochure in half would show a spread missing its other page.
+  // Fold pages into brochures BEFORE limiting, or a limit could cut a spread
+  // in half and show one page of a two-page piece.
   const groups = useMemo(() => {
     const all = groupFlyers(flyers);
     return limit && limit > 0 ? all.slice(0, limit) : all;
   }, [flyers, limit]);
 
   return (
-    <section
-      id="supermarket-flyers"
-      className="py-28 px-6 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
-    >
-      {/* Light from above, so the sheets read as lying on a surface. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(60%_100%_at_50%_0%,rgba(162,89,255,0.07),transparent_70%)]"
-      />
-
-      <div className="max-w-7xl mx-auto relative z-10">
+    <section id="supermarket-flyers" className="py-28 px-6 bg-white relative">
+      <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "100px" }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-20"
+          className="text-center mb-16"
         >
           <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
             <span className="text-sm text-gray-900 font-medium">Core Specialty</span>
@@ -109,53 +86,22 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
           </p>
         </motion.div>
 
-        {webgl ? (
-          <Suspense fallback={<div className="flyer-stage" />}>
-            <FlyerPaper groups={groups} onOpen={setActiveIndex} reduceMotion={!!reduceMotion} />
-          </Suspense>
-        ) : (
-          // No WebGL: the same flyers, flat. Nothing about the section depends
-          // on the paper simulation except how good it looks.
-          <div className="flyer-fallback mb-14">
-            {groups.map((group) => (
-              <button
-                key={group.startIndex}
-                type="button"
-                className="flyer-still"
-                onClick={() => setActiveIndex(group.startIndex)}
-              >
-                <img
-                  src={group.pages[0].src}
-                  srcSet={group.pages[0].srcset || undefined}
-                  sizes="(min-width: 1024px) 22vw, (min-width: 768px) 30vw, 45vw"
-                  alt={group.pages[0].title || "Supermarket campaign flyer"}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* The canvas cannot be tabbed to or read out, so every flyer also has
-            a real button here. Off screen, not hidden from assistive tech. */}
-        <ul className="flyer-index">
+        <div className="sf-grid">
           {groups.map((group, i) => (
-            <li key={group.startIndex}>
-              <button type="button" onClick={() => setActiveIndex(group.startIndex)}>
-                {group.pages.length > 1
-                  ? `Open the ${group.pages.length}-page brochure ${i + 1}`
-                  : `Open supermarket flyer ${i + 1}`}
-              </button>
-            </li>
+            <FlyerSheet
+              key={group.startIndex}
+              group={group}
+              index={i}
+              onOpen={() => setActiveIndex(group.startIndex)}
+            />
           ))}
-        </ul>
+        </div>
 
         {limit !== undefined && (
-          <div className="text-center">
+          <div className="text-center mt-6">
             <Button
               size="lg"
-              onClick={() => navigate('/portfolio#supermarket-flyers')}
+              onClick={() => navigate("/portfolio#supermarket-flyers")}
               className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity px-10 py-7 text-lg rounded-full shadow-lg shadow-[#A259FF]/25"
             >
               View Full Portfolio
@@ -174,5 +120,133 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
         </Suspense>
       )}
     </section>
+  );
+}
+
+/**
+ * Deterministic pseudo-random in [-1, 1].
+ *
+ * Seeded by the flyer's place in the list rather than by Math.random(), so a
+ * sheet keeps the angle it landed at instead of re-rolling on every render —
+ * which would have the whole table twitch whenever anything else changed.
+ */
+function jitter(seed: number): number {
+  const x = Math.sin(seed * 127.1) * 43758.5453;
+  return (x - Math.floor(x)) * 2 - 1;
+}
+
+/** How one sheet sits, and how it breathes. */
+function poseOf(seed: number) {
+  const a = jitter(seed + 1);
+  const b = jitter(seed + 13);
+  const c = jitter(seed + 29);
+
+  return {
+    /** Tipped back, but not all by the same amount. */
+    rx: 4.5 + a * 2.5,
+    /** Turned away from the viewer — sometimes left, sometimes right. */
+    ry: b * 15,
+    /** A degree or so of lie, which is what stops a grid looking set out. */
+    rz: c * 1.4,
+    /** Curled corner: which one, and how far it has lifted. */
+    curlCorner: b > 0 ? "br" : "bl",
+    curl: Math.round(26 + Math.abs(c) * 22),
+    /** Slow, and no two sheets on the same clock. */
+    drift: (8 + Math.abs(a) * 5).toFixed(1),
+    driftDelay: (Math.abs(b) * 4).toFixed(1),
+    driftTilt: (0.15 + Math.abs(c) * 0.3).toFixed(2),
+  } as const;
+}
+
+/** One sheet, or one open brochure. */
+function FlyerSheet({
+  group, index, onOpen,
+}: {
+  group: FlyerGroup;
+  index: number;
+  onOpen: () => void;
+}) {
+  const pages = group.pages;
+  const spread = pages.length > 1;
+  const pose = poseOf(group.startIndex);
+
+  return (
+    <motion.button
+      type="button"
+      className={[
+        "sf-item",
+        spread ? "sf-item--spread" : `sf-item--curl-${pose.curlCorner}`,
+      ].join(" ")}
+      style={
+        {
+          "--rx": `${pose.rx.toFixed(2)}deg`,
+          "--ry": `${pose.ry.toFixed(2)}deg`,
+          "--rz": `${pose.rz.toFixed(2)}deg`,
+          "--curl": `${pose.curl}px`,
+          "--drift": `${pose.drift}s`,
+          "--drift-delay": `${pose.driftDelay}s`,
+          "--drift-tilt": `${pose.driftTilt}deg`,
+        } as React.CSSProperties
+      }
+      onClick={onOpen}
+      aria-label={
+        spread
+          ? `Open the ${pages.length}-page brochure ${index + 1}`
+          : `Open supermarket flyer ${index + 1}`
+      }
+      // Sheets arrive one after another as the section comes into view, close
+      // enough together to read as one movement rather than as a queue.
+      initial={{ opacity: 0, y: 26 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.75, delay: Math.min(index * 0.07, 0.6), ease: [0.22, 1, 0.36, 1] }}
+    >
+      <span className="sf-float">
+        <span className={spread ? "sf-paper sf-spread" : "sf-paper"}>
+          {spread ? (
+            <>
+              <span className="sf-half sf-half--left">
+                <PageFace page={pages[0]} eager={index < 3} />
+                <span aria-hidden className="sf-gutter" />
+              </span>
+              <span className="sf-half sf-half--right">
+                <PageFace page={pages[1]} eager={index < 3} />
+                <span aria-hidden className="sf-gutter" />
+              </span>
+            </>
+          ) : (
+            <>
+              {/* Behind the printed side: the rest of the stack, giving the
+                  sheet an edge to show at this angle. */}
+              <span aria-hidden className="sf-leaf sf-leaf--1" />
+              <span aria-hidden className="sf-leaf sf-leaf--2" />
+              <span aria-hidden className="sf-leaf sf-leaf--3" />
+              <PageFace page={pages[0]} eager={index < 3} />
+              {/* Drawn after the face, over the corner the face gave up. */}
+              <span aria-hidden className="sf-curl-shade" />
+              <span aria-hidden className="sf-curl" />
+            </>
+          )}
+
+          <span aria-hidden className="sf-shadow" />
+        </span>
+      </span>
+    </motion.button>
+  );
+}
+
+function PageFace({ page, eager }: { page: Flyer; eager: boolean }) {
+  return (
+    <img
+      className="sf-face"
+      src={page.src}
+      srcSet={page.srcset || undefined}
+      sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+      alt={page.title || "Supermarket campaign flyer"}
+      width={page.width}
+      height={page.height}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+    />
   );
 }
