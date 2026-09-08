@@ -116,18 +116,20 @@ const fragmentShader = /* glsl */ `
 
     vec3 colour;
     if (gl_FrontFacing) {
-      // Printed side: the artwork, lit softly. Coated stock, so a tight
-      // highlight rather than a plastic sheen.
-      colour = texture2D(uMap, vUv).rgb * (0.72 + 0.42 * diff) + spec * 0.16;
+      // Printed side: the artwork, essentially at its own colours. The light
+      // only shapes the part that curves — a strong diffuse term made every
+      // sheet a different brightness depending on how it happened to lean,
+      // and the flyers stopped looking like one set of prints.
+      colour = texture2D(uMap, vUv).rgb * (0.94 + 0.10 * diff) + spec * 0.05;
     } else {
       // Reverse: unprinted matte stock, a little darker than the print, and
       // darker still deep in the roll where less light reaches it.
-      vec3 stock = vec3(0.88, 0.868, 0.838) * (1.0 - 0.22 * vRolled);
-      colour = stock * (0.62 + 0.40 * diff) + spec * 0.03;
+      vec3 stock = vec3(0.90, 0.888, 0.862) * (1.0 - 0.16 * vRolled);
+      colour = stock * (0.80 + 0.22 * diff);
     }
 
     // Contact shading: the underside of the curl shadows the page below it.
-    colour *= 1.0 - 0.16 * vRolled * (gl_FrontFacing ? 1.0 : 0.0);
+    colour *= 1.0 - 0.10 * vRolled * (gl_FrontFacing ? 1.0 : 0.0);
 
     gl_FragColor = vec4(colour, 1.0);
   }
@@ -197,7 +199,7 @@ export function FlyerPaper({ groups, onOpen, reduceMotion }: Props) {
     const disposables: { dispose(): void }[] = [shadowMap];
 
     // ── Build one sheet per flyer ──────────────────────────────────────────
-    groups.forEach((group, i) => {
+    groups.forEach((group) => {
       const flyer = group.pages[0];
       const seed = group.startIndex + 1;
       const r = (n: number) => jitter(seed * 7 + n);
@@ -272,7 +274,7 @@ export function FlyerPaper({ groups, onOpen, reduceMotion }: Props) {
       holder.add(mesh);
       // Sheets are not all the same size or the same distance away: without
       // this they read as a grid of tiles that happen to be curled.
-      const scale = 0.93 + roll(seed * 7 + 27) * 0.14;
+      const scale = 0.975 + roll(seed * 7 + 27) * 0.05;
       holder.scale.setScalar(scale);
       scene.add(holder);
 
@@ -284,18 +286,25 @@ export function FlyerPaper({ groups, onOpen, reduceMotion }: Props) {
         base: {
           x: 0,
           y: 0,
-          z: r(2) * 0.34,
-          rx: r(3) * 0.14,
-          ry: r(4) * 0.2,
-          rz: r(5) * 0.16,
+          // Small on purpose. Sheets at wildly different depths and angles
+          // read as debris; a portfolio wants printed work laid out, with
+          // just enough variation that it is not a grid of stamps.
+          z: r(2) * 0.08,
+          rx: r(3) * 0.035,
+          ry: r(4) * 0.05,
+          rz: r(5) * 0.045,
         },
         phase: roll(seed * 7 + 25) * Math.PI * 2,
-        drift: 0.5 + roll(seed * 7 + 26) * 0.6,
+        // A full breath takes the best part of a minute. Anything quicker and
+        // the eye tracks it instead of the work.
+        drift: 0.09 + roll(seed * 7 + 26) * 0.07,
         material,
       });
 
-      // Entrance: dropped in from above, one after another.
-      if (!reduceMotion) holder.position.y = 6 + i * 0.4;
+      // Entrance: a short settle from just above the resting place. The old
+      // version started sheets metres up and staggered by index, so a visitor
+      // arriving mid-animation met a shower of flyers crossing each other.
+      if (!reduceMotion) holder.position.y = 0.55;
     });
 
     // ── Layout ─────────────────────────────────────────────────────────────
@@ -398,27 +407,26 @@ export function FlyerPaper({ groups, onOpen, reduceMotion }: Props) {
         const { base } = sheet;
 
         if (!landed) {
-          // Fall: ease towards the resting height, staggered per sheet.
-          const target = base.y;
-          const delay = i * 0.08;
-          const k = Math.min(1, Math.max(0, (t - delay) * 1.35));
+          const from = base.y + 0.55;
+          const delay = i * 0.06;
+          const k = Math.min(1, Math.max(0, (t - delay) * 0.9));
           const eased = 1 - Math.pow(1 - k, 3);
-          sheet.group.position.y = 6 + i * 0.4 + (target - (6 + i * 0.4)) * eased;
+          sheet.group.position.y = from + (base.y - from) * eased;
           if (k < 1) allLanded = false;
         }
 
         const wobble = reduceMotion ? 0 : 1;
         const s = t * sheet.drift + sheet.phase;
-        sheet.group.position.y += wobble * Math.sin(s) * 0.012;
-        sheet.group.rotation.x = base.rx + wobble * Math.sin(s * 0.8) * 0.03;
-        sheet.group.rotation.y = base.ry + wobble * Math.cos(s * 0.6) * 0.05;
-        sheet.group.rotation.z = base.rz + wobble * Math.sin(s * 0.5) * 0.02;
+        sheet.group.position.y += wobble * Math.sin(s) * 0.005;
+        sheet.group.rotation.x = base.rx + wobble * Math.sin(s * 0.8) * 0.006;
+        sheet.group.rotation.y = base.ry + wobble * Math.cos(s * 0.6) * 0.010;
+        sheet.group.rotation.z = base.rz + wobble * Math.sin(s * 0.5) * 0.005;
 
         // Pointing at a sheet settles its curl and lifts it towards the camera.
         const wanted = hovered === sheet ? 0.25 : 1;
         const uFlat = sheet.material.uniforms.uFlat;
         uFlat.value += (wanted - uFlat.value) * 0.08;
-        const lift = hovered === sheet ? 0.32 : 0;
+        const lift = hovered === sheet ? 0.16 : 0;
         sheet.group.position.z += (base.z + lift - sheet.group.position.z) * 0.1;
         sheet.shadow.material.opacity = hovered === sheet ? 0.5 : 0.85;
       });
