@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Suspense, lazy, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -130,8 +130,8 @@ function jitter(seed: number): number {
  * The central sheet remains readable while peripheral sheets cross the space.
  */
 const PLACES = [
-  [50, 42, 95, -3], [19, 30, -90, -10], [81, 25, -165, 9],
-  [24, 77, -35, 7], [76, 76, 15, -7], [51, 87, -230, 5],
+  [50, 40, 65, -5], [19, 30, -90, -13], [81, 26, -140, 11],
+  [25, 75, -55, 9], [76, 74, -30, -9], [51, 84, -200, 5],
 ];
 const PHONE_PLACES = [[50, 28, 20, -2], [26, 73, -30, -5], [77, 70, -50, 5]];
 
@@ -203,12 +203,13 @@ function FlyerField({ groups, paused, onOpen }: {
         // Five sheets stay within composition lanes, suspended by air. Only
         // the sixth, distant sheet traverses the boundary; the field never
         // drains to one flyer after a visitor spends a minute here.
+        const arrival = -Math.exp(-s.t / (3.5 + i * 0.6)) * (mobile ? 24 : 65 + i * 5);
         const travel = mobile || i < 5
-          ? Math.sin(s.t * 0.08 + s.phase) * (mobile ? 8 : i === 0 ? 16 : 26)
-            + (i === 0 ? 0 : Math.min(s.y, mobile ? 5 : 18))
+          ? arrival + Math.sin(s.t * 0.12 + s.phase) * (mobile ? 6 : i === 0 ? 12 : 20)
+            + (i === 0 ? 0 : Math.min(s.y, mobile ? 5 : 14))
           : s.y;
         const threshold = rect.height * (1 - p[1] / 100) + rect.height * 0.65;
-        if (s.y > threshold) { s.y = -rect.height * (p[1] / 100 + 0.65); }
+        if (i === 5 && s.y > threshold) { s.y = -rect.height * (p[1] / 100 + 0.65); }
         const strength = mobile ? 0.32 : 1;
         const z = p[2] + Math.sin(s.t * 0.13 + s.phase) * 14 * strength + scroll * 14 * strength;
         const x = wind * 13 * strength + mx * 3 * strength;
@@ -217,7 +218,7 @@ function FlyerField({ groups, paused, onOpen }: {
         const ry = (Math.sin(s.t * 0.21 + s.phase) * 7 - mx) * strength;
         const rz = p[3] + Math.sin(s.turn) * 3 * strength;
         sheet.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${(z + s.hover * 14).toFixed(2)}px) rotateX(${(rx * (1 - s.hover * 0.65)).toFixed(2)}deg) rotateY(${(ry * (1 - s.hover * 0.7)).toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
-        sheet.style.setProperty("--bend", `${(Math.sin(s.t * 0.6 + s.phase) * 0.65 * strength * (1 - s.hover)).toFixed(3)}deg`);
+        sheet.style.setProperty("--bend", `${(Math.sin(s.t * 0.6 + s.phase) * 3 * strength * (1 - s.hover)).toFixed(3)}deg`);
         sheet.style.setProperty("--shadow-opacity", String((0.1 + (z + 240) / 340 * 0.12 + s.hover * 0.035).toFixed(3)));
       });
       frame = requestAnimationFrame(tick);
@@ -281,6 +282,7 @@ function FlyerSheet({ group, index, mobile, count, onOpen }: {
   group: FlyerGroup; index: number; mobile: boolean; count: number; onOpen: () => void;
 }) {
   const page = group.pages[0];
+  const curlId = useId();
   const [failed, setFailed] = useState(false);
   const p = (mobile ? PHONE_PLACES : PLACES)[index];
   const single = count === 1;
@@ -290,10 +292,11 @@ function FlyerSheet({ group, index, mobile, count, onOpen }: {
         "--x": `${single ? 50 : p[0]}%`, "--y": `${single ? 48 : p[1]}%`,
         "--z": `${p[2]}px`, "--rz": `${p[3]}deg`,
         "--aspect": page.width / page.height,
+        "--curl": `${mobile ? 21 : 25 + Math.abs(jitter(group.startIndex + 8)) * 12}px`,
       } as CSSProperties}
       aria-label={group.pages.length > 1 ? `Open the ${group.pages.length}-page brochure: ${page.title || "Supermarket campaign"}` : `Open ${page.title || "supermarket flyer"}`}
       onClick={onOpen}>
-      <span className="sf-paper">
+      <span className={`sf-paper${index % 2 ? " sf-paper--left" : ""}`}>
         <span aria-hidden="true" className="sf-shadow" />
         {failed ? <span className="sf-image-error">{page.title || "Supermarket flyer"}<br />Open flyer</span> : (
           <>
@@ -301,12 +304,22 @@ function FlyerSheet({ group, index, mobile, count, onOpen }: {
               sizes="(max-width: 639px) 48vw, (max-width: 1023px) 28vw, 320px"
               alt={page.title || "Supermarket campaign flyer"} width={page.width} height={page.height}
               loading="lazy" decoding="async" onError={() => setFailed(true)} />
-            {/* The last 12% of the SAME print flexes less than a degree.
-                No canvas, colour filter, artificial artwork or cropped prices. */}
-            <span className="sf-flex" aria-hidden="true">
-              <img src={page.src} srcSet={page.srcset || undefined}
-                sizes="(max-width: 639px) 48vw, (max-width: 1023px) 28vw, 320px"
-                alt="" width={page.width} height={page.height} loading="lazy" decoding="async" />
+            {/* A small turned corner only; the full unmodified image remains
+                available in the existing reader. No duplicate image strip. */}
+            <span className="sf-corner" aria-hidden="true">
+              <svg viewBox="0 0 100 100" focusable="false">
+                <defs>
+                  <linearGradient id={curlId} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fffefb" />
+                    <stop offset="0.36" stopColor="#f9f7f0" />
+                    <stop offset="0.63" stopColor="#ddd9ce" />
+                    <stop offset="0.8" stopColor="#aaa697" />
+                    <stop offset="1" stopColor="#ece8df" />
+                  </linearGradient>
+                </defs>
+                <path d="M100 0 Q48 15 9 9 Q15 48 0 100 Z" fill={`url(#${curlId})`} />
+                <path d="M100 0 Q48 15 9 9 Q15 48 0 100" fill="none" stroke="#fffef8" strokeWidth="1" />
+              </svg>
             </span>
           </>
         )}

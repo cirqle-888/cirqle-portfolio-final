@@ -1,42 +1,55 @@
 /* Isolated studio space: no global styles or artwork filters. */
-.sf-section { background: #faf9f6; }
+.sf-section { background: #faf9f6; padding-top: 64px; padding-bottom: 56px; }
+.sf-section .text-center.mb-16 { margin-bottom: 24px; }
 .dark .sf-section { background: #17151b; }
 .sf-field {
-  position: relative; height: clamp(620px, 64vw, 820px);
+  position: relative; height: clamp(570px, 58vw, 700px);
   max-width: 1180px; margin: 0 auto;
   overflow: hidden; overflow: clip;
   perspective: 1500px; perspective-origin: 50% 45%; isolation: isolate;
 }
 .sf-item {
   position: absolute; left: var(--x); top: var(--y);
-  width: clamp(170px, 23vw, 290px); aspect-ratio: var(--aspect);
+  width: clamp(160px, 21vw, 250px);
   padding: 0; border: 0; border-radius: 0; background: none; cursor: pointer;
   transform: translate(-50%, -50%) translateZ(var(--z)) rotateX(3deg) rotateZ(var(--rz));
   transform-style: preserve-3d;
   --bend: 0.35deg; --shadow-opacity: 0.19;
 }
-.sf-item[data-layer="lead"] { width: clamp(210px, 27vw, 330px); z-index: 3; }
+.sf-item[data-layer="lead"] { width: clamp(195px, 25vw, 290px); z-index: 3; }
 .sf-item[data-layer="middle"] { z-index: 2; }
 .sf-item[data-layer="back"] { z-index: 1; filter: blur(0.35px); --shadow-opacity: 0.1; }
 .sf-item:focus-visible { outline: 2px solid #7c5cff; outline-offset: 8px; }
 .sf-paper { position: relative; display: block; transform-style: preserve-3d; }
-.sf-face, .sf-flex img {
+.sf-face {
   display: block; width: 100%; height: auto; border-radius: 0;
   background: #fff; backface-visibility: hidden;
 }
-.sf-face { clip-path: inset(0 0 11.9%); }
-.sf-flex {
-  display: block; position: absolute; inset: 0; clip-path: inset(88% 0 0);
-  transform-origin: 50% 88%; transform: rotateX(var(--bend)); pointer-events: none;
+.sf-face {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--curl)), calc(100% - var(--curl)) 100%, 0 100%);
+}
+.sf-paper--left .sf-face {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--curl) 100%, 0 calc(100% - var(--curl)));
+}
+.sf-corner {
+  display: block; position: absolute; right: 0; bottom: 0;
+  width: var(--curl); height: var(--curl);
+  transform-origin: 50% 50%; transform: rotate3d(1, -1, 0, var(--bend));
+  filter: drop-shadow(-3px -3px 3px #302b2540);
+  pointer-events: none;
+}
+.sf-corner svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.sf-paper--left .sf-corner { right: auto; left: 0; transform: scaleX(-1) rotate3d(1, -1, 0, var(--bend)); }
+.sf-item:hover .sf-corner { filter: drop-shadow(-3px -4px 4px #302b2530); }
+/* No full rectangular backing: it exposed a cream band whenever Safari
+   flattened the old clipped duplicate-image layer. Only a thin edge remains. */
+.sf-paper {
+  filter: drop-shadow(0 1px 0.6px #635c5040);
 }
 .sf-shadow {
   display: block; position: absolute; inset: 4% -2% -4% 2%;
-  background: #51483d; filter: blur(22px); opacity: var(--shadow-opacity);
+  background: #51483d; filter: blur(18px); opacity: var(--shadow-opacity);
   transform: translate3d(7px, 20px, -35px) scale(0.96); pointer-events: none;
-}
-.sf-paper::before {
-  content: ""; position: absolute; inset: 0; background: #eeeae1;
-  transform: translate3d(0.3px, 0.6px, -0.6px); box-shadow: 0 1px 2px #51483d26;
 }
 .sf-controls, .sf-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; }
 .sf-controls { margin: 12px 0 24px; min-height: 44px; color: #655f69; font-size: 14px; }
@@ -47,12 +60,12 @@
 .sf-image-error { display: grid; place-content: center; min-height: 250px; padding: 20px; background: #fff; color: #51483d; }
 .dark .sf-controls, .dark .sf-empty { color: #c1bcc8; }
 @media (max-width: 1023px) and (min-width: 640px) {
-  .sf-field { height: 700px; perspective: 1800px; }
-  .sf-item { width: 23vw; }
-  .sf-item[data-layer="lead"] { width: 29vw; }
+  .sf-field { height: 610px; perspective: 1800px; }
+  .sf-item { width: 21vw; }
+  .sf-item[data-layer="lead"] { width: 26vw; }
 }
 @media (max-width: 639px) {
-  .sf-field { height: 600px; perspective: 2200px; }
+  .sf-field { height: 490px; perspective: 2200px; }
   .sf-item { width: 43%; }
   .sf-item[data-layer="lead"] { width: 52%; }
   .sf-item[data-layer="back"] { filter: none; }
@@ -61,5 +74,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .sf-item { transform: translate(-50%, -50%) translateZ(var(--z)) rotateZ(var(--rz)); }
-  .sf-flex { transform: none; }
+  .sf-corner { transform: none; }
+  .sf-paper--left .sf-corner { transform: scaleX(-1); }
 }
