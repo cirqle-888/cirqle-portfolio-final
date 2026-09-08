@@ -37,7 +37,7 @@ export function Portfolio() {
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/portfolio" />
       </Helmet>
-      <ShowcaseGrid headingTag="h1" />
+      <ShowcaseGrid headingTag="h1" showTiles={false} />
       <WorkPreview collection="social-media" limit={8} />
       <WorkPreview collection="brand-identity" limit={8} />
       <SupermarketFlyers />

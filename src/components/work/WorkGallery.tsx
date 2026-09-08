@@ -3,7 +3,15 @@ import { useSearchParams } from "react-router-dom";
 import { WorkTile } from "./WorkTile";
 import { FormatIcon } from "./FormatIcon";
 import { WorkLightbox } from "./WorkLightbox";
-import { FORMAT_LABEL, FORMATS, type WorkBrand, type WorkFormat, type WorkItem } from "../../lib/work";
+import {
+  FORMAT_LABEL,
+  FORMATS,
+  srcFor,
+  type Presentation,
+  type WorkBrand,
+  type WorkFormat,
+  type WorkItem,
+} from "../../lib/work";
 
 /**
  * How many masonry columns are on screen right now.
@@ -41,6 +49,11 @@ interface WorkGalleryProps {
   shareBase: string;
   /** Path prefix used when a brand chip is selected (collection page only) */
   brandLinkBase?: string;
+  /**
+   * "creatives" filters loose pieces by brand and format. "kits" shows one
+   * card per brand instead — see Presentation in lib/work.
+   */
+  presentation?: Presentation;
 }
 
 /**
@@ -49,7 +62,10 @@ interface WorkGalleryProps {
  * Deep links are driven by the query string so any view can be pasted to a
  * client:  ?brand=cell-world  filters,  ?v=<slug>  opens that creative.
  */
-export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGalleryProps) {
+export function WorkGallery({
+  items, brands, shareBase, brandLinkBase, presentation = "creatives",
+}: WorkGalleryProps) {
+  const asKits = presentation === "kits";
   const [params, setParams] = useSearchParams();
   const brandParam = params.get("brand");
   const viewParam = params.get("v");
@@ -88,8 +104,22 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
 
   const setIndex = (i: number | null) => {
     const next = new URLSearchParams(params);
-    if (i === null) next.delete("v");
-    else next.set("v", shown[i].slug);
+    if (i === null) {
+      next.delete("v");
+      // A kit was opened FROM the shelf, so closing it goes back to the shelf
+      // rather than leaving the page filtered down to the one brand.
+      if (asKits) next.delete("brand");
+    } else {
+      next.set("v", shown[i].slug);
+    }
+    setParams(next, { replace: true });
+  };
+
+  /** Open a brand's whole kit, starting at its first piece. */
+  const openKit = (brand: WorkBrand) => {
+    const next = new URLSearchParams(params);
+    next.set("brand", brand.slug);
+    next.set("v", brand.items[0].slug);
     setParams(next, { replace: true });
   };
 
@@ -138,7 +168,7 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
 
   return (
     <>
-      {brands && brands.length > 1 && (
+      {!asKits && brands && brands.length > 1 && (
         <div className="work-filter" role="group" aria-label="Filter by brand">
           <button
             type="button"
@@ -187,7 +217,7 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
         </div>
       )}
 
-      {formatCounts.length > 1 && (
+      {!asKits && formatCounts.length > 1 && (
         <div className="work-filter work-filter--format" role="group" aria-label="Filter by format">
           <button
             type="button"
@@ -217,7 +247,7 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
         </div>
       )}
 
-      {activeBrand && brandLinkBase && (
+      {!asKits && activeBrand && brandLinkBase && (
         <p className="work-active">
           <span>
             Showing {shown.length} {shown.length === 1 ? "creative" : "creatives"} for{" "}
@@ -228,6 +258,50 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
         </p>
       )}
 
+      {/* A brand identity job is one thing that was delivered, not a pile of
+          loose images: one card per brand, opening the whole kit in order. */}
+      {asKits && brands ? (
+        <div className="work-kits">
+          {brands.map((brand) => {
+            const cover = brand.cover;
+            const pieces = brand.items.length;
+            return (
+              <button
+                key={brand.slug}
+                type="button"
+                className="work-kit"
+                onClick={() => openKit(brand)}
+                aria-label={`Open the ${brand.name} brand kit — ${pieces} ${pieces === 1 ? "piece" : "pieces"}`}
+              >
+                <span className="work-kit__cover">
+                  {/* Two hairlines behind the cover stand in for the rest of
+                      the kit — a stack, without loading images to prove it. */}
+                  {pieces > 1 && <span aria-hidden className="work-kit__sheet work-kit__sheet--back" />}
+                  {pieces > 2 && <span aria-hidden className="work-kit__sheet work-kit__sheet--mid" />}
+                  <img
+                    src={srcFor(cover, 900)}
+                    srcSet={cover.srcset || undefined}
+                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
+                <span className="work-kit__foot">
+                  {brand.logo ? (
+                    <img className="work-kit__logo" src={brand.logo} alt={brand.name} loading="lazy" />
+                  ) : (
+                    <span className="work-kit__name">{brand.name}</span>
+                  )}
+                  <span className="work-kit__count">
+                    {pieces === 1 ? "Brand kit" : `Brand kit · ${pieces} pieces`}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
       <div className="work-masonry" data-max={maxColumns}>
         {columns.map((col, c) => (
           <div className="work-masonry__col" key={c}>
@@ -242,6 +316,7 @@ export function WorkGallery({ items, brands, shareBase, brandLinkBase }: WorkGal
           </div>
         ))}
       </div>
+      )}
 
       <WorkLightbox items={shown} index={index} setIndex={setIndex} shareBase={shareBase} />
     </>

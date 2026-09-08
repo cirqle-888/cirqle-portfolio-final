@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { WorkGallery } from "../../components/work/WorkGallery";
 import { ShareRow } from "../../components/work/ShareRow";
 import { WorkSkeleton } from "../../components/work/WorkSkeleton";
-import { findCollection, useWork, absoluteUrl, srcFor } from "../../lib/work";
+import { findCollection, presentationFor, useWork, absoluteUrl, srcFor } from "../../lib/work";
 
 /** /portfolio/:collection — every creative in one collection, filterable by brand. */
 export function WorkCollectionPage() {
@@ -107,6 +107,7 @@ export function WorkCollectionPage() {
           brands={data.brands}
           shareBase={path}
           brandLinkBase={path}
+          presentation={presentationFor(data.slug)}
         />
       </div>
     </div>

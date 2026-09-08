@@ -7,7 +7,7 @@ import { WorkGallery } from "../../components/work/WorkGallery";
 import { ShareRow } from "../../components/work/ShareRow";
 import { WorkSkeleton } from "../../components/work/WorkSkeleton";
 import type { WorkBrand } from "../../lib/work";
-import { findBrand, findCollection, useWork, absoluteUrl, srcFor } from "../../lib/work";
+import { presentationFor, findBrand, findCollection, useWork, absoluteUrl, srcFor } from "../../lib/work";
 
 /** Initials shown in the brand avatar, e.g. "Cell World" → "CW". */
 function initials(name: string): string {
@@ -111,7 +111,7 @@ export function WorkBrandPage() {
           <ShareRow path={path} message={`Cirqle's work for ${brandData.name} —`} />
         </motion.div>
 
-        <WorkGallery items={brandData.items} shareBase={path} />
+        <WorkGallery items={brandData.items} shareBase={path} presentation={presentationFor(data.slug)} />
 
         {others.length > 0 && (
           <div className="mt-24 text-center">

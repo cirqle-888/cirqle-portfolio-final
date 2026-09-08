@@ -1,77 +1,107 @@
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-
-const projects = [
-  {
-    title: "Supermarket Campaign",
-    category: "Promotional Design",
-    image:
-      "https://images.unsplash.com/photo-1747506533184-d58c53ce81e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBlcm1hcmtldCUyMGZseWVyJTIwcHJvbW90aW9uYWx8ZW58MXx8fHwxNzYzMTkyODQ4fDA&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/highlights/supermarket-campaign",
-  },
-  {
-    title: "Event Branding",
-    category: "Brand Experience",
-    image:
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/services/event-branding",
-  },
-  {
-    title: "Brand Identity",
-    category: "Visual System",
-    image:
-      "https://images.unsplash.com/photo-1762787863004-767d5d7eac07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFuZCUyMGlkZW50aXR5JTIwZGVzaWdufGVufDF8fHx8MTc2MzEwMDQ3OXww&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/services/brand-identity",
-  },
-  {
-    title: "UI/UX Design",
-    category: "Digital Experience",
-    image:
-      "https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/services/ui-ux-design",
-  },
-  {
-    title: "Marketing Pack",
-    category: "Product Design",
-    image:
-      "https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/products/marketing-pack",
-  },
-  {
-    title: "Social Media Kit",
-    category: "Digital Creatives",
-    image:
-      "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=600",
-    href: "/portfolio/social-media",
-  },
-];
+import { useWork } from "../lib/work";
+import { getSupermarketFlyers, type Flyer } from "../services/flyerService";
 
 export type Project = {
   title: string;
   category: string;
   image: string;
+  /** Renditions, when the tile comes from real published work. */
+  srcset?: string;
+  /** Short form for the jump chips; falls back to the category. */
+  chip?: string;
   href: string;
 };
 
 interface ShowcaseGridProps {
   items?: Project[];
   headingTag?: "h1" | "h2";
+  /**
+   * Set false where the real portfolio sections follow immediately. The
+   * portfolio page keeps the heading and the jump chips, but a grid of covers
+   * directly above the same work read as the page saying everything twice.
+   */
+  showTiles?: boolean;
 }
 
-export function ShowcaseGrid({ items, headingTag = "h2" }: ShowcaseGridProps = {}) {
+export function ShowcaseGrid({ items, headingTag = "h2", showTiles = true }: ShowcaseGridProps = {}) {
   const Heading = headingTag;
-  const shown = items ?? projects;
+  const { collections } = useWork();
+  const [flyers, setFlyers] = useState<Flyer[]>([]);
+
+  // Fetched even where the tiles are hidden: the chips are built from the same
+  // work, and a portfolio page missing its Flyers chip would be odd.
+  useEffect(() => {
+    let cancelled = false;
+    getSupermarketFlyers()
+      .then((rows) => { if (!cancelled) setFlyers(rows); })
+      .catch((err) => console.error("Could not load flyers for the showcase:", err));
+    return () => { cancelled = true; };
+  }, []);
+
+  /**
+   * Only work that exists.
+   *
+   * This section used to carry a tile for every service, illustrated with
+   * stock photography where nothing had been published. That is a promise the
+   * page cannot keep: a visitor clicking "Event Branding" arrived at a sales
+   * page with no work behind it. A kind of work earns its tile by having
+   * something published, and gains one the moment it does.
+   */
+  const shown = useMemo(() => {
+    if (items) return items;
+
+    const live: Project[] = [];
+
+    const flyer = flyers[0];
+    if (flyer) {
+      live.push({
+        title: "Supermarket Campaigns",
+        category: "Promotional Design",
+        chip: "Flyers",
+        image: flyer.src,
+        srcset: flyer.srcset,
+        href: "/portfolio#supermarket-flyers",
+      });
+    }
+
+    for (const collection of collections) {
+      const cover = collection.items[0];
+      if (!cover) continue;
+      live.push({
+        title: collection.title,
+        category: collection.eyebrow,
+        image: cover.src,
+        srcset: cover.srcset,
+        href: `/portfolio/${collection.slug}`,
+      });
+    }
+
+    return live;
+  }, [items, collections, flyers]);
+
+  // The chips follow the same rule, and are built from the same work, so the
+  // two can never drift into offering different things.
+  const chips = useMemo(
+    () => shown.map((tile) => ({ label: tile.chip ?? tile.category, href: tile.href })),
+    [shown],
+  );
 
   return (
-    <section className="py-28 px-6 bg-white">
+    // Without the tiles this is a page header, not a section: the work it
+    // introduces starts immediately below, so it keeps its top air and gives
+    // most of the bottom back.
+    <section className={`px-6 bg-white ${showTiles ? "py-28" : "pt-28 pb-4"}`}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "100px" }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-20"
+          className={showTiles ? "text-center mb-20" : "text-center"}
         >
           <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
             <span className="text-sm">Featured Work</span>
@@ -81,18 +111,14 @@ export function ShowcaseGrid({ items, headingTag = "h2" }: ShowcaseGridProps = {
             Work we're proud of
           </Heading>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            A snapshot of what we make — tap any tile to explore
+            {showTiles
+              ? "A snapshot of what we make — tap any tile to explore"
+              : "Everything we have published, by the kind of work it is"}
           </p>
 
-          {/* Category chips */}
+          {/* Jump straight to a kind of work. */}
           <div className="flex flex-wrap justify-center gap-3 mt-8">
-            {[
-              { label: "Flyers", href: "/highlights/supermarket-campaign" },
-              { label: "Branding", href: "/services/brand-identity" },
-              { label: "Events", href: "/services/event-branding" },
-              { label: "Web", href: "/services/ui-ux-design" },
-              { label: "Social", href: "/portfolio/social-media" },
-            ].map((chip) => (
+            {chips.map((chip) => (
               <Link
                 key={chip.label}
                 to={chip.href}
@@ -105,42 +131,46 @@ export function ShowcaseGrid({ items, headingTag = "h2" }: ShowcaseGridProps = {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {shown.map((project, index) => (
-            <motion.div
-              key={project.title}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "100px" }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-            >
-              <Link
-                to={project.href}
-                aria-label={`${project.title} — ${project.category}`}
-                className="group block hover:-translate-y-2 transition-transform duration-300 transform-gpu rounded-2xl"
+        {showTiles && shown.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {shown.map((project, index) => (
+              <motion.div
+                key={`${project.href}-${project.title}`}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: "100px" }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
               >
-                <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-500">
-                  <div className="relative aspect-square overflow-hidden">
-                    <ImageWithFallback
-                      src={project.image}
-                      alt={project.title}
-                      width={600}
-                      height={600}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
+                <Link
+                  to={project.href}
+                  aria-label={`${project.title} — ${project.category}`}
+                  className="group block hover:-translate-y-2 transition-transform duration-300 transform-gpu rounded-2xl"
+                >
+                  <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-500">
+                    <div className="relative aspect-square overflow-hidden">
+                      <ImageWithFallback
+                        src={project.image}
+                        srcSet={project.srcset || undefined}
+                        sizes="(min-width: 1024px) 22vw, (min-width: 768px) 30vw, 45vw"
+                        alt={project.title}
+                        width={600}
+                        height={600}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300">
-                      <div className="text-white relative z-10 w-full">
-                        <p className="text-xs text-gray-300 mb-1">{project.category}</p>
-                        <p className="font-medium drop-shadow-md">{project.title}</p>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300">
+                        <div className="text-white relative z-10 w-full">
+                          <p className="text-xs text-gray-300 mb-1">{project.category}</p>
+                          <p className="font-medium drop-shadow-md">{project.title}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

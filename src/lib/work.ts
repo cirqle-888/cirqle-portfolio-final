@@ -46,6 +46,24 @@ export const FORMAT_LABEL: Record<WorkFormat, string> = {
   chart: "Brand charts",
 };
 
+/**
+ * How a collection's work is presented.
+ *
+ * "creatives" — loose pieces that stand alone and are worth filtering: a post
+ * is a different thing from a reel, and a visitor may want only one of them.
+ *
+ * "kits" — everything one brand got, shown together. A brand identity job has
+ * no post/story split to filter by; it is one piece of work whether it arrived
+ * as a single sheet or as a dozen boards, and splitting it into loose tiles
+ * misrepresents what was delivered.
+ */
+export type Presentation = "creatives" | "kits";
+
+const KIT_COLLECTIONS = new Set(["brand-identity"]);
+
+export const presentationFor = (slug: string | undefined): Presentation =>
+  slug && KIT_COLLECTIONS.has(slug) ? "kits" : "creatives";
+
 /** Chip order on the site. Only formats actually present are ever shown. */
 export const FORMATS: readonly WorkFormat[] =
   ["post", "reel", "story", "logo", "guidelines", "brandbook", "chart"] as const;
