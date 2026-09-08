@@ -60,6 +60,13 @@ create table if not exists public.work_brands (
 -- to the name. See supabase/add-brand-logos.sql.
 alter table public.work_brands add column if not exists logo_path text;
 
+-- How the brand's card picks its picture: auto (first creative), custom (a
+-- chosen creative or an uploaded image), or collage. See
+-- supabase/add-brand-covers.sql.
+alter table public.work_brands add column if not exists cover_mode text not null default 'auto';
+alter table public.work_brands add column if not exists cover_item_id uuid;
+alter table public.work_brands add column if not exists cover_path text;
+
 -- -- Items (one creative) ----------------------------------------------------
 -- `variants` holds the rendition list produced at upload time, e.g.
 --   [{"width":480,"height":480,"path":"social-media/cell-world/ab12-480.webp","bytes":21544}, ...]

@@ -132,7 +132,7 @@ export function ShowcaseGrid({ items, headingTag = "h2", showTiles = true }: Sho
         </motion.div>
 
         {showTiles && shown.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="showcase-grid">
             {shown.map((project, index) => (
               <motion.div
                 key={`${project.href}-${project.title}`}

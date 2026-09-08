@@ -4179,18 +4179,42 @@ video.work-lb__media {
   display: block;
 }
 
+/* ── Featured work grid ────────────────────────────────────────────────────
+   Flex rather than grid so a short row is CENTRED. The tiles are drawn from
+   published work, so their number changes as work is published; a four-column
+   grid holding three tiles left them hard against the left edge with a hole
+   beside them. The basis matches what those grid columns were, so nothing
+   changes when a row happens to be full. */
+.showcase-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+}
+.showcase-grid > * { flex: 0 1 calc(50% - 0.75rem); }
+@media (min-width: 768px) { .showcase-grid > * { flex-basis: calc(33.3333% - 1rem); } }
+@media (min-width: 1024px) { .showcase-grid > * { flex-basis: calc(25% - 1.125rem); } }
+
 /* ── Brand kits ────────────────────────────────────────────────────────────
    One card per brand, for work that was delivered as a whole rather than as
    loose pieces. The cover is cropped from the top: a brand board or a kit page
    puts the mark at the top, and centring the crop would cut it out. */
+/* Flex, not grid, for the same reason as the featured tiles: a client may have
+   two kits or five, and a short row should sit in the middle of the page
+   rather than against its left edge. */
 .work-kits {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 2rem 1.75rem;
   margin-top: 3rem;
 }
-@media (min-width: 640px) { .work-kits { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .work-kits { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.75rem 2.25rem; } }
+.work-kits > * { flex: 0 1 100%; }
+@media (min-width: 640px) { .work-kits > * { flex-basis: calc(50% - 0.875rem); } }
+@media (min-width: 1024px) {
+  .work-kits { gap: 2.75rem 2.25rem; }
+  .work-kits > * { flex-basis: calc(33.3333% - 1.5rem); }
+}
 
 .work-kit {
   display: block;
@@ -4242,6 +4266,43 @@ video.work-lb__media {
 .work-kit__sheet--mid { transform: translateY(8px) scale(0.965); }
 .work-kit:hover .work-kit__sheet--back { transform: translateY(22px) scale(0.92); }
 .work-kit:hover .work-kit__sheet--mid { transform: translateY(12px) scale(0.958); }
+
+/* A collage card: the pieces inside it, laid out as one picture. Same outer
+   shape as a single cover, so a shelf of cards stays even whichever mode each
+   brand is on. */
+.work-kit__collage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 3px;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--c-hairline);
+  box-shadow: 0 1px 2px rgba(28, 16, 64, 0.16), 0 18px 34px -18px rgba(28, 16, 64, 0.35);
+}
+.work-kit__collage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background: var(--c-surface-raised);
+  border-radius: 2px;
+}
+/* Two pieces sit side by side; three give the first one the full left half,
+   which reads as a lead piece rather than as a gap. */
+.work-kit__collage--2 { grid-template-columns: 1fr 1fr; }
+.work-kit__collage--3 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.work-kit__collage--3 img:first-child { grid-row: span 2; }
+.work-kit__collage--4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
 
 .work-kit__foot {
   display: flex;

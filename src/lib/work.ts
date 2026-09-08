@@ -104,6 +104,9 @@ export interface WorkItem {
   srcset: string;
 }
 
+/** How a brand's card chooses its picture. */
+export type CoverMode = "auto" | "custom" | "collage";
+
 export interface WorkBrand {
   slug: string;
   name: string;
@@ -111,7 +114,17 @@ export interface WorkBrand {
   /** Shown on the filter chip in place of the name, when one was uploaded. */
   logo?: string;
   items: WorkItem[];
+  /** First creative — the fallback whatever the mode. */
   cover: WorkItem;
+  coverMode: CoverMode;
+  /**
+   * The single picture the card should draw, already resolved: a chosen
+   * creative, an uploaded image, or the first creative. Undefined only in
+   * collage mode, where the card draws several.
+   */
+  coverImage?: { src: string; srcset?: string };
+  /** Up to four creatives for a collage card, in their published order. */
+  collage: WorkItem[];
 }
 
 export interface WorkCollection {
@@ -128,6 +141,8 @@ export interface WorkCollection {
 
 // ── Shapes returned by PostgREST ────────────────────────────────────────────
 interface RawItem {
+  /** Database row id — only used to resolve a brand's chosen cover. */
+  id?: string;
   slug: string;
   title: string;
   caption?: string | null;
@@ -148,6 +163,9 @@ interface RawBrand {
   tagline: string | null;
   position: number;
   logo_path?: string | null;
+  cover_mode?: CoverMode | null;
+  cover_item_id?: string | null;
+  cover_path?: string | null;
   work_items: RawItem[] | null;
 }
 interface RawCollection {
@@ -172,7 +190,7 @@ interface Extras {
 const selectFor = ({ brand, item }: Extras) =>
   "slug,eyebrow,title,description,seo_title,seo_description,position," +
   `work_brands(slug,name,tagline,position,${brand.map((c) => `${c},`).join("")}` +
-  `work_items(slug,title,width,height,variants,position,kind,` +
+  `work_items(id,slug,title,width,height,variants,position,kind,` +
   `${item.map((c) => `${c},`).join("")}media_path,external_url,duration_seconds))`;
 
 /**
@@ -184,6 +202,10 @@ const selectFor = ({ brand, item }: Extras) =>
  * logos but no captions should still return the logos.
  */
 const SELECTS: readonly Extras[] = [
+  {
+    brand: ["logo_path", "cover_mode", "cover_item_id", "cover_path"],
+    item: ["format", "collection_position", "caption"],
+  },
   { brand: ["logo_path"], item: ["format", "collection_position", "caption"] },
   { brand: ["logo_path"], item: ["format", "collection_position"] },
   { brand: ["logo_path"], item: ["format"] },
@@ -262,6 +284,28 @@ function shape(raw: RawCollection[]): WorkCollection[] {
             // so `videoUrl` has to count here.
             .filter((it) => it.src || it.videoUrl || it.externalUrl);
 
+          // Raw rows and shaped items line up one to one only before the
+          // filter above, so the map is built from the pairs that survived.
+          const byRowId = new Map<string, WorkItem>();
+          for (const raw of b.work_items ?? []) {
+            const match = items.find((i) => i.slug === raw.slug);
+            if (raw.id && match) byRowId.set(raw.id, match);
+          }
+          const fallbackCover = items[0] && { src: items[0].src, srcset: items[0].srcset };
+
+          // A card can be told which picture to use. An upload wins over a
+          // chosen creative, and anything missing falls back to the first
+          // creative — a card must never end up with nothing to draw.
+          const mode: CoverMode = b.cover_mode ?? "auto";
+          const chosen = b.cover_item_id ? byRowId.get(b.cover_item_id) : undefined;
+          const uploaded = b.cover_path
+            ? { src: publicUrl(WORK_BUCKET, b.cover_path) }
+            : undefined;
+          const coverImage =
+            mode === "custom"
+              ? uploaded ?? (chosen && { src: chosen.src, srcset: chosen.srcset }) ?? fallbackCover
+              : fallbackCover;
+
           return {
             slug: b.slug,
             name: b.name,
@@ -269,6 +313,9 @@ function shape(raw: RawCollection[]): WorkCollection[] {
             logo: b.logo_path ? publicUrl(WORK_BUCKET, b.logo_path) : undefined,
             items,
             cover: items[0],
+            coverMode: mode === "collage" && items.length < 2 ? "auto" : mode,
+            coverImage,
+            collage: items.slice(0, 4),
           };
         })
         .filter((b) => b.items.length > 0);

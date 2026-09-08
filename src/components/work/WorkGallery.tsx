@@ -275,17 +275,38 @@ export function WorkGallery({
               >
                 <span className="work-kit__cover">
                   {/* Two hairlines behind the cover stand in for the rest of
-                      the kit — a stack, without loading images to prove it. */}
-                  {pieces > 1 && <span aria-hidden className="work-kit__sheet work-kit__sheet--back" />}
-                  {pieces > 2 && <span aria-hidden className="work-kit__sheet work-kit__sheet--mid" />}
-                  <img
-                    src={srcFor(cover, 900)}
-                    srcSet={cover.srcset || undefined}
-                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
+                      the kit — a stack, without loading images to prove it.
+                      A collage already shows several pieces, so it needs no
+                      stack behind it. */}
+                  {pieces > 1 && brand.coverMode !== "collage" && (
+                    <span aria-hidden className="work-kit__sheet work-kit__sheet--back" />
+                  )}
+                  {pieces > 2 && brand.coverMode !== "collage" && (
+                    <span aria-hidden className="work-kit__sheet work-kit__sheet--mid" />
+                  )}
+
+                  {brand.coverMode === "collage" ? (
+                    <span className={`work-kit__collage work-kit__collage--${Math.min(brand.collage.length, 4)}`}>
+                      {brand.collage.map((piece) => (
+                        <img
+                          key={piece.id}
+                          src={srcFor(piece, 500)}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ))}
+                    </span>
+                  ) : (
+                    <img
+                      src={brand.coverImage?.src ?? srcFor(cover, 900)}
+                      srcSet={brand.coverImage?.srcset || undefined}
+                      sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                 </span>
                 <span className="work-kit__foot">
                   {brand.logo ? (
