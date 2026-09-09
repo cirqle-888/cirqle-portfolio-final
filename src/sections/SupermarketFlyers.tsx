@@ -224,7 +224,7 @@ function FlyerField({ groups, paused, onOpen }: {
       <div ref={stage} className="sf-field" aria-label="All supermarket flyers">
         {groups.map((group, i) => (
           <div className="sf-slot" key={group.startIndex}>
-            <FlyerSheet group={group} model={models[i]} onOpen={() => onOpen(group.startIndex)} />
+            <FlyerSheet group={group} model={models[i]} paused={paused || stopped} onOpen={() => onOpen(group.startIndex)} />
           </div>
         ))}
       </div>
@@ -232,8 +232,8 @@ function FlyerField({ groups, paused, onOpen }: {
   );
 }
 
-function FlyerSheet({ group, model: p, onOpen }: {
-  group: FlyerGroup; model: ReturnType<typeof paperModel>; onOpen: () => void;
+function FlyerSheet({ group, model: p, paused, onOpen }: {
+  group: FlyerGroup; model: ReturnType<typeof paperModel>; paused: boolean; onOpen: () => void;
 }) {
   const page = group.pages[0];
   return (
@@ -243,7 +243,7 @@ function FlyerSheet({ group, model: p, onOpen }: {
         "--z": `${p.z}px`, "--scale": p.scale,
       } as CSSProperties}
       aria-label={`Open ${page.title || "supermarket flyer"}`} onClick={onOpen}>
-      <FlyerPaperMockup page={page} shape={p.model} bend={p.bend} direction={p.direction} />
+      <FlyerPaperMockup page={page} shape={p.model} bend={p.bend} direction={p.direction} paused={paused} />
     </button>
   );
 }
