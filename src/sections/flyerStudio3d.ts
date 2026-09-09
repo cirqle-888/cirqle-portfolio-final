@@ -19,7 +19,8 @@ function tick(now: number) {
 }
 function getRenderer() {
   if (!renderer) {
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true,
+      preserveDrawingBuffer: true, powerPreference: "low-power" });
     renderer.setSize(800, 1200, false);
     renderer.setClearColor(0, 0);
     renderer.setScissorTest(true);
@@ -72,18 +73,47 @@ export function mountPaper(host: HTMLElement, output: HTMLCanvasElement, page: F
   let texture: THREE.Texture | undefined, visible = false, disposed = false;
   let dirty = true, time = 0, previous = 0, shown = false, started = false;
   const image = new Image();
+  let sourceBrightness = 0;
+  const probe = document.createElement("canvas");
+  probe.width = probe.height = 24;
+  const probeContext = probe.getContext("2d", { willReadFrequently: true });
+  const brightness = (source: CanvasImageSource) => {
+    if (!probeContext) return 0;
+    probeContext.clearRect(0, 0, 24, 24);
+    probeContext.drawImage(source, 0, 0, 24, 24);
+    const pixels = probeContext.getImageData(0, 0, 24, 24).data;
+    let sum = 0, count = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i + 3] > 200) { sum += Math.max(pixels[i], pixels[i + 1], pixels[i + 2]); count++; }
+    }
+    return count ? sum / count : 0;
+  };
+  const fallback = () => { shown = false; ready(false); jobs.delete(draw); };
   // CORS is required for WebGL; the ordinary img remains the failure fallback.
   image.crossOrigin = "anonymous";
   image.sizes = "(max-width: 639px) 85vw, (max-width: 1023px) 43vw, 32vw";
   const loadTexture = () => {
-    if (disposed) return;
-    texture?.dispose(); texture = new THREE.Texture(image);
+    if (disposed || !visible || !image.naturalWidth) return;
+    // Freeze the selected responsive rendition before uploading to WebGL.
+    // Safari can change an HTMLImageElement's srcset selection during resize.
+    const source = document.createElement("canvas");
+    const factor = Math.min(1, 1536 / Math.max(image.naturalWidth, image.naturalHeight));
+    source.width = Math.max(1, Math.round(image.naturalWidth * factor));
+    source.height = Math.max(1, Math.round(image.naturalHeight * factor));
+    const sourceContext = source.getContext("2d");
+    if (!sourceContext) { fallback(); return; }
+    try {
+      sourceContext.drawImage(image, 0, 0, source.width, source.height);
+      sourceBrightness = brightness(source);
+    } catch { fallback(); return; }
+    texture?.dispose(); texture = new THREE.CanvasTexture(source);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = Math.min(4, gpu.capabilities.getMaxAnisotropy());
     texture.needsUpdate = true; front.map = texture; front.needsUpdate = true;
-    dirty = true; wake();
+    dirty = true; jobs.add(draw); wake();
   };
   image.onload = loadTexture;
+  image.onerror = fallback;
   function draw(now: number) {
     if (!ctx || !texture || !visible || disposed) return;
     const still = reduced.matches || paused();
@@ -115,12 +145,21 @@ export function mountPaper(host: HTMLElement, output: HTMLCanvasElement, page: F
     if (output.width !== w || output.height !== h) { output.width = w; output.height = h; }
     gpu.setViewport(0, 0, w, h); gpu.setScissor(0, 0, w, h);
     try {
+      if (gpu.getContext().isContextLost()) { fallback(); return; }
+      // render() may log a GPU/texture failure without throwing an exception.
+      // Never hide the real artwork merely because render() returned.
       gpu.render(scene, camera);
       ctx.clearRect(0, 0, w, h);
       ctx.drawImage(gpu.domElement, 0, 1200 - h, w, h, 0, 0, w, h);
+      if (!shown || dirty) {
+        const renderedBrightness = brightness(output);
+        if (renderedBrightness < 2 || (sourceBrightness > 40 && renderedBrightness < sourceBrightness * 0.25)) {
+          fallback(); return;
+        }
+      }
       if (!shown) { ready(true); shown = true; }
       dirty = false;
-    } catch { ready(false); jobs.delete(draw); }
+    } catch { fallback(); }
   }
   const visibility = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting; previous = 0;
@@ -143,7 +182,7 @@ export function mountPaper(host: HTMLElement, output: HTMLCanvasElement, page: F
   return () => {
     disposed = true; jobs.delete(draw); visibility.disconnect(); resize.disconnect(); theme.disconnect();
     reduced.removeEventListener("change", invalidate); mobile.removeEventListener("change", invalidate);
-    image.onload = null; texture?.dispose(); geometry.dispose(); front.dispose(); back.dispose();
+    image.onload = null; image.onerror = null; texture?.dispose(); geometry.dispose(); front.dispose(); back.dispose();
     shadowGeometry.dispose(); shadowMaterial.dispose(); key.shadow.map?.dispose();
     if (--users === 0) {
       cancelAnimationFrame(frame); frame = 0; renderer?.dispose(); renderer = undefined;
