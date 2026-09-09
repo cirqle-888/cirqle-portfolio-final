@@ -119,16 +119,14 @@ function paperModel(src: string, index: number) {
     seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
     return (seed >>> 0) / 4294967296;
   };
-  const corners = ["br", "tl", "bl", "tr"] as const;
   return {
-    corner: corners[(index + Math.floor(random() * 4)) % 4], model: Math.floor(random() * 3),
-    curl: 17 + random() * 19, curlRatio: 0.75 + random() * 0.55,
-    control: 22 + random() * 34, tip: 5 + random() * 18,
-    rx: -7 + random() * 14, ry: -12 + random() * 24,
-    rz: (index % 2 ? 1 : -1) * (2 + random() * 4),
+    model: index % 3, bend: 0.55 + random() * 0.35,
+    direction: random() > 0.5 ? 1 : -1,
+    rx: -4 + random() * 8, ry: -7 + random() * 14,
+    rz: (index % 2 ? 1 : -1) * (1.5 + random() * 2.5),
     z: -30 + random() * 55, scale: 0.91 + random() * 0.07,
     phase: random() * Math.PI * 2, duration: 4 + random() * 3,
-    drift: 3 + random() * 6,
+    drift: 2 + random() * 3,
   };
 }
 
@@ -245,7 +243,7 @@ function FlyerSheet({ group, model: p, onOpen }: {
         "--z": `${p.z}px`, "--scale": p.scale,
       } as CSSProperties}
       aria-label={`Open ${page.title || "supermarket flyer"}`} onClick={onOpen}>
-      <FlyerPaperMockup page={page} shape={p.model} bend={0.16 + p.curl / 240} direction={p.rz > 0 ? 1 : -1} />
+      <FlyerPaperMockup page={page} shape={p.model} bend={p.bend} direction={p.direction} />
     </button>
   );
 }

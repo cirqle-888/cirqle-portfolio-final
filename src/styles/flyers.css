@@ -1,15 +1,15 @@
-/* A white studio surface, isolated from the rest of the site's theme. */
-.sf-section, .dark .sf-section { background: #fdfcfe; color: #211d28; padding-top: 64px; padding-bottom: 48px; overflow: clip; }
-#supermarket-flyers .text-gray-600 { color: #655f69; }
-#supermarket-flyers .text-gray-900 { color: #211d28; }
+/* Use the existing theme so the studio follows the site's theme toggle. */
+.sf-section { background: var(--c-body, #fff); color: var(--c-ink, #111013); padding-top: 56px; padding-bottom: 48px; overflow: clip; }
+#supermarket-flyers .text-gray-600 { color: var(--c-ink-muted, #736e8a); }
+#supermarket-flyers .text-gray-900 { color: var(--c-ink, #111013); }
 .sf-section .text-center.mb-16 { margin-bottom: 18px; }
 .sf-field {
   display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
-  align-items: center; gap: 0 12px; max-width: 1220px;
-  margin: 0 auto; padding: 20px 8px;
+  align-items: center; gap: 8px 24px; max-width: 1220px;
+  margin: 0 auto; padding: 8px;
 }
 .sf-slot { min-width: 0; padding: 10px 0; perspective: 1600px; }
-.sf-slot:nth-child(3n + 2) { padding-top: 55px; }
+.sf-slot:nth-child(3n + 2) { padding-top: 32px; }
 .sf-item {
   position: relative; display: block; width: 100%; padding: 0;
   border: 0; border-radius: 0; background: none; cursor: pointer;
@@ -22,14 +22,14 @@
 .sf-mockup canvas { display: none; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .sf-mockup--ready canvas { display: block; }
 .sf-mockup--ready .sf-original { opacity: 0; }
-.sf-controls { display: flex; justify-content: flex-end; max-width: 1120px; margin: 0 auto; color: #655f69; font-size: 14px; }
+.sf-controls { display: flex; justify-content: flex-end; max-width: 1120px; margin: 0 auto; color: var(--c-ink-muted, #736e8a); font-size: 14px; }
 .sf-controls button { min-height: 44px; padding: 8px; background: none; border: 0; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .sf-controls button:focus-visible { outline: 2px solid #7c5cff; outline-offset: 3px; }
-.sf-empty { min-height: 260px; display: grid; place-items: center; text-align: center; color: #655f69; }
+.sf-empty { min-height: 260px; display: grid; place-items: center; text-align: center; color: var(--c-ink-muted, #736e8a); }
 @media (max-width: 1023px) {
   .sf-field { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 8px; }
   .sf-slot:nth-child(3n + 2) { padding-top: 10px; }
-  .sf-slot:nth-child(even) { padding-top: 40px; }
+  .sf-slot:nth-child(even) { padding-top: 28px; }
 }
 @media (max-width: 639px) {
   .sf-field { grid-template-columns: minmax(0,1fr); gap: 0; padding: 8px 0; max-width: 430px; }
