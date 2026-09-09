@@ -1,4 +1,5 @@
-import { Suspense, lazy, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { FlyerPaperMockup } from "./FlyerPaperMockup";
 import { motion, useReducedMotion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -17,11 +18,8 @@ interface SupermarketFlyersProps {
 /**
  * The flyers, as printed sheets.
  *
- * The artwork is drawn by the browser's own image pipeline and nothing is
- * placed over it: these are offer sheets, where a colour is a decision someone
- * signed off, and a canvas or a gloss layer changes it. The three-dimensional
- * part is entirely geometry and shadow around the picture — see
- * styles/flyers.css.
+ * Existing portfolio images are mapped onto curved paper surfaces. The reader
+ * keeps the original images; presentation geometry lives in FlyerPaperMockup.
  */
 export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
   const [flyers, setFlyers] = useState<Flyer[]>([]);
@@ -189,7 +187,6 @@ function FlyerField({ groups, paused, onOpen }: {
           const ry = (p.ry + wind * 3 - mx) * power * (1 - s.hover * 0.65);
           const rz = p.rz * (phone.matches ? 0.6 : 1) + wind * power;
           sheet.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,${(p.z * power + s.hover * 12).toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${p.scale})`;
-          sheet.style.setProperty("--bend", `${(Math.sin(s.t * 0.4 + p.phase) * 3 * power).toFixed(2)}deg`);
         });
       }
       frame = requestAnimationFrame(tick);
@@ -215,7 +212,7 @@ function FlyerField({ groups, paused, onOpen }: {
       observer.disconnect(); cancelAnimationFrame(frame);
       field.removeEventListener("pointermove", pointer); field.removeEventListener("pointerleave", leave);
       window.removeEventListener("scroll", scroll); document.removeEventListener("visibilitychange", start);
-      sheets.forEach(sheet => { sheet.style.removeProperty("transform"); sheet.style.removeProperty("--bend"); });
+      sheets.forEach(sheet => sheet.style.removeProperty("transform"));
     };
   }, [models, reduced]);
 
@@ -241,48 +238,14 @@ function FlyerSheet({ group, model: p, onOpen }: {
   group: FlyerGroup; model: ReturnType<typeof paperModel>; onOpen: () => void;
 }) {
   const page = group.pages[0];
-  const curlId = useId();
-  const [failed, setFailed] = useState(false);
-  // Three curved silhouettes, each continuously varied in width and curvature.
-  const path = p.model === 0
-    ? `M100 0 Q${p.control} 12 ${p.tip} ${p.tip} Q12 ${p.control} 0 100 Z`
-    : p.model === 1
-      ? `M100 0 C62 5 ${p.tip} 0 5 28 Q9 67 0 100 Z`
-      : `M100 0 Q68 34 ${p.tip} 5 C5 34 20 65 0 100 Z`;
   return (
     <button type="button" className="sf-item" data-model={p.model}
       style={{
         "--rx": `${p.rx}deg`, "--ry": `${p.ry}deg`, "--rz": `${p.rz}deg`,
         "--z": `${p.z}px`, "--scale": p.scale,
-        "--curl-width": `${p.curl}px`, "--curl-height": `${p.curl * p.curlRatio}px`,
-        "--shadow-opacity": 0.13 + (p.z + 30) / 550,
       } as CSSProperties}
       aria-label={`Open ${page.title || "supermarket flyer"}`} onClick={onOpen}>
-      <span className={`sf-paper sf-paper--${p.corner}`}>
-        <span aria-hidden="true" className="sf-shadow" />
-        {failed ? <span className="sf-image-error">{page.title || "Supermarket flyer"}<br />Open flyer</span> : (
-          <>
-            <img className="sf-face" src={page.src} srcSet={page.srcset || undefined}
-              sizes="(max-width: 639px) 80vw, (max-width: 1023px) 40vw, 28vw"
-              alt={page.title || "Supermarket campaign flyer"} width={page.width} height={page.height}
-              loading="lazy" decoding="async" onError={() => setFailed(true)} />
-            <span className="sf-corner" aria-hidden="true">
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
-                <defs>
-                  <linearGradient id={curlId} x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stopColor="#fffefb" />
-                    <stop offset={0.28 + p.model * 0.08} stopColor="#f9f7f0" />
-                    <stop offset="0.64" stopColor="#dedacf" />
-                    <stop offset="0.83" stopColor="#b8b2a6" />
-                    <stop offset="1" stopColor="#eeeae2" />
-                  </linearGradient>
-                </defs>
-                <path d={path} fill={`url(#${curlId})`} stroke="#f7f4ec" strokeWidth="0.5" />
-              </svg>
-            </span>
-          </>
-        )}
-      </span>
+      <FlyerPaperMockup page={page} shape={p.model} bend={0.16 + p.curl / 240} direction={p.rz > 0 ? 1 : -1} />
     </button>
   );
 }
