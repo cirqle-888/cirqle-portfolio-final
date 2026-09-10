@@ -3688,19 +3688,26 @@ html.dark .hover\:text-gray-700:hover { color: var(--c-ink); }
   box-shadow: 0 26px 48px -18px rgba(28, 16, 64, 0.4);
 }
 html.dark .work-tile { box-shadow: 0 12px 32px -14px rgba(0, 0, 0, 0.7); }
+/* The artwork and everything pinned to it (play badge, duration, hover meta)
+   live in the frame; medium chrome is drawn around it. The frame owns the
+   aspect ratio, so the image fills rather than defining the height. */
+.work-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
 .work-tile img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   background: var(--c-body-tint);
 }
 /* Uniform-crop variant used in the preview section */
-.work-tile--crop img {
-  aspect-ratio: 4 / 5;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
+.work-tile--crop .work-frame { aspect-ratio: 4 / 5; }
+.work-tile--crop img { object-position: center top; }
 .work-tile__meta {
   position: absolute;
   inset: auto 0 0 0;
@@ -4439,4 +4446,228 @@ video.work-lb__media {
 /* The brochure reader is styled inline; only its motion is worth overriding. */
 @media (prefers-reduced-motion: reduce) {
   .brochure-reader, .brochure-reader > * { animation: none; }
+}
+
+/* ============================================================
+   MEDIUM CHROME
+   ------------------------------------------------------------
+   Portfolio work used to render as one rounded rectangle whatever it was, so
+   an Instagram post, a brandbook spread and a roadside hoarding all read as
+   the same object. Each medium now gets the frame it is actually seen in.
+
+   Drawn in CSS rather than composited into photographs: it stays sharp at any
+   size, follows the theme, costs no assets, and — the deciding reason — a new
+   upload is framed the moment it lands instead of waiting for someone to
+   re-do a mockup.
+
+   Chrome follows the ITEM's format, not the collection: social media holds
+   square posts and vertical reels, and a reel in a square frame is a reel
+   presented as the wrong thing. See chromeFor() in src/lib/work.ts.
+   ============================================================ */
+
+/* ── Social post ─────────────────────────────────────────────
+   A feed card: brand row, flush artwork, action row, caption. */
+.work-tile--post {
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-hairline, rgba(0, 0, 0, 0.08));
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 20px -12px rgba(28, 16, 64, 0.25);
+}
+/* A feed card sits still. The big lift belongs to gallery tiles, not to
+   something pretending to be a post in a timeline. */
+.work-tile--post:hover,
+.work-tile--post:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -16px rgba(28, 16, 64, 0.35);
+}
+.work-tile--post .work-frame { border-radius: 0; }
+
+.work-post__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+}
+.work-post__avatar {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a259ff, #4cc3ff);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.work-post__handle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.work-post__foot {
+  display: block;
+  padding: 0.5rem 0.7rem 0.7rem;
+}
+.work-post__actions {
+  display: flex;
+  gap: 0.7rem;
+  color: var(--c-ink);
+}
+.work-post__actions svg {
+  width: 19px;
+  height: 19px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.work-post__caption {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--c-ink-muted);
+}
+.work-post__caption b { color: var(--c-ink); font-weight: 600; }
+
+/* ── Phone (reels and stories) ───────────────────────────────
+   A vertical clip belongs in a handset, not a gallery box. */
+.work-tile--phone {
+  background: transparent;
+  border-radius: 1.9rem;
+  box-shadow: none;
+  padding: 0;
+}
+/* The handset body is a token, because it has to invert: a near-black bezel
+   reads as a phone on a white page and disappears entirely on a dark one,
+   which is how this first shipped. */
+.work-tile--phone { --phone-body: #14121d; --phone-rim: rgba(255, 255, 255, 0.16); }
+html.dark .work-tile--phone { --phone-body: #3c3a4a; --phone-rim: rgba(255, 255, 255, 0.3); }
+
+.work-tile--phone .work-frame {
+  border-radius: 1.6rem;
+  border: 5px solid var(--phone-body);
+  box-shadow:
+    0 0 0 1.5px var(--phone-rim),
+    0 22px 44px -20px rgba(20, 12, 48, 0.65);
+}
+html.dark .work-tile--phone .work-frame {
+  box-shadow:
+    0 0 0 1.5px var(--phone-rim),
+    0 22px 44px -18px rgba(0, 0, 0, 0.85);
+}
+/* The speaker pill. Drawn in the body colour so it reads as part of the
+   bezel, with a hairline so it stays visible over dark artwork. */
+.work-phone__pill {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32%;
+  max-width: 74px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--phone-body);
+  box-shadow: 0 0 0 1px var(--phone-rim);
+  pointer-events: none;
+}
+
+/* ── Brand asset ─────────────────────────────────────────────
+   A logo sheet or brandbook page is a document, so it gets a mat and margin
+   rather than being cropped to the edge like a photograph. */
+.work-tile--asset {
+  background: var(--c-surface-raised);
+  border: 1px solid var(--c-hairline, rgba(0, 0, 0, 0.08));
+  border-radius: 0.9rem;
+  padding: 1.1rem;
+  box-shadow: 0 8px 26px -16px rgba(28, 16, 64, 0.28);
+}
+.work-tile--asset .work-frame {
+  border-radius: 0.3rem;
+  box-shadow: 0 2px 12px -4px rgba(28, 16, 64, 0.22);
+}
+.work-tile--asset img { object-fit: contain; background: #fff; }
+html.dark .work-tile--asset img { background: #f7f7fa; }
+
+/* ── Outdoor ─────────────────────────────────────────────────
+   A hoarding read from a street: a board on legs against sky. */
+.work-tile--outdoor {
+  background: linear-gradient(180deg, #cfe6ff 0%, #eaf3ff 62%, transparent 62%);
+  border-radius: 0.75rem;
+  padding: 1.1rem 1.1rem 0;
+  box-shadow: none;
+}
+html.dark .work-tile--outdoor {
+  background: linear-gradient(180deg, #1d2a44 0%, #16203a 62%, transparent 62%);
+}
+.work-tile--outdoor .work-frame {
+  border-radius: 0.2rem;
+  border: 6px solid #2a2f3d;
+  box-shadow: 0 16px 30px -18px rgba(10, 20, 40, 0.7);
+}
+/* Two supports under the board, drawn as one element so they cannot drift
+   apart when the tile is resized. */
+.work-board__legs {
+  position: relative;
+  display: block;
+  height: 34px;
+  margin: 0 auto;
+  width: 54%;
+  background:
+    linear-gradient(#3a4152, #2a2f3d) left / 9px 100% no-repeat,
+    linear-gradient(#3a4152, #2a2f3d) right / 9px 100% no-repeat;
+}
+
+/* ── Print ───────────────────────────────────────────────────
+   Paper: lifted off the page, with a crease down the fold. */
+.work-tile--paper {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.work-tile--paper .work-frame {
+  border-radius: 2px;
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.06),
+    0 18px 34px -18px rgba(28, 16, 64, 0.5);
+}
+html.dark .work-tile--paper .work-frame {
+  box-shadow: 0 18px 34px -16px rgba(0, 0, 0, 0.8);
+}
+/* The crease. Barely there on purpose — a printed fold catches a little light
+   on one side and loses it on the other; anything stronger reads as a seam
+   through the artwork. */
+.work-paper__fold {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: 18px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.07) 46%,
+    rgba(255, 255, 255, 0.22) 54%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* Reduced motion: keep the frames, drop the lift. */
+@media (prefers-reduced-motion: reduce) {
+  .work-tile,
+  .work-tile--post {
+    transition: none;
+  }
+  .work-tile:hover,
+  .work-tile:focus-visible,
+  .work-tile--post:hover,
+  .work-tile--post:focus-visible {
+    transform: none;
+  }
 }

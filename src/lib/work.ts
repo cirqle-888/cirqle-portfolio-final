@@ -34,7 +34,12 @@ export type WorkFormat =
   | "post" | "reel" | "story"
   // brand identity — one collection, mixed deliverables: some clients get a
   // logo and nothing else, some a full brandbook, some a single chart.
-  | "logo" | "guidelines" | "brandbook" | "chart";
+  | "logo" | "guidelines" | "brandbook" | "chart"
+  // outdoor — sizes are wildly different but the job is the same: read from
+  // across a street.
+  | "hoarding" | "banner" | "standee"
+  // print — anything that goes through a press
+  | "poster" | "brochure" | "menu" | "packaging" | "stationery";
 
 export const FORMAT_LABEL: Record<WorkFormat, string> = {
   post: "Posts",
@@ -44,7 +49,48 @@ export const FORMAT_LABEL: Record<WorkFormat, string> = {
   guidelines: "Guidelines",
   brandbook: "Brandbooks",
   chart: "Brand charts",
+  hoarding: "Hoardings",
+  banner: "Banners",
+  standee: "Standees",
+  poster: "Posters",
+  brochure: "Brochures",
+  menu: "Menus",
+  packaging: "Packaging",
+  stationery: "Stationery",
 };
+
+/**
+ * How a piece should be DRAWN — the frame the site puts around the artwork.
+ *
+ * Keyed off format rather than collection, because one collection holds
+ * several media: social media has square posts and vertical reels, and a reel
+ * in a square frame is a reel presented as the wrong thing.
+ *
+ * "bare" is the honest default for anything new: no frame at all, rather than
+ * a frame that implies the wrong medium.
+ */
+export type Chrome = "post" | "phone" | "asset" | "outdoor" | "paper" | "bare";
+
+const FORMAT_CHROME: Record<WorkFormat, Chrome> = {
+  post: "post",
+  reel: "phone",
+  story: "phone",
+  logo: "asset",
+  guidelines: "asset",
+  brandbook: "asset",
+  chart: "asset",
+  hoarding: "outdoor",
+  banner: "outdoor",
+  standee: "outdoor",
+  poster: "paper",
+  brochure: "paper",
+  menu: "paper",
+  packaging: "paper",
+  stationery: "paper",
+};
+
+export const chromeFor = (format: WorkFormat | undefined): Chrome =>
+  (format && FORMAT_CHROME[format]) || "bare";
 
 /**
  * How a collection's work is presented.
@@ -64,9 +110,34 @@ const KIT_COLLECTIONS = new Set(["brand-identity"]);
 export const presentationFor = (slug: string | undefined): Presentation =>
   slug && KIT_COLLECTIONS.has(slug) ? "kits" : "creatives";
 
+/**
+ * Which formats belong to which collection.
+ *
+ * The format column is one shared vocabulary across every collection, so
+ * nothing in the database stops a brandbook page being saved as a "post" —
+ * and some already were, from before the brand-identity types existed. That
+ * used to be invisible, because every piece drew the same rounded rectangle.
+ * Now that format picks the frame, an untrue one puts a logo sheet in an
+ * Instagram card with a like button under it.
+ *
+ * So a format from outside its collection's vocabulary is treated as missing
+ * and re-inferred. It is a weaker claim than the dashboard's, but a piece
+ * framed neutrally beats one framed as the wrong medium.
+ */
+const COLLECTION_FORMATS: Record<string, readonly WorkFormat[]> = {
+  "social-media": ["post", "reel", "story"],
+  "brand-identity": ["logo", "guidelines", "brandbook", "chart"],
+  outdoor: ["hoarding", "banner", "standee"],
+  print: ["poster", "brochure", "menu", "packaging", "stationery"],
+};
+
 /** Chip order on the site. Only formats actually present are ever shown. */
-export const FORMATS: readonly WorkFormat[] =
-  ["post", "reel", "story", "logo", "guidelines", "brandbook", "chart"] as const;
+export const FORMATS: readonly WorkFormat[] = [
+  "post", "reel", "story",
+  "logo", "guidelines", "brandbook", "chart",
+  "hoarding", "banner", "standee",
+  "poster", "brochure", "menu", "packaging", "stationery",
+] as const;
 
 /** Where a linked reel lives, used to label the button that opens it. */
 export type Platform = "instagram" | "youtube" | "facebook" | "tiktok" | "vimeo" | "other";
@@ -225,9 +296,23 @@ function inferFormat(it: RawItem, collectionSlug: string): WorkFormat {
   // and a brandbook page look alike to a computer — so the neutral first type
   // stands in until someone sets it in the dashboard.
   if (collectionSlug === "brand-identity") return "logo";
+  if (collectionSlug === "outdoor") return "hoarding";
+  if (collectionSlug === "print") return "poster";
   if (it.kind === "reel" || it.kind === "video") return "reel";
   if (it.width > 0 && it.height / it.width >= 1.5) return "story";
   return "post";
+}
+
+/**
+ * The format to actually use: the stored one when it belongs to this
+ * collection, otherwise a fresh inference. See COLLECTION_FORMATS.
+ */
+function resolveFormat(it: RawItem, collectionSlug: string): WorkFormat {
+  const stored = it.format;
+  if (!stored) return inferFormat(it, collectionSlug);
+  const allowed = COLLECTION_FORMATS[collectionSlug];
+  if (allowed && !allowed.includes(stored)) return inferFormat(it, collectionSlug);
+  return stored;
 }
 
 const byPosition = <T extends { position: number; slug: string }>(a: T, b: T) =>
@@ -259,7 +344,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 title: it.title,
                 caption: it.caption?.trim() || undefined,
                 kind,
-                format: it.format ?? inferFormat(it, c.slug),
+                format: resolveFormat(it, c.slug),
                 videoUrl: it.media_path ? publicUrl(WORK_BUCKET, it.media_path) : undefined,
                 externalUrl: it.external_url ?? undefined,
                 platform: it.external_url ? platformOf(it.external_url) : undefined,
