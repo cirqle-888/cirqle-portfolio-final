@@ -148,7 +148,14 @@ export function WorkTile({
           would say the brand name twice. */}
       {chrome === "post" && (
         <span className="work-post__bar" aria-hidden="true">
-          <span className="work-post__avatar">{item.brandName.charAt(0)}</span>
+          {/* The client's own mark, the way a real account picture works.
+              An initial on a tint is the stand-in until one is uploaded in
+              Dashboard → Portfolio, not the design. */}
+          {item.brandAvatar ? (
+            <img className="work-post__avatar work-post__avatar--logo" src={item.brandAvatar} alt="" loading="lazy" />
+          ) : (
+            <span className="work-post__avatar">{item.brandName.charAt(0)}</span>
+          )}
           <span className="work-post__handle">{item.brandName}</span>
         </span>
       )}

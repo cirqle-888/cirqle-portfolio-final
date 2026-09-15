@@ -161,6 +161,15 @@ export interface WorkItem {
   collectionSlug: string;
   brandSlug: string;
   brandName: string;
+  /**
+   * The brand's SQUARE mark, carried on the item so a tile can draw it without
+   * being handed the brand too. This is not `WorkBrand.logo`: that is the wide
+   * lockup the filter chips show, and a lockup fitted to a 32px circle scales
+   * to 32px wide, leaving an eleven-pixel emblem and no readable words.
+   * Undefined until one is uploaded; the frame then falls back to an initial,
+   * never to the lockup.
+   */
+  brandAvatar?: string;
   /** Intrinsic size of the original artwork */
   width: number;
   height: number;
@@ -234,6 +243,7 @@ interface RawBrand {
   tagline: string | null;
   position: number;
   logo_path?: string | null;
+  avatar_path?: string | null;
   cover_mode?: CoverMode | null;
   cover_item_id?: string | null;
   cover_path?: string | null;
@@ -273,6 +283,10 @@ const selectFor = ({ brand, item }: Extras) =>
  * logos but no captions should still return the logos.
  */
 const SELECTS: readonly Extras[] = [
+  {
+    brand: ["avatar_path", "logo_path", "cover_mode", "cover_item_id", "cover_path"],
+    item: ["format", "collection_position", "caption"],
+  },
   {
     brand: ["logo_path", "cover_mode", "cover_item_id", "cover_path"],
     item: ["format", "collection_position", "caption"],
@@ -327,6 +341,10 @@ function shape(raw: RawCollection[]): WorkCollection[] {
         .slice()
         .sort(byPosition)
         .map((b) => {
+          // Resolved before the items so each can carry it.
+          const brandLogo = b.logo_path ? publicUrl(WORK_BUCKET, b.logo_path) : undefined;
+          const brandAvatar = b.avatar_path ? publicUrl(WORK_BUCKET, b.avatar_path) : undefined;
+
           const items: WorkItem[] = (b.work_items ?? [])
             .slice()
             .sort(byPosition)
@@ -352,6 +370,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
                 collectionSlug: c.slug,
                 brandSlug: b.slug,
                 brandName: b.name,
+                brandAvatar,
                 width: it.width,
                 height: it.height,
                 aspect: it.width && it.height ? it.width / it.height : 1,
@@ -395,7 +414,7 @@ function shape(raw: RawCollection[]): WorkCollection[] {
             slug: b.slug,
             name: b.name,
             tagline: b.tagline ?? undefined,
-            logo: b.logo_path ? publicUrl(WORK_BUCKET, b.logo_path) : undefined,
+            logo: brandLogo,
             items,
             cover: items[0],
             coverMode: mode === "collage" && items.length < 2 ? "auto" : mode,

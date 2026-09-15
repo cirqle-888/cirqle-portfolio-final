@@ -258,7 +258,7 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
     };
 
     return createPortal(
-      <div style={overlayStyle} role="dialog" aria-modal="true">
+      <div className="brochure-reader" style={overlayStyle} role="dialog" aria-modal="true">
         {topBar}
 
         {/* Filmstrip */}
@@ -353,7 +353,7 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
   // PORTRAIT & TABLET/DESKTOP LANDSCAPE — book-flip viewer (A4-correct)
   // ════════════════════════════════════════════════════════════════════════════
   return createPortal(
-    <div style={overlayStyle} role="dialog" aria-modal="true">
+    <div className="brochure-reader" style={overlayStyle} role="dialog" aria-modal="true">
       {topBar}
 
       {/* Book area */}

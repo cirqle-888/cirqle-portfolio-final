@@ -4491,15 +4491,33 @@ video.work-lb__media {
 .work-post__avatar {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  flex: 0 0 26px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   border-radius: 50%;
   background: linear-gradient(135deg, #a259ff, #4cc3ff);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
+}
+/* The client's own mark as the account picture.
+   Specificity has to clear `.work-tile img`, which fills and crops the
+   artwork — doing that to a logo would slice its edges off. Logos are
+   uploaded with their background erased (the chips mask the alpha channel),
+   so the disc supplies one: a light, near-white ground, which is what almost
+   every mark is drawn to sit on. */
+.work-tile .work-post__avatar--logo {
+  width: 32px;
+  height: 32px;
+  padding: 2px;
+  object-fit: contain;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+html.dark .work-tile .work-post__avatar--logo {
+  background: #f4f4f7;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 .work-post__handle {
   font-size: 0.78rem;
