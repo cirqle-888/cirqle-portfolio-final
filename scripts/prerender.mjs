@@ -28,9 +28,27 @@ const server = createServer(async (req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 let browser;
 try {
-  let executablePath = process.env.CHROME_PATH;
-  if (!executablePath) { try { await access('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'); executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'; } catch { /* CI uses Playwright's installed Chromium. */ } }
-  browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
+  let launchOptions = { headless: true };
+  if (process.platform === 'linux' && process.env.VERCEL) {
+    // Bundles the AL2023 shared libraries absent from Vercel's build image.
+    const { default: serverlessChromium } = await import('@sparticuz/chromium');
+    launchOptions = {
+      ...launchOptions,
+      args: serverlessChromium.args,
+      executablePath: await serverlessChromium.executablePath(),
+    };
+    console.log('Prerender browser: packaged serverless Chromium');
+  } else {
+    let executablePath = process.env.CHROME_PATH;
+    if (!executablePath) {
+      try {
+        await access('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome');
+        executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+      } catch { /* Other CI environments use Playwright's installed Chromium. */ }
+    }
+    if (executablePath) launchOptions.executablePath = executablePath;
+  }
+  browser = await chromium.launch(launchOptions);
   const page = await browser.newPage({ reducedMotion: 'reduce' });
   await page.route('https://formspree.io/**', route => route.abort());
   for (const route of [...new Set(routes), '/404']) {

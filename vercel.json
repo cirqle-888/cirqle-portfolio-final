@@ -16,5 +16,5 @@
       ]
     }
   ],
-  "buildCommand": "npx playwright install chromium && npm run build"
+  "buildCommand": "npm run build"
 }

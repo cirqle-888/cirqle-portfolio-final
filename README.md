@@ -57,7 +57,7 @@ into a fresh Supabase project with `scripts/seed-portfolio.mjs`.
 
 ## Audit fixes and deployment
 
-Build requires Chrome (auto-detected on macOS), `CHROME_PATH`, or Chromium installed with `npm run browser:install`. On CI/Vercel install Chromium before `npm run build` (for example build command `npx playwright install chromium && npm run build`). The build reads website environment configuration, discovers published collection/brand routes and fails if it cannot fetch the configured sitemap data. New collection/brand URLs require a rebuild for direct-link HTML; creative changes within existing pages still load at runtime.
+Vercel builds use pinned `@sparticuz/chromium` with its bundled Linux libraries; the build command is `npm run build`. No Playwright browser download or system-package installation is needed on Vercel. Local builds use Chrome (auto-detected on macOS), `CHROME_PATH`, or Chromium installed with `npm run browser:install`. Other Linux CI environments need Playwright Chromium and its system dependencies. The build reads website environment configuration, discovers published collection/brand routes and fails if it cannot fetch the configured sitemap data. New collection/brand URLs require a rebuild for direct-link HTML; creative changes within existing pages still load at runtime.
 
 Apply `supabase/restrict-flyer-storage-writes.sql` to the **website** project to revoke broad authenticated-account storage writes. Admin management continues through the authorized service-role backend. This migration has not been applied by the local build.
 
