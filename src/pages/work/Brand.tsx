@@ -22,7 +22,7 @@ function initials(name: string): string {
 /** /portfolio/:collection/:brand — a single client's set, ready to send. */
 export function WorkBrandPage() {
   const { collection, brand } = useParams();
-  const { collections, loading } = useWork();
+  const { collections, loading, error, retry } = useWork({ collection, brand });
   const data = findCollection(collections, collection);
   const brandData = findBrand(collections, collection, brand);
 
@@ -45,6 +45,7 @@ export function WorkBrandPage() {
       <div className="pt-32 pb-28 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl mb-6 tracking-tight">Brand not found</h1>
+          {error && <div role="alert"><p>{error}</p><button type="button" onClick={retry} className="work-share-btn">Retry</button></div>}
           <Link to="/portfolio" className="work-share-btn work-share-btn--primary">
             Back to portfolio
           </Link>

@@ -16,6 +16,13 @@ export function UIUXDesign() {
       <Helmet>
         <title>UI/UX Design Services | App &amp; Web Design | Cirqle</title>
         <meta name="description" content="Cirqle delivers intuitive UI/UX design for apps and websites — user research, wireframes, and polished interfaces mapped precisely to your customer journey." />
+        <link rel="canonical" href="https://cirqle.work/services/ui-ux-design" />
+        <meta property="og:url" content="https://cirqle.work/services/ui-ux-design" />
+        <meta property="og:title" content="UI/UX Design Services | App &amp; Web Design | Cirqle" />
+        <meta property="og:description" content="Cirqle delivers intuitive UI/UX design for apps and websites — user research, wireframes, and polished interfaces mapped precisely to your customer journey." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -34,15 +41,7 @@ export function UIUXDesign() {
           </p>
         </motion.div>
 
-        <motion.div
-           initial={{ opacity: 0, scale: 0.95 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.8, delay: 0.2 }}
-           className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
-        >
-          <img src="https://images.unsplash.com/photo-1676793894040-b6dd72276620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3ZWJzaXRlJTIwdWl8ZW58MXx8fHwxNzYzMTkyODQ5fDA&ixlib=rb-4.1.0&q=80&w=1280" alt="UI/UX Design interface showcase" className="w-full h-full object-cover" loading="eager" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-        </motion.div>
+
 
         <section className="mb-24">
           <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
@@ -78,7 +77,7 @@ export function UIUXDesign() {
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
             <h2 className="text-4xl font-medium mb-6">Build your next product with us</h2>
-            <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
+            <Button size="lg" onClick={() => navigate('/contact?service=ui-ux-design')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
               Get a Quote
             </Button>
           </div>

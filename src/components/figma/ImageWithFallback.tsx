@@ -5,6 +5,7 @@ const ERROR_IMG_SRC =
 
 export interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   eager?: boolean;
+  "data-alt-src"?: string;
 }
 
 export function ImageWithFallback(props: ImageWithFallbackProps) {
@@ -15,7 +16,7 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
   };
 
   const { src, alt, style, className, eager, ...rest } = props;
-  const altSrc = (props as any)["data-alt-src"]; // Type assertion to bypass strict HTML props
+  const altSrc = props["data-alt-src"]; // Type assertion to bypass strict HTML props
 
   const loadingStrategy = eager ? "eager" : "lazy";
 

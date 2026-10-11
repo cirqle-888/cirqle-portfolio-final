@@ -16,6 +16,13 @@ export function EventBranding() {
       <Helmet>
         <title>Event Branding | Stage, Exhibition &amp; Event Design | Cirqle</title>
         <meta name="description" content="Cirqle designs immersive event branding experiences — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
+        <link rel="canonical" href="https://cirqle.work/services/event-branding" />
+        <meta property="og:url" content="https://cirqle.work/services/event-branding" />
+        <meta property="og:title" content="Event Branding | Stage, Exhibition &amp; Event Design | Cirqle" />
+        <meta property="og:description" content="Cirqle designs immersive event branding experiences — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -34,15 +41,7 @@ export function EventBranding() {
           </p>
         </motion.div>
 
-        <motion.div
-           initial={{ opacity: 0, scale: 0.95 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.8, delay: 0.2 }}
-           className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
-        >
-          <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGJyYW5kaW5nfGVufDF8fHx8MTc2MzE5Mjg0OXww&ixlib=rb-4.1.0&q=80&w=1280" alt="Event Branding coverage" className="w-full h-full object-cover" loading="eager" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-        </motion.div>
+
 
         <section className="mb-24">
           <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
@@ -78,7 +77,7 @@ export function EventBranding() {
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
             <h2 className="text-4xl font-medium mb-6">Plan your next event with us</h2>
-            <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
+            <Button size="lg" onClick={() => navigate('/contact?service=event-branding')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
               Get a Quote
             </Button>
           </div>

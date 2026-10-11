@@ -1,6 +1,7 @@
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronLeft, ChevronRight, Link2, Download, Check, ExternalLink, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Share2, Check, ExternalLink, Play } from "lucide-react";
 import type { WorkItem } from "../../lib/work";
 import { describeItem, absoluteUrl, PLATFORM_LABEL, youtubeId } from "../../lib/work";
 
@@ -15,14 +16,16 @@ interface WorkLightboxProps {
 /**
  * Full-screen viewer. Shows a still, plays a video we host, or embeds/opens a
  * reel that lives on a social platform. Keyboard (arrows / Esc), swipe on
- * touch, plus "Copy link" so one piece can be sent to a client.
+ * touch, plus native sharing with a copy-link fallback so one piece can be sent to a client.
  */
 export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightboxProps) {
   // Tracks which creative the "Copied" confirmation belongs to, so moving to
   // another one clears it without an effect.
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
   const touchX = useRef<number | null>(null);
   const isOpen = index !== null && index >= 0 && index < items.length;
+  useDialogFocus(isOpen, '.work-lb');
   const item = isOpen ? items[index as number] : undefined;
 
   const close = useCallback(() => setIndex(null), [setIndex]);
@@ -41,10 +44,10 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
       else if (e.key === "ArrowRight" && !isMediaFocused()) next();
       else if (e.key === "ArrowLeft" && !isMediaFocused()) prev();
     };
-    document.body.style.overflow = "hidden";
+
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+
       window.removeEventListener("keydown", onKey);
     };
   }, [isOpen, close, next, prev]);
@@ -56,13 +59,22 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
   const embedId = item.externalUrl ? youtubeId(item.externalUrl) : null;
   const platformName = item.platform ? PLATFORM_LABEL[item.platform] : null;
 
-  const copyLink = async () => {
+  const share = async () => {
+    setShareError(null);
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: `${item.brandName} | Cirqle`, text: describeItem(item), url: shareUrl });
+        return;
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return;
+      }
+    }
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopiedId(item.id);
       window.setTimeout(() => setCopiedId(null), 1800);
     } catch {
-      window.prompt("Copy this link", shareUrl);
+      setShareError(item.id);
     }
   };
 
@@ -148,7 +160,7 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
     );
   }
 
-  const canDownload = item.kind === "image" && item.src;
+
 
   return createPortal(
     <div className="work-lb" role="dialog" aria-modal="true" aria-label={describeItem(item)}>
@@ -165,16 +177,10 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
               <span>{platformName}</span>
             </a>
           )}
-          <button type="button" className="work-lb__btn" onClick={copyLink}>
-            {copied ? <Check size={14} /> : <Link2 size={14} />}
-            <span>{copied ? "Copied" : "Copy link"}</span>
+          <button type="button" className="work-lb__btn" aria-label={copied ? "Link copied" : "Share"} onClick={share}>
+            {copied ? <Check size={14} /> : <Share2 size={14} />}
+            <span>{copied ? "Link copied" : "Share"}</span>
           </button>
-          {canDownload && (
-            <a className="work-lb__btn" href={item.src} download={`${item.brandSlug}-${item.slug}.webp`}>
-              <Download size={14} />
-              <span>Download</span>
-            </a>
-          )}
           <button type="button" className="work-lb__btn work-lb__btn--icon" onClick={close} aria-label="Close">
             <X size={15} strokeWidth={2.5} />
           </button>
@@ -213,6 +219,8 @@ export function WorkLightbox({ items, index, setIndex, shareBase }: WorkLightbox
       </div>
 
       <div className="work-lb__cap">
+        <span role="status" aria-live="polite">{copied ? 'Project link copied to clipboard.' : ''}</span>
+        {shareError === item.id && <label className="work-share-fallback">Copy this project link<input aria-label="Project share link" readOnly value={shareUrl} onFocus={e=>e.currentTarget.select()}/></label>}
         <p className="work-lb__cap-brand">{item.brandName}</p>
         {item.caption && <p className="work-lb__cap-title">{item.caption}</p>}
         <p className="work-lb__hint">{items.length > 1 ? "Swipe or use arrow keys · Esc to close" : "Esc to close"}</p>

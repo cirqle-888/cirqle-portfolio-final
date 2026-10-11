@@ -17,6 +17,13 @@ export function SupermarketCampaign() {
       <Helmet>
         <title>Supermarket Promotional Campaign Design | Highlights | Cirqle</title>
         <meta name="description" content="A behind-the-scenes look at how Cirqle designs high-impact supermarket promotional campaigns — offer flyers, shelf banners, and in-store visual systems that drive sales." />
+        <link rel="canonical" href="https://cirqle.work/highlights/supermarket-campaign" />
+        <meta property="og:url" content="https://cirqle.work/highlights/supermarket-campaign" />
+        <meta property="og:title" content="Supermarket Promotional Campaign Design | Highlights | Cirqle" />
+        <meta property="og:description" content="A behind-the-scenes look at how Cirqle designs high-impact supermarket promotional campaigns — offer flyers, shelf banners, and in-store visual systems that drive sales." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -75,7 +82,7 @@ export function SupermarketCampaign() {
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
             <h2 className="text-4xl font-medium mb-6">Want flyers like these for your store?</h2>
-            <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
+            <Button size="lg" onClick={() => navigate('/contact?service=supermarket-campaign')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
               Get a Quote
             </Button>
           </div>

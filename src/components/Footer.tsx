@@ -1,9 +1,11 @@
 import { memo } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Mail, Phone, MapPin, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 import cirqleLogo from "../assets/cirqle-logo.png";
 
 export const Footer = memo(function Footer() {
+  const location = useLocation();
+  if (location.pathname === "/portfolio" && !location.hash && new URLSearchParams(location.search).get("view") !== "gallery") return null;
   const currentYear = new Date().getFullYear();
 
   return (

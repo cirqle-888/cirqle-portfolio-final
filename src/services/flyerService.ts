@@ -1,3 +1,4 @@
+import { fetchJson } from '../lib/request';
 /**
  * Supermarket flyers, from the website Supabase project.
  *
@@ -68,30 +69,32 @@ interface RawFlyer {
  * its placeholder rather than showing an empty shelf.
  */
 export async function getSupermarketFlyers(): Promise<Flyer[]> {
-  if (!isSupabaseConfigured) return [];
+  if (!isSupabaseConfigured) throw new Error("Flyers are not configured.");
 
   // `booklet_continues` is newer than the table. PostgREST rejects the whole
   // select for one unknown column, which would empty the shelf, so a 400 is
   // retried without it — every flyer then reads as its own single sheet.
   const request = (withBooklets: boolean) =>
-    fetch(
+    fetchJson<RawFlyer[]>(
       `${restUrl("flyers")}?select=title,width,height,variants,position` +
         `${withBooklets ? ",booklet_continues" : ""}&order=position.asc`,
       { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
     );
 
   try {
-    let res = await request(true);
+    let result = await request(true);
+    let res = result.response;
     if (res.status === 400) {
       console.warn('Flyers: the "booklet_continues" column is missing — run supabase/add-flyer-booklets.sql.');
-      res = await request(false);
+      result = await request(false);
+      res = result.response;
     }
     if (!res.ok) {
       console.error(`Flyer request failed (${res.status})`);
-      return [];
+      throw new Error(`Flyer request failed (${res.status})`);
     }
 
-    return ((await res.json()) as RawFlyer[])
+    return result.data
       .map((row) => {
         const variants = (row.variants ?? [])
           .filter((v) => v?.path && v.width > 0)
@@ -111,6 +114,6 @@ export async function getSupermarketFlyers(): Promise<Flyer[]> {
       .filter((f): f is Flyer => f !== null);
   } catch (err) {
     console.error("Could not load flyers:", err);
-    return [];
+    throw err;
   }
 }

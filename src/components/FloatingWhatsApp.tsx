@@ -1,3 +1,4 @@
+import { trackEvent } from '../lib/analytics';
 import { useLocation } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 
@@ -9,11 +10,12 @@ const WHATSAPP_URL = "https://wa.me/918301839488";
  */
 export function FloatingWhatsApp() {
   const location = useLocation();
-  if (location.pathname === "/contact") return null;
+  if (location.pathname === "/contact" || (location.pathname === "/portfolio" && !location.hash && new URLSearchParams(location.search).get("view") !== "gallery")) return null;
 
   return (
     <a
-      href={WHATSAPP_URL}
+      href={`${WHATSAPP_URL}?text=${encodeURIComponent(`Hello Cirqle, I would like to discuss ${location.pathname.startsWith("/services/") ? location.pathname.split("/").pop()?.replace(/-/g, " ") : "a project"}.`)}`}
+      onClick={() => trackEvent("whatsapp_click", { placement: "floating", page: location.pathname })}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Cirqle on WhatsApp"

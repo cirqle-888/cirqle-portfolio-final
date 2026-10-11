@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import { Header } from "./components/Header";
@@ -12,6 +13,7 @@ import { trackPageView } from "./lib/analytics";
 function NotFound() {
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
+      <Helmet><title>Page not found | Cirqle</title><meta name="robots" content="noindex, follow" /><link rel="canonical" href={`https://cirqle.work${window.location.pathname}`} /></Helmet>
       <p className="text-8xl font-medium bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent mb-6">
         404
       </p>

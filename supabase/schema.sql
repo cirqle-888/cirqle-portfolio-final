@@ -235,22 +235,10 @@ create policy "work images are publicly readable"
   on storage.objects for select to public
   using (bucket_id in ('work', 'flyers'));
 
--- Signed-in team members may manage flyers straight from the Supabase
--- dashboard. Portfolio images are written by cirqle-app's service role.
+-- Browser accounts cannot manage storage. All writes use the authorized backend.
 drop policy if exists "team can write flyers" on storage.objects;
-create policy "team can write flyers"
-  on storage.objects for insert to authenticated
-  with check (bucket_id = 'flyers');
-
 drop policy if exists "team can update flyers" on storage.objects;
-create policy "team can update flyers"
-  on storage.objects for update to authenticated
-  using (bucket_id = 'flyers') with check (bucket_id = 'flyers');
-
 drop policy if exists "team can delete flyers" on storage.objects;
-create policy "team can delete flyers"
-  on storage.objects for delete to authenticated
-  using (bucket_id = 'flyers');
 
 -- -- Seed: the collections the site knows how to render ----------------------
 insert into public.work_collections (slug, eyebrow, title, description, seo_title, seo_description, position)

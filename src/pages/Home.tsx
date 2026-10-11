@@ -1,23 +1,23 @@
+import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Hero } from "../sections/Hero";
-import { ShowcaseGrid } from "../sections/ShowcaseGrid";
-import { SupermarketFlyers } from "../sections/SupermarketFlyers";
-import { WorkPreview } from "../sections/WorkPreview";
-import { HowCirqleWorks } from "../sections/HowCirqleWorks";
-import { FaqSection, FAQS } from "../sections/FaqSection";
-import { ContactSection } from "../sections/ContactSection";
-
-const faqJsonLd = JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: FAQS.map((f) => ({
-    "@type": "Question",
-    name: f.q,
-    acceptedAnswer: { "@type": "Answer", text: f.a },
-  })),
-});
+import { HomeDiscovery } from "../components/home/HomeDiscovery";
 
 export function Home() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const header = document.querySelector('header');
+    const updateOffset = () => root.style.setProperty('--home-header-height', `${header?.getBoundingClientRect().height || 88}px`);
+    root.classList.add('home-scroll');
+    updateOffset();
+    const observer = new ResizeObserver(updateOffset);
+    if (header) observer.observe(header);
+    return () => {
+      observer.disconnect();
+      root.classList.remove('home-scroll');
+      root.style.removeProperty('--home-header-height');
+    };
+  }, []);
   return (
     <>
       <Helmet>
@@ -33,15 +33,11 @@ export function Home() {
         <meta name="twitter:description" content="Cirqle is a team of skilled creators working as one. Supermarket campaigns, branding, social media, and video." />
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work" />
-        <script type="application/ld+json">{faqJsonLd}</script>
       </Helmet>
-      <Hero />
-      <ShowcaseGrid />
-      <WorkPreview collection="social-media" limit={8} />
-      <SupermarketFlyers limit={8} />
-      <HowCirqleWorks />
-      <FaqSection />
-      <ContactSection headingTag="h2" />
+      <div className="home-page">
+        <Hero />
+        <HomeDiscovery />
+      </div>
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { fetchJson } from './request';
 /**
  * Minimal Supabase client for the WEBSITE project.
  *
@@ -61,7 +62,7 @@ export async function listBucketImages(
   const { folder = "", limit = 100 } = options;
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/${bucket}`, {
+    const { response: res, data } = await fetchJson<StorageObject[]>(`${SUPABASE_URL}/storage/v1/object/list/${bucket}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +83,6 @@ export async function listBucketImages(
       return [];
     }
 
-    const data = (await res.json()) as StorageObject[];
     if (!Array.isArray(data)) return [];
 
     // Folders come back with a null id; keep real image files only.

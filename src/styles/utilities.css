@@ -1,0 +1,4 @@
+/* New utilities are generated from source; legacy design styles stay intact. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../";

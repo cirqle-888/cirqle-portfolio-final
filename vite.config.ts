@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import viteCompression from "vite-plugin-compression";
@@ -6,6 +7,7 @@ import path from "path";
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     viteCompression({ algorithm: 'brotliCompress' }),
     viteCompression({ algorithm: 'gzip' }),
   ],
@@ -16,7 +18,7 @@ export default defineConfig({
     },
   },
   build: {
-    target: "esnext",
+    target: "es2020",
     outDir: "dist",
     cssCodeSplit: true,
     minify: "esbuild",

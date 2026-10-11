@@ -11,7 +11,7 @@ import { findCollection, presentationFor, useWork, absoluteUrl, srcFor } from ".
 /** /portfolio/:collection — every creative in one collection, filterable by brand. */
 export function WorkCollectionPage() {
   const { collection } = useParams();
-  const { collections, loading } = useWork();
+  const { collections, loading, error, retry } = useWork({ collection });
   const data = findCollection(collections, collection);
 
   useEffect(() => {
@@ -43,6 +43,7 @@ export function WorkCollectionPage() {
               Please try again in a moment, or get in touch and we will send the work directly.
             </p>
           )}
+          {error && <div role="alert"><p>{error}</p><button type="button" onClick={retry} className="work-share-btn">Retry</button></div>}
           <Link to="/portfolio" className="work-share-btn work-share-btn--primary">
             Back to portfolio
           </Link>

@@ -1,9 +1,12 @@
+import { useSearchParams } from 'react-router-dom';
+import { CONTACT_SERVICES, validService } from '../lib/services';
+import { trackEvent } from '../lib/analytics';
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import { MessageCircle, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { MessageCircle, Send, CheckCircle2, AlertCircle, Layers3, ChevronDown } from "lucide-react";
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
@@ -12,6 +15,7 @@ interface FormValues {
   whatsapp: string;
   email: string;
   message: string;
+  service: string;
 }
 
 interface FormErrors {
@@ -30,7 +34,9 @@ interface ContactSectionProps {
 
 export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) {
   const Heading = headingTag;
-  const [values, setValues] = useState<FormValues>({ name: "", whatsapp: "", email: "", message: "" });
+  const [params] = useSearchParams();
+  const selectedService = validService(params.get("service"));
+  const [values, setValues] = useState<FormValues>({ name: "", whatsapp: "", email: "", message: "", service: selectedService });
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
 
@@ -39,10 +45,11 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
   }, []);
 
   const handleWhatsAppClick = () => {
-    window.open(`https://wa.me/${whatsappNumberDigits}`, "_blank");
+    trackEvent("whatsapp_click", { placement: "contact" });
+    window.open(`https://wa.me/${whatsappNumberDigits}?text=${encodeURIComponent(`Hello Cirqle, I would like to discuss ${CONTACT_SERVICES.find(service => service.value === values.service)?.label || "a project"}.`)}`, "_blank", "noopener,noreferrer");
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof FormErrors]) {
@@ -62,42 +69,53 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
     return errs;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    if (new FormData(form).get("_gotcha")) return;
     const errs = validate();
     if (Object.keys(errs).length) {
       setErrors(errs);
+      requestAnimationFrame(() => form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
       return;
     }
     setStatus("submitting");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     try {
       const res = await fetch("https://formspree.io/f/xdawkvje", {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          name: values.name,
+          _gotcha: new FormData(form).get("_gotcha"),
+          name: values.name.trim(),
           whatsapp: values.whatsapp,
-          email: values.email,
+          email: values.email.trim(),
           message: values.message,
+          service: CONTACT_SERVICES.find(service => service.value === values.service)?.label || "Not selected",
           _subject: "New Cirqle Inquiry",
         }),
       });
       if (res.ok) {
+        trackEvent("contact_success");
         setStatus("success");
-        setValues({ name: "", whatsapp: "", email: "", message: "" });
+        setValues({ name: "", whatsapp: "", email: "", message: "", service: selectedService });
         setErrors({});
       } else {
+        trackEvent("contact_failure", { reason: "server" });
         setStatus("error");
       }
     } catch {
+      trackEvent("contact_failure", { reason: "network_or_timeout" });
       setStatus("error");
-    }
+    } finally { clearTimeout(timeout); }
   };
 
   return (
     <section
       id="contact"
-      className="py-28 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden"
+      className="contact-section py-28 px-6 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden"
     >
       {/* Large soft gradient circle */}
       <div
@@ -133,7 +151,7 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="liquid-glass-card rounded-3xl shadow-2xl p-10 md:p-14 relative overflow-hidden"
+          className="contact-card relative overflow-hidden"
         >
           {/* Micro liquid movement */}
           <div className="absolute inset-0 pointer-events-none z-10">
@@ -145,6 +163,8 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
             {status === "success" ? (
               <motion.div
                 key="success"
+                role="status"
+                aria-live="polite"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -156,7 +176,7 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
                 </div>
                 <h2 className="text-2xl md:text-3xl mb-3 tracking-tight">Message Sent!</h2>
                 <p className="text-gray-600 mb-8 max-w-sm leading-relaxed">
-                  Thanks for reaching out. We'll get back to you within 24 hours.
+                  Thanks for reaching out. We'll get back to you within one working day.
                 </p>
                 <Button
                   type="button"
@@ -179,8 +199,12 @@ export function ContactSection({ headingTag = "h1" }: ContactSectionProps = {}) 
                 className="space-y-7 relative z-10"
               >
                 {/* Hidden honeypot */}
-                <input type="text" name="_gotcha" style={{ display: "none" }} aria-hidden="true" />
+                <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" style={{ display: "none" }} aria-hidden="true" />
 
+                <div>
+                  <label htmlFor="service" className="block mb-3 text-sm font-medium text-gray-900">What can we help with? <span className="contact-optional">Optional</span></label>
+                  <div className="contact-service-picker"><Layers3 className="contact-service-icon" size={20} aria-hidden="true"/><select id="service" name="service" value={values.service} onChange={handleChange} className="site-field"><option value="">Choose a service</option>{CONTACT_SERVICES.map(service => <option key={service.value} value={service.value}>{service.label}</option>)}</select><ChevronDown className="contact-service-chevron" size={18} aria-hidden="true"/></div>
+                </div>
                 <div className="grid md:grid-cols-2 gap-7">
                   <div>
                     <label htmlFor="name" className="block mb-3 text-sm font-medium text-gray-900">

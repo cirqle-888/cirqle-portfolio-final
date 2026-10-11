@@ -26,6 +26,8 @@ interface SupermarketFlyersProps {
 export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
   const [flyers, setFlyers] = useState<Flyer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const navigate = useNavigate();
   const reduced = useReducedMotion();
@@ -40,12 +42,12 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
       })
       .catch((err) => {
         console.error("Error fetching supermarket flyers:", err);
-        if (!cancelled) setLoading(false);
+        if (!cancelled) { setLoading(false); setError(true); }
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
 
   // Show every published page, preserving the original reader index.
   // The legacy limit prop now only controls the existing portfolio CTA.
@@ -83,7 +85,8 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
           <FlyerField groups={groups} paused={activeIndex !== null} onOpen={setActiveIndex} />
         ) : (
           <div className="sf-empty" role="status" aria-busy={loading}>
-            {loading ? "Loading flyers…" : "Flyers are unavailable right now. Please check back shortly."}
+            {loading ? "Loading flyers…" : error ? "Could not load flyers." : "No flyers published yet."}
+            {error && <button type="button" onClick={() => { setLoading(true); setError(false); setAttempt(n => n + 1); }} className="work-share-btn">Retry</button>}
           </div>
         )}
 

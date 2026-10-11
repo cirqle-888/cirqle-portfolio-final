@@ -103,7 +103,7 @@ export function AboutSection({ headingTag = "h2" }: AboutSectionProps = {}) {
               <span className="text-sm">About Cirqle</span>
             </div>
 
-            <p className="font-display-i text-2xl text-gray-600 mb-4">Namaskaram.</p>
+
 
             <Heading className="text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
               A circle of{" "}

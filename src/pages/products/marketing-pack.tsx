@@ -16,6 +16,13 @@ export function MarketingPack() {
       <Helmet>
         <title>Marketing Pack | Ready-to-Deploy Social Media &amp; Ad Design | Cirqle</title>
         <meta name="description" content="Cirqle's Marketing Pack gives you a complete, ready-to-deploy set of social media graphics, ad creatives, and promotional materials — scalable for any platform or campaign." />
+        <link rel="canonical" href="https://cirqle.work/products/marketing-pack" />
+        <meta property="og:url" content="https://cirqle.work/products/marketing-pack" />
+        <meta property="og:title" content="Marketing Pack | Ready-to-Deploy Social Media &amp; Ad Design | Cirqle" />
+        <meta property="og:description" content="Cirqle's Marketing Pack gives you a complete, ready-to-deploy set of social media graphics, ad creatives, and promotional materials — scalable for any platform or campaign." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -34,15 +41,7 @@ export function MarketingPack() {
           </p>
         </motion.div>
 
-        <motion.div
-           initial={{ opacity: 0, scale: 0.95 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.8, delay: 0.2 }}
-           className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl mb-24"
-        >
-          <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBtYXRlcmlhbHxlbnwxfHx8fDE3NjMxOTI4NDl8MA&ixlib=rb-4.1.0&q=80&w=1280" alt="Marketing pack presentation" className="w-full h-full object-cover" loading="eager" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-        </motion.div>
+
 
         <section className="mb-24">
           <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
@@ -78,7 +77,7 @@ export function MarketingPack() {
           <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
           <div className="relative z-10 px-6">
             <h2 className="text-4xl font-medium mb-6">Want a pack built for your brand?</h2>
-            <Button size="lg" onClick={() => navigate('/contact')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
+            <Button size="lg" onClick={() => navigate('/contact?service=marketing-pack')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
               Get a Quote
             </Button>
           </div>

@@ -20,10 +20,11 @@ interface WorkPreviewProps {
  */
 export function WorkPreview({ collection = "social-media", limit = 8, headingTag = "h2" }: WorkPreviewProps) {
   const Heading = headingTag;
-  const { collections, loading } = useWork();
+  const { collections, loading, error, retry } = useWork({ collection });
   const [index, setIndex] = useState<number | null>(null);
 
   const data = findCollection(collections, collection);
+  if (error) return <section className="py-12 px-6 text-center" role="alert"><p>{error}</p><button type="button" className="work-share-btn" onClick={retry}>Retry</button></section>;
   if (loading || !data || !data.items.length) return null;
 
   const items = data.items.slice(0, limit);

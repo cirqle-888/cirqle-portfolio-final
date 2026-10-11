@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { WorkTile } from "./WorkTile";
 import { FormatIcon } from "./FormatIcon";
@@ -25,19 +25,19 @@ import {
  * column count here.
  */
 function useColumnCount(max: number): number {
-  const read = () => {
+  const read = useCallback(() => {
     if (typeof window === "undefined") return Math.min(4, max);
     const w = window.innerWidth;
     const base = w >= 1024 ? 4 : w >= 640 ? 3 : 2;
     return Math.max(1, Math.min(base, max));
-  };
+  }, [max]);
   const [cols, setCols] = useState(read);
   useEffect(() => {
     const onResize = () => setCols(read());
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [max]);
+  }, [read]);
   return cols;
 }
 
@@ -71,6 +71,8 @@ export function WorkGallery({
   const viewParam = params.get("v");
 
   const formatParam = params.get("format");
+  const query = (params.get("q") || "").trim();
+  const visibleCount = Math.max(48, Math.min(items.length || 48, Number(params.get("limit")) || 48));
 
   const activeBrand = brands?.find((b) => b.slug === brandParam);
   const activeFormat = FORMATS.find((f) => f === formatParam);
@@ -82,8 +84,8 @@ export function WorkGallery({
     [items, activeBrand]
   );
   const shown = useMemo(
-    () => (activeFormat ? byBrand.filter((i) => i.format === activeFormat) : byBrand),
-    [byBrand, activeFormat]
+    () => byBrand.filter(i => (!activeFormat || i.format === activeFormat) && (!query || `${i.brandName} ${i.caption || ""} ${i.title}`.toLowerCase().includes(query.toLowerCase()))),
+    [byBrand, activeFormat, query]
   );
 
   // The counts are not shown any more, but they still decide WHICH formats are
@@ -143,14 +145,6 @@ export function WorkGallery({
     setParams(next, { replace: true });
   };
 
-  if (!items.length) {
-    return (
-      <div className="work-empty">
-        <p>No work published in this collection yet.</p>
-      </div>
-    );
-  }
-
   const maxColumns = Math.min(shown.length, 4);
   const columnCount = useColumnCount(maxColumns);
 
@@ -162,12 +156,21 @@ export function WorkGallery({
       { length: columnCount },
       () => []
     );
-    shown.forEach((item, index) => cols[index % columnCount].push({ item, index }));
+    shown.slice(0, visibleCount).forEach((item, index) => cols[index % columnCount].push({ item, index }));
     return cols;
-  }, [shown, columnCount]);
+  }, [shown, columnCount, visibleCount]);
+
+  if (!items.length) {
+    return (
+      <div className="work-empty">
+        <p>No work published in this collection yet.</p>
+      </div>
+    );
+  }
 
   return (
     <>
+      {!asKits && <label className="portfolio-search">Search portfolio<input type="search" value={query} onChange={event => { const next = new URLSearchParams(params); if (event.target.value) next.set('q', event.target.value); else next.delete('q'); next.delete('v'); next.delete('limit'); setParams(next, { replace: true }); }} placeholder="Brand, caption or creative" /></label>}
       {!asKits && brands && brands.length > 1 && (
         <div className="work-filter" role="group" aria-label="Filter by brand">
           <button
@@ -339,6 +342,8 @@ export function WorkGallery({
       </div>
       )}
 
+      {!asKits && shown.length > visibleCount && <button type="button" className="work-share-btn" onClick={() => { const next = new URLSearchParams(params); next.set('limit', String(visibleCount + 48)); setParams(next, { replace: true }); }}>Show more ({shown.length - visibleCount} remaining)</button>}
+      {!shown.length && <p role="status">No creatives match these filters.</p>}
       <WorkLightbox items={shown} index={index} setIndex={setIndex} shareBase={shareBase} />
     </>
   );

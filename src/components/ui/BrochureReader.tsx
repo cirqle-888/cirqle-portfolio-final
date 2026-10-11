@@ -1,3 +1,4 @@
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import React, {
   useEffect, useCallback, useRef, useState,
 } from "react";
@@ -68,15 +69,23 @@ const Page = React.forwardRef<
 Page.displayName = "BrochurePage";
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function BrochureReader({ images, activeIndex, setActiveIndex }: BrochureReaderProps) {
+export function BrochureReader(props: BrochureReaderProps) {
+  if (props.activeIndex === null) return null;
+  // Each opening starts at the selected page, without an effect resetting
+  // page state after the book has already rendered.
+  return <OpenBrochureReader key={props.activeIndex} {...props} />;
+}
+
+function OpenBrochureReader({ images, activeIndex, setActiveIndex }: BrochureReaderProps) {
   const isOpen = activeIndex !== null;
-  const bookRef    = useRef<any>(null);
+  useDialogFocus(isOpen, ' .brochure-reader');
+  const bookRef = useRef<React.ElementRef<typeof HTMLFlipBook>>(null);
   const stripRef   = useRef<HTMLDivElement>(null);
 
   const [isPortrait,   setIsPortrait]   = useState(() => window.innerWidth <= window.innerHeight);
   const [vw, setVw]                     = useState(() => window.innerWidth);
   const [vh, setVh]                     = useState(() => window.innerHeight);
-  const [currentPage,  setCurrentPage]  = useState(0);
+  const [currentPage,  setCurrentPage]  = useState(activeIndex ?? 0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const supportsFullscreen =
@@ -101,18 +110,16 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
     };
   }, []);
 
-  // Sync start page
-  useEffect(() => {
-    if (activeIndex !== null) setCurrentPage(activeIndex);
-  }, [activeIndex]);
-
-  const handleClose = useCallback(() => setActiveIndex(null), [setActiveIndex]);
+  const handleClose = useCallback(() => {
+    if (isFullscreen && document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+    setActiveIndex(null);
+  }, [setActiveIndex, isFullscreen]);
 
   const goPrev = useCallback(() => {
-    try { bookRef.current?.pageFlip()?.flipPrev(); } catch {}
+    try { bookRef.current?.pageFlip()?.flipPrev(); } catch { /* Book may still be mounting. */ }
   }, []);
   const goNext = useCallback(() => {
-    try { bookRef.current?.pageFlip()?.flipNext(); } catch {}
+    try { bookRef.current?.pageFlip()?.flipNext(); } catch { /* Book may still be mounting. */ }
   }, []);
 
   const toggleFullscreen = useCallback(() => {
@@ -130,10 +137,10 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
       if (e.key === "ArrowRight") goNext();
       if (e.key === "ArrowLeft")  goPrev();
     };
-    document.body.style.overflow = "hidden";
+
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+
       window.removeEventListener("keydown", onKey);
     };
   }, [isOpen, handleClose, goNext, goPrev]);
@@ -258,12 +265,12 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
     };
 
     return createPortal(
-      <div className="brochure-reader" style={overlayStyle} role="dialog" aria-modal="true">
+      <div className="brochure-reader" style={overlayStyle} role="dialog" aria-modal="true" aria-label="Flyer reader">
         {topBar}
 
         {/* Filmstrip */}
         <div
-          ref={(el) => { (stripRef as any).current = el; initScroll(el); }}
+          ref={(el) => { stripRef.current = el; initScroll(el); }}
           onScroll={handleStripScroll}
           style={{
             flex: 1,
@@ -353,7 +360,7 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
   // PORTRAIT & TABLET/DESKTOP LANDSCAPE — book-flip viewer (A4-correct)
   // ════════════════════════════════════════════════════════════════════════════
   return createPortal(
-    <div className="brochure-reader" style={overlayStyle} role="dialog" aria-modal="true">
+    <div className="brochure-reader" style={overlayStyle} role="dialog" aria-modal="true" aria-label="Flyer reader">
       {topBar}
 
       {/* Book area */}
@@ -361,7 +368,6 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
         flex: 1, display: "flex", alignItems: "center",
         justifyContent: "center", overflow: "hidden",
       }}>
-        {/* @ts-ignore */}
         <HTMLFlipBook
           key={isPortrait ? "portrait" : "landscape"}
           width={pageW}
@@ -375,8 +381,9 @@ export function BrochureReader({ images, activeIndex, setActiveIndex }: Brochure
           showCover={false}
           mobileScrollSupport={false}
           className="drop-shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
+          style={{}}
           ref={bookRef}
-          onFlip={(e: any) => setCurrentPage(e.data)}
+          onFlip={(e: { data: number }) => setCurrentPage(e.data)}
           startPage={activeIndex || 0}
           drawShadow={true}
           flippingTime={650}

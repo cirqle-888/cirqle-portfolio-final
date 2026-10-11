@@ -1,3 +1,4 @@
+import { fetchJson } from './request';
 /**
  * Portfolio ("Work") content, loaded from the website Supabase project.
  *
@@ -509,75 +510,57 @@ export function formatDuration(seconds?: number): string | null {
 // cached too, for a short while: several sections call this on mount, and
 // without a cooldown an unreachable backend would be retried once per section
 // on every navigation.
-const RETRY_AFTER_MS = 30_000;
-
-let inflight: Promise<WorkCollection[]> | null = null;
-let failedAt = 0;
-
-export function loadWork(): Promise<WorkCollection[]> {
-  if (inflight) {
-    // Let a stale failure expire so the content can appear without a reload.
-    if (!failedAt || Date.now() - failedAt < RETRY_AFTER_MS) return inflight;
-    inflight = null;
-    failedAt = 0;
-  }
-  if (!isSupabaseConfigured) return Promise.resolve([]);
-
-  // `format` is a newer column. If the site ships before the migration has been
-  // run on the database, PostgREST rejects the WHOLE select for one unknown
-  // field — which would blank the entire portfolio. Retrying without it keeps
-  // the gallery up; every creative simply reads as a post until the column
-  // lands, and the format chips stay hidden.
-  const request = (extras: Extras) =>
-    fetch(`${restUrl("work_collections")}?select=${encodeURIComponent(selectFor(extras))}`, {
+const cache = new Map<string, Promise<WorkCollection[]>>();
+export interface WorkScope { collection?: string; brand?: string }
+export function loadWork(scope: WorkScope = {}, refresh = false): Promise<WorkCollection[]> {
+  const key = JSON.stringify(scope);
+  if (refresh) cache.delete(key);
+  const cached = cache.get(key);
+  if (cached) return cached;
+  if (!isSupabaseConfigured) return Promise.reject(new Error('Portfolio is not configured.'));
+  const request = (extras: Extras) => {
+    const params = new URLSearchParams({ select: selectFor(extras) });
+    if (scope.collection) params.set('slug', `eq.${scope.collection}`);
+    if (scope.brand) params.set('work_brands.slug', `eq.${scope.brand}`);
+    return fetchJson<RawCollection[]>(`${restUrl("work_collections")}?${params}`, {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
     });
-
-  inflight = (async () => {
-    let res = await request(SELECTS[0]);
-    for (let i = 1; i < SELECTS.length && res.status === 400; i++) {
-      if (i === 1) {
-        console.warn(
-          "Portfolio: a newer column is missing — run the pending files in cirqle-website/supabase."
-        );
-      }
-      res = await request(SELECTS[i]);
-    }
-    if (!res.ok) throw new Error(`Portfolio request failed (${res.status})`);
-    return shape((await res.json()) as RawCollection[]);
-  })()
-    .catch((err) => {
-      console.error("Could not load portfolio:", err);
-      failedAt = Date.now();
-      return [] as WorkCollection[];
-    });
-
-  return inflight;
+  };
+  const pending = (async () => {
+    let result = await request(SELECTS[0]);
+    for (let i = 1; i < SELECTS.length && result.response.status === 400; i++) result = await request(SELECTS[i]);
+    if (!result.response.ok) throw new Error(`Portfolio request failed (${result.response.status})`);
+    if (!Array.isArray(result.data)) throw new Error('Invalid portfolio response.');
+    return shape(result.data);
+  })().catch(error => { cache.delete(key); throw error; });
+  cache.set(key, pending);
+  return pending;
 }
-
 export interface UseWorkResult {
   collections: WorkCollection[];
   loading: boolean;
+  error: string | null;
+  retry: () => void;
 }
-
-/** Subscribe a component to the portfolio content. */
-export function useWork(): UseWorkResult {
+export function useWork(scope: WorkScope = {}): UseWorkResult {
+  const collection = scope.collection, brand = scope.brand;
   const [collections, setCollections] = useState<WorkCollection[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const scopeKey = JSON.stringify({ collection, brand });
+  const [loadedScope, setLoadedScope] = useState<string | null>(null);
+  const retry = () => { setLoading(true); setError(null); setAttempt(value => value + 1); };
   useEffect(() => {
     let cancelled = false;
-    loadWork().then((data) => {
-      if (cancelled) return;
-      setCollections(data);
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { collections, loading };
+    loadWork({ collection, brand }, attempt > 0).then(data => {
+      if (!cancelled) setCollections(data);
+    }).catch(() => {
+      if (!cancelled) { setCollections([]); setError('Could not load our work. Please try again.'); }
+    }).finally(() => { if (!cancelled) { setLoading(false); setLoadedScope(JSON.stringify({ collection, brand })); } });
+    return () => { cancelled = true; };
+  }, [collection, brand, attempt]);
+  return { collections: loadedScope === scopeKey ? collections : [], loading: loading || loadedScope !== scopeKey, error: loadedScope === scopeKey ? error : null, retry };
 }
 
 // ── Lookups ─────────────────────────────────────────────────────────────────
