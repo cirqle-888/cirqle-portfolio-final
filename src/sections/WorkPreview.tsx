@@ -41,21 +41,9 @@ export function WorkPreview({ collection = "social-media", limit = 8, headingTag
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
-            <span className="text-sm text-gray-900 font-medium">{data.eyebrow}</span>
-          </div>
-
           <Heading className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">{data.title}</Heading>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{data.description}</p>
 
-          <div className="work-stats">
-            <span>
-              {data.items.length} {data.items.length === 1 ? "creative" : "creatives"}
-            </span>
-            <span>
-              {data.brands.length} {data.brands.length === 1 ? "brand" : "brands"}
-            </span>
-          </div>
         </motion.div>
 
         <div className="work-preview-grid mb-14">

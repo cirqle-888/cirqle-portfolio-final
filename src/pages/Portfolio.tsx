@@ -40,7 +40,7 @@ export function Portfolio() {
         <meta name="twitter:image" content="https://cirqle.work/og-image.png" />
         <link rel="canonical" href="https://cirqle.work/portfolio" />
       </Helmet>
-      {gallery ? <><div className="portfolio-gallery-switch"><Link to="/portfolio">← Client presentation</Link></div><ShowcaseGrid headingTag="h1" showTiles={false} />
+      {gallery ? <><div className="portfolio-gallery-switch"><Link to="/portfolio">← Selected work</Link></div><ShowcaseGrid headingTag="h1" showTiles={false} />
       <GalleryCollections/>
       <SupermarketFlyers /></> : <WorkPresentation/>}
     </div>

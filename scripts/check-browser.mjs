@@ -64,10 +64,17 @@ try {
  await page.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'Work',exact:true}).click();
  await page.waitForURL('**/portfolio');
  await page.locator('.work-presentation').waitFor();
- assert.deepEqual(await page.locator('.site-header>div').boundingBox(),homeHeaderBounds);
+ assert.equal((await page.locator('.site-header>div').boundingBox()).width,homeHeaderBounds.width);
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.evaluate(()=>window.scrollTo(0,180));
  await page.waitForFunction(()=>document.querySelector('.site-header').getBoundingClientRect().bottom<=0);
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.mouse.move(600,400);
+ await page.mouse.wheel(0,-80);
+
+ await page.waitForFunction(()=>!document.querySelector('.site-header').classList.contains('site-header--away'));
+ await page.mouse.wheel(0,80);
+ await page.waitForFunction(()=>document.querySelector('.site-header').classList.contains('site-header--away'));
  await page.keyboard.press('Tab');
  await page.waitForFunction(()=>document.querySelector('.site-header').getBoundingClientRect().bottom>0);
  await page.emulateMedia({reducedMotion:'reduce'});
@@ -115,7 +122,7 @@ try {
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.getByRole('link',{name:'All work',exact:true}).click();await page.waitForURL('**/portfolio?view=gallery');
  await page.getByRole('heading',{name:"Work we're proud of"}).waitFor();
- await page.getByRole('link',{name:'← Client presentation'}).click();await page.locator('.work-presentation').waitFor();
+ await page.getByRole('link',{name:'← Selected work'}).click();await page.locator('.work-presentation').waitFor();
  await page.goto(base+'/about');assert.equal(await page.getByText('Namaskaram.',{exact:true}).count(),0);
  await page.goto(base+'/missing-audit-page');await page.getByRole('heading',{name:'Page not found'}).waitFor(); assert.match(await page.locator('meta[name="robots"]').getAttribute('content'),/noindex/);
  await page.setViewportSize({width:390,height:844});await page.goto(base+'/');

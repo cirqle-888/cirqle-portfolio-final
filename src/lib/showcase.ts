@@ -35,27 +35,39 @@ function validate(rows: unknown): Showcase[] {
   focal_y:Number.isFinite(r.focal_y)?Math.min(100,Math.max(0,r.focal_y)):50,
  }));
 }
+// Share the public response between Home and Work, including concurrent mounts.
+let cached: Showcase[] | null = null;
+let expires = 0;
+let pending: Promise<Showcase[]> | null = null;
+function loadShowcase(): Promise<Showcase[]> {
+ if(cached && Date.now()<expires) return Promise.resolve(cached);
+ if(pending) return pending;
+ pending=(async()=>{
+  let rows: Showcase[];
+  try {
+   if(!isSupabaseConfigured) throw new Error('Showcase unavailable');
+    const {response,data}=await fetchJson<unknown>(`${restUrl('work_showcases')}?select=slug,client_name,category,description,media_type,media_url,poster_url,mobile_media_url,mobile_media_type,mobile_poster_url,mobile_focal_x,mobile_focal_y,alt_text,focal_x,focal_y,project_path&published=eq.true&order=position.asc,slug.asc`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+    if(!response.ok)throw new Error(`Showcase ${response.status}`);
+   rows=validate(data);
+  } catch(error) {
+   if(!import.meta.env.DEV) throw error;
+   const {showcasePreview}=await import('./showcase-preview');
+   rows=validate(showcasePreview);
+  }
+  cached=rows;expires=Date.now()+60000;
+  return rows;
+ })().finally(()=>{pending=null;});
+ return pending;
+}
 export function useShowcase() {
- const [entries,setEntries]=useState<Showcase[]>([]);
- const [loading,setLoading]=useState(true);
+ const [entries,setEntries]=useState<Showcase[]>(()=>cached||[]);
+ const [loading,setLoading]=useState(()=>!cached);
  const [error,setError]=useState(false);
  const [attempt,setAttempt]=useState(0);
  useEffect(()=>{
   let live=true;
-  async function load(){
-   setLoading(true);setError(false);
-   try {
-    if(!isSupabaseConfigured)throw new Error('Showcase unavailable');
-    const {response,data}=await fetchJson<unknown>(`${restUrl('work_showcases')}?select=slug,client_name,category,description,media_type,media_url,poster_url,mobile_media_url,mobile_media_type,mobile_poster_url,mobile_focal_x,mobile_focal_y,alt_text,focal_x,focal_y,project_path&published=eq.true&order=position.asc,slug.asc`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
-    if(!response.ok)throw new Error(`Showcase ${response.status}`);
-    if(live)setEntries(validate(data));
-   }catch{
-    // Independent local preview content only; production never borrows gallery data.
-    if(import.meta.env.DEV){const {showcasePreview}=await import('./showcase-preview');if(live)setEntries(validate(showcasePreview));}
-    else if(live)setError(true);
-   }finally{if(live)setLoading(false);}
-  }
-  void load();return()=>{live=false;};
+  void loadShowcase().then(rows=>{if(live){setEntries(rows);setError(false);}}).catch(()=>{if(live)setError(true);}).finally(()=>{if(live)setLoading(false);});
+  return()=>{live=false;};
  },[attempt]);
- return {entries,loading,error,retry:()=>setAttempt(n=>n+1)};
+ return {entries,loading,error,retry:()=>{expires=0;setError(false);setLoading(!entries.length);setAttempt(n=>n+1);}};
 }

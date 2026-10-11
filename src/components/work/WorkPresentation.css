@@ -8,3 +8,16 @@
 @media(hover:hover){.wp-clients:hover,.wp-caption:hover{background:linear-gradient(110deg,#100d18a6,#100d185e);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}}
 @media(max-width:700px){.wp-client-picker{padding:0;display:block;background:linear-gradient(110deg,#100d1888,#100d1844);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid #ffffff20;border-radius:12px}.wp-caption{background:linear-gradient(110deg,#100d1894,#100d184a)}.wp-client-picker:focus-within{background:linear-gradient(110deg,#100d18b0,#100d1870)}}
 @media(prefers-reduced-motion:reduce){.wp-clients,.wp-caption,.wp-picker-trigger svg{transition:none}}
+
+/* Enter directly into the artwork; navigation is deliberately revealed. */
+.portfolio-page--presentation{padding-top:0!important}
+body:has(.site-header:not(.site-header--away)) .portfolio-page--presentation .wp-top,
+body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:calc(var(--portfolio-header,88px) + 20px)}
+.portfolio-gallery-switch{justify-content:flex-start;max-width:1280px;margin:0 auto;padding:38px 24px 0}
+.portfolio-gallery-switch a{border:0;border-radius:0;padding:10px 0;font-size:12px;color:var(--c-ink-muted);text-decoration:underline;text-decoration-color:#a259ff50;text-underline-offset:6px}
+/* One steady brand-coloured stage while the first artwork decodes. */
+.wp-first-frame{position:absolute;inset:0;z-index:-4;background:radial-gradient(ellipse at 25% 25%,#8562bc66,transparent 65%),radial-gradient(ellipse at 80% 70%,#4585a855,transparent 65%),#292235}
+.wp-media{opacity:0;transition:opacity .45s ease}
+.wp-media--ready{opacity:1}
+.work-presentation .wp-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.wp-media{transition:none}}

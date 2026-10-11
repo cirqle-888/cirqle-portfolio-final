@@ -63,6 +63,7 @@ function ThemeToggle() {
 export const Header = memo(function Header() {
   const [isScrolled, setIsScrolled]           = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [presentationNavigation, setPresentationNavigation] = useState<string | null>(null);
   const navigate  = useNavigate();
   const location  = useLocation();
   const presentation = location.pathname === "/portfolio" && !location.hash && new URLSearchParams(location.search).get("view") !== "gallery";
@@ -73,6 +74,44 @@ export const Header = memo(function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!presentation) return;
+    window.scrollTo({top: 0, behavior: 'instant'});
+    let touchY = 0, previousY = window.scrollY;
+    const reveal = () => setPresentationNavigation(location.key);
+    const gesture = (up: boolean) => setPresentationNavigation(up ? location.key : null);
+    const nested = (target: EventTarget | null) => target instanceof Element && !!target.closest('.wp-clients,.wp-picker-menu,[role="dialog"],input,textarea,select,video');
+    const wheel = (event: WheelEvent) => {
+      if (nested(event.target) || event.ctrlKey || Math.abs(event.deltaY) < 4 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+      gesture(event.deltaY < 0);
+    };
+    const scrollDirection = () => {
+      const delta = window.scrollY - previousY;
+      if (Math.abs(delta) > 8) { gesture(delta < 0); previousY = window.scrollY; }
+    };
+    const topEdge = (event: PointerEvent) => { if(event.pointerType === 'mouse' && event.clientY < 18) reveal(); };
+    const touchStart = (event: TouchEvent) => { touchY = event.touches[0]?.clientY || 0; };
+    const touchEnd = (event: TouchEvent) => {
+      if (nested(event.target)) return;
+      const distance = (event.changedTouches[0]?.clientY || 0) - touchY;
+      if (Math.abs(distance) > 40) gesture(distance > 0);
+    };
+    window.addEventListener('scroll', scrollDirection, {passive:true});
+    window.addEventListener('pointermove', topEdge, {passive:true});
+    window.addEventListener('wheel', wheel, {passive:true});
+    window.addEventListener('touchstart', touchStart, {passive:true});
+    window.addEventListener('touchend', touchEnd, {passive:true});
+    window.addEventListener('cirqle:show-navigation', reveal);
+    return () => {
+      window.removeEventListener('scroll', scrollDirection);
+      window.removeEventListener('pointermove', topEdge);
+      window.removeEventListener('wheel', wheel);
+      window.removeEventListener('touchstart', touchStart);
+      window.removeEventListener('touchend', touchEnd);
+      window.removeEventListener('cirqle:show-navigation', reveal);
+    };
+  }, [presentation, location.key]);
 
   useDialogFocus(isMobileMenuOpen, '[aria-label="Navigation menu"]');
 
@@ -115,7 +154,7 @@ export const Header = memo(function Header() {
     <>
       {/* ── Header bar ── */}
       <header
-        className={`site-header ${presentation && isScrolled && !isMobileMenuOpen ? "site-header--away" : ""} fixed top-0 left-0 w-full max-w-[100vw] z-50 transition-all duration-500 box-border ${
+        className={`site-header ${presentation && presentationNavigation !== location.key && !isMobileMenuOpen ? "site-header--away" : ""} fixed top-0 left-0 w-full max-w-[100vw] z-50 transition-all duration-500 box-border ${
           isScrolled ? "liquid-glass-card shadow-lg" : "liquid-glass border-b border-white/10"
         }`}
       >

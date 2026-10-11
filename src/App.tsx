@@ -1,3 +1,4 @@
+import { Portfolio } from "./pages/Portfolio";
 import { Helmet } from 'react-helmet-async';
 import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
@@ -48,10 +49,6 @@ const Contact = lazy(() =>
 );
 const About = lazy(() => import("./pages/About").then((module) => ({ default: module.About })));
 const Careers = lazy(() => import("./pages/Careers").then((module) => ({ default: module.Careers })));
-const Portfolio = lazy(() =>
-  import("./pages/Portfolio").then((module) => ({ default: module.Portfolio }))
-);
-
 const BrandIdentity = lazy(() => import("./pages/services/brand-identity").then((m) => ({ default: m.BrandIdentity })));
 const EventBranding = lazy(() => import("./pages/services/event-branding").then((m) => ({ default: m.EventBranding })));
 const UIUXDesign = lazy(() => import("./pages/services/ui-ux-design").then((m) => ({ default: m.UIUXDesign })));

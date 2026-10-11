@@ -66,18 +66,18 @@ export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
           className="text-center mb-16"
         >
           <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
-            <span className="text-sm text-gray-900 font-medium">Core Specialty</span>
+            <span className="text-sm text-gray-900 font-medium">RETAIL IN MOTION</span>
           </div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
-            Supermarket campaigns,
+            Offers worth
             <br />
             <span className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
-              straight from our portfolio
+              picking up.
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Real offer flyers we've produced — tap one to flip through it like a printed brochure.
+            Real campaigns. Designed to move. Open a flyer to explore every page.
           </p>
         </motion.div>
 
@@ -127,13 +127,13 @@ function paperModel(src: string, index: number) {
   const corners = ["br", "tl", "bl", "tr"] as const;
   return {
     corner: corners[(index + Math.floor(random() * 4)) % 4], model: Math.floor(random() * 3),
-    curl: 17 + random() * 19, curlRatio: 0.75 + random() * 0.55,
+    curl: 48 + random() * 42, curlRatio: 0.75 + random() * 0.55,
     control: 22 + random() * 34, tip: 5 + random() * 18,
     rx: -7 + random() * 14, ry: -12 + random() * 24,
     rz: (index % 2 ? 1 : -1) * (2 + random() * 4),
     z: -30 + random() * 55, scale: 0.91 + random() * 0.07,
     phase: random() * Math.PI * 2, duration: 4 + random() * 3,
-    drift: 3 + random() * 6,
+    drift: 10 + random() * 12,
   };
 }
 
@@ -142,10 +142,9 @@ function FlyerField({ groups, paused, onOpen }: {
 }) {
   const stage = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const [stopped, setStopped] = useState(false);
   const models = useMemo(() => groups.map((g, i) => paperModel(g.pages[0].src, i)), [groups]);
-  const frozen = useRef({ paused, stopped });
-  useEffect(() => { frozen.current = { paused, stopped }; }, [paused, stopped]);
+  const frozen = useRef({ paused });
+  useEffect(() => { frozen.current = { paused }; }, [paused]);
 
   useEffect(() => {
     const field = stage.current;
@@ -173,7 +172,7 @@ function FlyerField({ groups, paused, onOpen }: {
       if (!visible.size || document.hidden) { last = 0; return; }
       const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
       last = now;
-      if (!frozen.current.paused && !frozen.current.stopped) {
+      if (!frozen.current.paused) {
         mx += (px - mx) * (1 - Math.exp(-dt * 3));
         my += (py - my) * (1 - Math.exp(-dt * 3));
         scrollOffset *= Math.exp(-dt * 1.6);
@@ -182,9 +181,9 @@ function FlyerField({ groups, paused, onOpen }: {
           const s = states[i], p = models[i], sheet = sheets[i];
           const hovering = sheet.matches(":hover, :focus-visible");
           s.hover += ((hovering ? 1 : 0) - s.hover) * (1 - Math.exp(-dt * 5));
-          s.t += dt * (1 - s.hover);
+          s.t = Math.min(4, s.t + dt * (1 - s.hover));
           const power = phone.matches ? 0.3 : 1;
-          const settle = -Math.exp(-s.t / p.duration) * (phone.matches ? 12 : 32);
+          const settle = -Math.exp(-s.t / p.duration) * (phone.matches ? 18 : 80);
           const wind = Math.sin(s.t * 0.23 + p.phase);
           const x = (wind * p.drift + mx * 2) * power;
           const y = settle + Math.sin(s.t * 0.17 + p.phase) * p.drift * power + scrollOffset * power - s.hover * 5;
@@ -224,15 +223,10 @@ function FlyerField({ groups, paused, onOpen }: {
 
   return (
     <>
-      {!reduced && <div className="sf-controls">
-        <button type="button" onClick={() => setStopped(!stopped)} aria-pressed={stopped}>
-          {stopped ? "Resume motion" : "Pause motion"}
-        </button>
-      </div>}
       <div ref={stage} className="sf-field" aria-label="All supermarket flyers">
         {groups.map((group, i) => (
           <div className="sf-slot" key={group.startIndex}>
-            <FlyerSheet group={group} model={models[i]} onOpen={() => onOpen(group.startIndex)} />
+            <FlyerSheet group={group} backs={[groups[(i + 1 + models[i].model % Math.max(1, groups.length - 1)) % groups.length].pages[0].src, groups[(i + 1 + (models[i].model + 1) % Math.max(1, groups.length - 1)) % groups.length].pages[0].src]} model={models[i]} onOpen={() => onOpen(group.startIndex)} />
           </div>
         ))}
       </div>
@@ -240,8 +234,8 @@ function FlyerField({ groups, paused, onOpen }: {
   );
 }
 
-function FlyerSheet({ group, model: p, onOpen }: {
-  group: FlyerGroup; model: ReturnType<typeof paperModel>; onOpen: () => void;
+function FlyerSheet({ group, backs, model: p, onOpen }: {
+  group: FlyerGroup; backs: string[]; model: ReturnType<typeof paperModel>; onOpen: () => void;
 }) {
   const page = group.pages[0];
   const curlId = useId();
@@ -255,6 +249,7 @@ function FlyerSheet({ group, model: p, onOpen }: {
   return (
     <button type="button" className="sf-item" data-model={p.model}
       style={{
+        "--back-one": `url(${JSON.stringify(backs[0])})`, "--back-two": `url(${JSON.stringify(backs[1])})`,
         "--rx": `${p.rx}deg`, "--ry": `${p.ry}deg`, "--rz": `${p.rz}deg`,
         "--z": `${p.z}px`, "--scale": p.scale,
         "--curl-width": `${p.curl}px`, "--curl-height": `${p.curl * p.curlRatio}px`,
