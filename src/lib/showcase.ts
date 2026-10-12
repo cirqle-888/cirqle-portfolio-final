@@ -1,8 +1,10 @@
+import { readHotspots, type PresentationHotspots } from './hotspots';
 import { useEffect, useState } from 'react';
 import { fetchJson } from './request';
 import { isSupabaseConfigured, restUrl, SUPABASE_ANON_KEY } from './supabase';
 
 export interface Showcase {
+ hotspots?: PresentationHotspots;
  slug: string;
  client_name: string;
  category: string;
@@ -24,6 +26,7 @@ const validMedia = (url: unknown): url is string => typeof url==='string' && /^h
 function validate(rows: unknown): Showcase[] {
  if (!Array.isArray(rows)) throw new Error('Invalid showcase response');
  return rows.filter((r): r is Showcase => !!r && typeof r.slug==='string' && typeof r.client_name==='string' && validMedia(r.media_url) && ['image','video'].includes(r.media_type)).map(r=>({...r,
+  hotspots:readHotspots(r.hotspots),
   poster_url:validMedia(r.poster_url)?r.poster_url:null,
   mobile_media_url:validMedia(r.mobile_media_url)?r.mobile_media_url:null,
   mobile_media_type:r.mobile_media_type === "video" || r.mobile_media_type === "image" ? r.mobile_media_type : null,
@@ -46,7 +49,7 @@ function loadShowcase(): Promise<Showcase[]> {
   let rows: Showcase[];
   try {
    if(!isSupabaseConfigured) throw new Error('Showcase unavailable');
-    const {response,data}=await fetchJson<unknown>(`${restUrl('work_showcases')}?select=slug,client_name,category,description,media_type,media_url,poster_url,mobile_media_url,mobile_media_type,mobile_poster_url,mobile_focal_x,mobile_focal_y,alt_text,focal_x,focal_y,project_path&published=eq.true&order=position.asc,slug.asc`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+    const {response,data}=await fetchJson<unknown>(`${restUrl('work_showcases')}?select=*&published=eq.true&order=position.asc,slug.asc`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
     if(!response.ok)throw new Error(`Showcase ${response.status}`);
    rows=validate(data);
   } catch(error) {

@@ -38,3 +38,7 @@ alter table public.work_showcases
 alter table public.work_showcases drop constraint if exists work_showcases_mobile_video_poster;
 alter table public.work_showcases add constraint work_showcases_mobile_video_poster
  check (mobile_media_url is null or coalesce(mobile_media_type,media_type) <> 'video' or mobile_poster_url is not null or poster_url is not null);
+
+-- Clickable artwork, independently positioned on desktop and phone originals.
+alter table public.work_showcases add column if not exists hotspots jsonb not null
+ default '{"desktop":[],"mobile":[]}'::jsonb;

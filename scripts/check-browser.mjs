@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 const browser = await chromium.launch({headless:true, executablePath:process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const context = await browser.newContext({reducedMotion:'reduce'});
 let failWork = false, submissions = 0;
-const collection = {slug:'social-media',title:'Social media creatives',eyebrow:'Work',description:'Test portfolio',position:0,work_brands:[{slug:'test-brand',name:'Test Brand',position:0,work_items:Array.from({length:55},(_,i)=>({id:String(i),slug:'creative-'+i,title:'Test '+i,caption:'Creative '+i,width:480,height:600,variants:[{width:480,height:600,path:'test.webp'}],position:i,kind:'image',format:'post'}))}]};
+const collection = {slug:'social-media',title:'Social media creatives',eyebrow:'Work',description:'Test portfolio',position:0,work_brands:[{slug:'test-brand',name:'Test Brand',position:0,work_items:Array.from({length:55},(_,i)=>({id:String(i),slug:'creative-'+i,title:'Test '+i,caption:'Creative '+i,width:480,height:600,variants:[{width:480,height:600,path:`test-${i}.webp`}],position:i,kind:'image',format:'post'}))}]};
 await context.route('**/rest/v1/work_collections?**',route=>route.fulfill({status:failWork?503:200,contentType:'application/json',body:JSON.stringify([collection, {...collection,slug:'brand-identity',title:'Brand identity',eyebrow:'Brand Identity',work_brands:[{...collection.work_brands[0],slug:'second-brand',name:'Second Brand',work_items:collection.work_brands[0].work_items.slice(0,1)}]}])}));
 const showcases=[{slug:'editorial-one',client_name:'Editorial One',category:'Branding',description:'Independent showcase entry',media_type:'image',media_url:'https://example.test/showcase.webp',poster_url:null,mobile_media_url:null,alt_text:'Editorial image',focal_x:40,focal_y:60,project_path:'/portfolio/social-media/test-brand'},{slug:'editorial-two',client_name:'Editorial Two',category:'Motion',description:'Video with manual playback',media_type:'video',media_url:'https://example.test/showcase.mp4',poster_url:'https://example.test/showcase.webp',mobile_media_url:null,alt_text:'Editorial video',focal_x:50,focal_y:50,project_path:null}];
 showcases[0].mobile_media_url='https://example.test/mobile.webp';showcases[0].mobile_media_type='image';showcases[0].mobile_focal_x=30;showcases[0].mobile_focal_y=70;
+showcases[0].hotspots={desktop:[{id:'poster',label:'Explore poster gallery',path:'/portfolio/social-media/test-brand',points:[[42,32],[65,32],[65,60],[42,60]]}],mobile:[{id:'phone-poster',label:'Explore phone poster',path:'/portfolio/social-media/test-brand',points:[[30,35],[45,35],[45,65],[30,65]]}]};
 showcases[1].mobile_media_url='https://example.test/mobile.mp4';showcases[1].mobile_media_type='video';showcases[1].mobile_poster_url='https://example.test/mobile.webp';
 await context.route('**/rest/v1/work_showcases?**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(showcases)}));
 await context.route('https://example.test/*.webp',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="1600" height="900" fill="#5824a0"/></svg>'}));
@@ -29,7 +30,7 @@ try {
 
  await page.goto(base+'/');
  await page.setViewportSize({width:2560,height:1440});
- await page.locator('.hd-selection button').first().waitFor();
+ await page.locator('.hd-selection nav a').first().waitFor();
  const wideSection = await page.locator('.home-discovery').first().boundingBox();
  assert.equal(wideSection.width,2560);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
@@ -43,20 +44,31 @@ try {
  await page.locator('.hd-selection nav').scrollIntoViewIfNeeded();
  await page.waitForTimeout(150);
  const indexBefore=await page.locator('.hd-selection nav').evaluate(el=>({top:el.offsetTop,height:el.offsetHeight}));
- await page.locator('.hd-selection button').nth(1).hover();
+ await page.locator('.hd-selection nav a').nth(1).hover();
  await page.waitForFunction(()=>document.querySelector('.hd-project-copy.is-active h3')?.textContent==='Editorial Two');
  assert.deepEqual(await page.locator('.hd-selection nav').evaluate(el=>({top:el.offsetTop,height:el.offsetHeight})),indexBefore);
  assert.equal(await page.locator('.hd-art video').count(),0);
  assert.equal(await page.locator('.hd-service-card').getByText('View work',{exact:true}).count(),0);
- await page.locator('.hd-selection button').first().focus();
+ assert.equal(await page.locator('.hd-selection nav a').first().getAttribute('href'),'/portfolio/social-media/test-brand');
+ await page.locator('.hd-selection nav a').first().focus();
  await page.waitForFunction(()=>document.querySelector('.hd-project-copy.is-active h3')?.textContent==='Editorial One');
  assert.equal(await page.locator('.hd-service-card').count(),3);
  assert.equal(await page.locator('.hd-service-card').first().getAttribute('href'),'/portfolio?view=gallery#supermarket-flyers');
  assert.equal(await page.locator('.sf-section').count(),0);
+ await page.locator('.hd-services').scrollIntoViewIfNeeded();
+ await page.mouse.move(0,0);
+ await page.locator('.hd-heading .hd-link').last().focus();
+ const rotatingCard = page.locator('.hd-service-card').nth(1);
+ const initialCreative = await rotatingCard.locator('img').first().getAttribute('src');
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await rotatingCard.locator('.hd-service-incoming').waitFor({timeout:16000});
+ assert.notEqual(await rotatingCard.locator('.hd-service-incoming').getAttribute('src'),initialCreative);
+ assert.equal(await rotatingCard.locator('.hd-service-incoming').evaluate(el=>getComputedStyle(el).animationDuration),'1.8s');
+ await page.emulateMedia({reducedMotion:'reduce'});
  await page.setViewportSize({width:390,height:844});
  await page.waitForFunction(()=>document.querySelector('.hd-art .is-active img')?.currentSrc.includes('mobile.webp'));
- await page.locator('.hd-selection button').nth(1).click();
- assert.equal(await page.locator('.hd-selection button').nth(1).getAttribute('aria-pressed'),'true');
+ await page.locator('.hd-selection nav a').nth(1).click();
+ await page.waitForURL('**/portfolio');
  await page.setViewportSize({width:1440,height:900});
  await page.goto(base+'/');
  await page.setViewportSize({width:1920,height:1080});
@@ -83,6 +95,13 @@ try {
  assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('home-scroll')),false);
  await page.getByRole('button',{name:'Editorial One',exact:true}).waitFor();
  assert.equal(await page.locator('.wp-media img').evaluate(el=>getComputedStyle(el).objectFit),'cover');
+ const hotspot=page.getByRole('link',{name:'Explore poster gallery',exact:true});await hotspot.waitFor();
+ await hotspot.focus();assert.equal(await hotspot.evaluate(el=>el===document.activeElement),true);
+ assert.equal(await hotspot.locator('polygon').evaluate(el=>getComputedStyle(el).stroke),'rgb(209, 174, 255)');
+ const before=await hotspot.locator('.wp-hotspot-marker').boundingBox();assert.ok(before.width>=44);
+ await hotspot.press('Enter');await page.waitForURL('**/portfolio/social-media/test-brand');await page.locator('.work-tile').first().waitFor();
+ await page.goto(base+'/portfolio');await page.getByRole('link',{name:'Explore poster gallery',exact:true}).waitFor();
+
  const mediaRect=await page.locator('.wp-media').boundingBox();const stageRect=await page.locator('.work-presentation').boundingBox();assert.equal(mediaRect.width,stageRect.width);assert.equal(mediaRect.height,stageRect.height);
  await page.getByRole('button',{name:'Editorial Two',exact:true}).hover();
  await page.waitForFunction(()=>document.querySelector('.wp-caption')?.textContent.includes('Editorial Two'));
@@ -103,6 +122,13 @@ try {
  await page.getByRole('menuitemradio',{name:'Editorial One',exact:true}).press('Enter');
  assert.match(await page.locator('.wp-media img').getAttribute('src'),/mobile.webp/);
  assert.equal(await page.locator('.wp-media img').evaluate(el=>getComputedStyle(el).objectPosition),'30% 70%');
+ const phoneHotspot=page.getByRole('link',{name:'Explore phone poster',exact:true});await phoneHotspot.waitFor();
+ const box=await phoneHotspot.locator('svg').boundingBox();const frame=await page.locator('.wp-hotspots').boundingBox();
+ assert.ok(Math.abs(box.width-1600*Math.max(frame.width/1600,frame.height/900))<2);
+ assert.ok(Math.abs(box.x-frame.x-(frame.width-box.width)*.3)<2);
+ await phoneHotspot.locator('.wp-hotspot-marker').click();await page.waitForURL('**/portfolio/social-media/test-brand');
+ await page.goto(base+'/portfolio');await page.getByRole('button',{name:'Choose a client',exact:true}).waitFor();
+
  await page.getByRole('button',{name:'Choose a client',exact:true}).click();await page.keyboard.press('Escape');
  assert.equal(await page.getByRole('button',{name:'Choose a client',exact:true}).evaluate(el=>el===document.activeElement),true);
 

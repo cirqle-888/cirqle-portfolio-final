@@ -21,3 +21,17 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 .wp-media--ready{opacity:1}
 .work-presentation .wp-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(prefers-reduced-motion:reduce){.wp-media{transition:none}}
+
+/* Hotspot hit areas sit above artwork, below navigation and captions. */
+.wp-hotspots{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+/* --wp-glow is set per area from its chosen colour (lib/hotspots). The
+   fallback is the Cirqle brand violet, which is also what an area saved
+   before colours existed resolves to. */
+.wp-hotspot{pointer-events:none;color:#fff;--wp-glow:#7c5cff}.wp-hotspot svg{overflow:visible;pointer-events:none}.wp-hotspot polygon{pointer-events:all;cursor:pointer;fill:transparent;stroke:transparent;stroke-width:2;stroke-linejoin:round;transition:fill .2s,stroke .2s,filter .2s}
+.wp-hotspot:hover polygon,.wp-hotspot:focus-visible polygon{fill:color-mix(in srgb,var(--wp-glow) 9%,transparent);stroke:color-mix(in srgb,var(--wp-glow) 65%,#fff);filter:drop-shadow(0 0 5px var(--wp-glow)) drop-shadow(0 0 10px var(--wp-glow))}
+.wp-hotspot-marker{position:absolute;transform:translate(-50%,-50%);min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;pointer-events:auto;border:1px solid #ffffff75;border-radius:24px;background:#171020b8;backdrop-filter:blur(5px);box-shadow:0 2px 12px #0004;font-size:23px;cursor:pointer}
+.wp-hotspot-label{display:none;font-size:12px;padding:0 12px;max-width:180px;line-height:1.3}.wp-hotspot:hover .wp-hotspot-label,.wp-hotspot:focus-visible .wp-hotspot-label{display:block}.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{padding-left:12px;border-color:color-mix(in srgb,var(--wp-glow) 55%,#fff)}
+.wp-hotspot:focus-visible{outline:none!important}.wp-hotspot:focus-visible .wp-hotspot-marker{outline:2px solid #fff;outline-offset:3px}
+.wp-top,.wp-clients,.wp-caption{z-index:2}
+@media(prefers-reduced-motion:reduce){.wp-hotspot polygon{transition:none}}
+.wp-hotspot{position:absolute;inset:0;display:block}
