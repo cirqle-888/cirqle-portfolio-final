@@ -103,7 +103,7 @@
 .hd-selection nav {
   margin: 28px 0 20px;
 }
-.hd-selection nav button {
+.hd-selection nav a {
   width: 100%;
   display: flex;
   align-items: center;
@@ -115,21 +115,21 @@
   text-align: left;
   transition: color 0.2s;
 }
-.hd-selection nav button small {
+.hd-selection nav a small {
   font-size: 9px;
   opacity: 0.55;
 }
-.hd-selection nav button svg {
+.hd-selection nav a svg {
   margin-left: auto;
   opacity: 0.35;
 }
-.hd-selection nav button[aria-pressed="true"] {
+.hd-selection nav a[data-active="true"] {
   color: #9150d0;
 }
-.dark .hd-selection nav button[aria-pressed="true"] {
+.dark .hd-selection nav a[data-active="true"] {
   color: #c39aed;
 }
-.hd-selection nav button[aria-pressed="true"] svg {
+.hd-selection nav a[data-active="true"] svg {
   opacity: 1;
 }
 .hd-loading {
@@ -280,11 +280,11 @@
     gap: 0 20px;
     margin: 20px 0;
   }
-  .hd-selection nav button {
+  .hd-selection nav a {
     font-size: 12px;
     gap: 8px;
   }
-  .hd-selection nav button small {
+  .hd-selection nav a small {
     display: none;
   }
   .hd-service-grid {
@@ -360,7 +360,7 @@ html.home-scroll {
     max-width: 36em;
     font-size: 16px;
   }
-  .home-page .hd-selection nav button {
+  .home-page .hd-selection nav a {
     font-size: 16px;
     padding-block: 20px;
   }
@@ -477,7 +477,7 @@ html.home-scroll {
   visibility: visible;
   pointer-events: auto;
 }
-.hd-selection nav button {
+.hd-selection nav a {
   position: relative;
   border-radius: 8px;
   padding-inline: 12px;
@@ -485,7 +485,7 @@ html.home-scroll {
     background 0.25s,
     color 0.25s;
 }
-.hd-selection nav button[aria-pressed="true"] {
+.hd-selection nav a[data-active="true"] {
   background: #a259ff10;
 }
 .home-page .hd-service-image {
@@ -543,7 +543,7 @@ html.home-scroll {
 @media(min-width:901px) and (max-height:900px){
  .home-page .hd-selection{padding:24px 30px}
  .home-page .hd-selection nav{margin:18px 0 12px}
- .home-page .hd-selection nav button{min-height:46px;padding-block:12px}
+ .home-page .hd-selection nav a{min-height:46px;padding-block:12px}
  .home-page .hd-project-copy h3{margin-block:8px}
 }
 
@@ -560,3 +560,12 @@ html.home-scroll {
 .hd-explore-grid>a>span{align-items:center}
 .dark .hd-explore-icon{color:#c39aed}
 @media(max-width:700px){.hd-service-card>div:last-child{padding:12px;gap:10px}.hd-service-card h3{font-size:18px}.hd-explore-icon{width:46px;height:46px}}
+
+.hd-service-image { position: relative; }
+.hd-service-image img { position: absolute; inset: 0; }
+.hd-service-image .hd-service-incoming { animation: hd-service-reveal 1.8s ease-in-out both; }
+@keyframes hd-service-reveal { from { opacity: 0; } to { opacity: 1; } }
+#home [data-slot="button"] { border-radius: 999px; min-height: 56px; padding: 15px 30px; }
+@media (prefers-reduced-motion: reduce) {
+  .hd-service-image .hd-service-incoming { animation: none; }
+}
