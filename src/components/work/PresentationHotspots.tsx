@@ -1,6 +1,6 @@
 import { GalleryLink } from './GalleryLink';
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
-import { coverBox, hotspotGlow, hasGradient, type PresentationHotspot } from '../../lib/hotspots';
+import { coverBox, hotspotGlowStrength, hotspotGlow, hasGradient, type PresentationHotspot } from '../../lib/hotspots';
 
 /** SVG paths share the image's cover transform, including off-centre crops. */
 export function PresentationHotspots({ items, source, focalX, focalY }: {items: PresentationHotspot[];source: string;focalX:number;focalY:number}) {
@@ -27,12 +27,13 @@ export function PresentationHotspots({ items, source, focalX, focalY }: {items: 
   // that matched /^#[0-9a-f]{6}$/ — so no author-supplied string reaches this
   // style declaration unchecked.
   const glow=hotspotGlow(item);
+  const strength=hotspotGlowStrength(item.glowStrength);
   const gradient=hasGradient(item);
   // One gradient per area, so two areas with different colours cannot collide.
   const gradientId=`wp-glow-${instanceId}-${item.id}`;
   const outline=item.points.map(([x,y])=>`${x*geometry.width/100},${y*geometry.height/100}`).join(' ');
   const maskId=`wp-outside-${instanceId}-${item.id}`;
-  return <GalleryLink key={item.id} to={item.path} aria-label={item.label} className={`wp-hotspot${gradient?' wp-hotspot--gradient':''}`} style={{'--wp-glow':glow.from,'--wp-glow-2':glow.to,...(gradient?{'--wp-stroke':`url(#${gradientId})`}:null)} as CSSProperties}>
+  return <GalleryLink key={item.id} to={item.path} aria-label={item.label} className={`wp-hotspot${gradient?' wp-hotspot--gradient':''}`} style={{'--wp-edge':`${2.4*strength}px`,'--wp-blur-near':`${2*strength}px`,'--wp-blur-far':`${4*strength}px`,'--wp-glow':glow.from,'--wp-glow-2':glow.to,...(gradient?{'--wp-stroke':`url(#${gradientId})`}:null)} as CSSProperties}>
    <svg aria-hidden="true" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{position:'absolute',width:geometry.width,height:geometry.height,left:geometry.left,top:geometry.top}}>
     <defs>
      {gradient&&<linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={glow.from}/><stop offset="100%" stopColor={glow.to}/></linearGradient>}
