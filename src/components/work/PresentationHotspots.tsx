@@ -33,7 +33,7 @@ export function PresentationHotspots({ items, source, focalX, focalY }: {items: 
   const gradientId=`wp-glow-${instanceId}-${item.id}`;
   const outline=item.points.map(([x,y])=>`${x*geometry.width/100},${y*geometry.height/100}`).join(' ');
   const maskId=`wp-outside-${instanceId}-${item.id}`;
-  return <GalleryLink key={item.id} to={item.path} aria-label={item.label} className={`wp-hotspot${gradient?' wp-hotspot--gradient':''}`} style={{'--wp-edge':`${2.4*strength}px`,'--wp-blur-near':`${2*strength}px`,'--wp-blur-far':`${4*strength}px`,'--wp-glow':glow.from,'--wp-glow-2':glow.to,...(gradient?{'--wp-stroke':`url(#${gradientId})`}:null)} as CSSProperties}>
+  return <GalleryLink key={item.id} to={item.path} aria-label={item.label} className={`wp-hotspot${gradient?' wp-hotspot--gradient':''}`} style={{'--wp-blur-near':`${2*strength}px`,'--wp-blur-far':`${4*strength}px`,'--wp-glow':glow.from,'--wp-glow-2':glow.to,...(gradient?{'--wp-stroke':`url(#${gradientId})`}:null)} as CSSProperties}>
    <svg aria-hidden="true" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{position:'absolute',width:geometry.width,height:geometry.height,left:geometry.left,top:geometry.top}}>
     <defs>
      {gradient&&<linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={glow.from}/><stop offset="100%" stopColor={glow.to}/></linearGradient>}
