@@ -61,5 +61,20 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 ::view-transition-new(root){animation-duration:.28s}
 @media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}
 
-/* Touch visitors cannot hover: keep the configured exterior outline visible. */
-@media(hover:none),(pointer:coarse){.wp-hotspot .wp-hotspot-outline{opacity:1}}
+/* Touch visitors cannot hover, so the MARKER is their affordance: the rule
+   above already pins it visible at a 44px tap target on coarse pointers.
+   Pinning the outline as well drew a permanent neon ring around the artwork
+   on every phone — the thing a visitor is meant to be looking at is the work,
+   not a box around it. The outline appears while a finger is actually down,
+   which is the feedback a tap needs, and the glow stays a hover/focus state
+   everywhere else. */
+@media(hover:none),(pointer:coarse){.wp-hotspot:active .wp-hotspot-outline{opacity:1}}
+
+/* iOS Safari applies :hover on tap and leaves it applied until something else
+   is tapped, so a hover rule unguarded by a hover query stays on after the
+   finger lifts. Everything that lights the glow is gated on a real pointer. */
+@media(hover:none),(pointer:coarse){
+ .wp-hotspot:hover .wp-hotspot-outline{opacity:0}
+ .wp-hotspot:hover .wp-hotspot-label{display:none}
+ .wp-hotspot:focus-visible .wp-hotspot-label{display:block}
+}
