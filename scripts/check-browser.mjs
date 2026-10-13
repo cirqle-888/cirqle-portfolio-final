@@ -97,7 +97,7 @@ try {
  assert.equal(await page.locator('.wp-media img').evaluate(el=>getComputedStyle(el).objectFit),'cover');
  const hotspot=page.getByRole('link',{name:'Explore poster gallery',exact:true});await hotspot.waitFor();
  await hotspot.focus();assert.equal(await hotspot.evaluate(el=>el===document.activeElement),true);
- assert.equal(await hotspot.locator('polygon').evaluate(el=>getComputedStyle(el).stroke),'rgb(209, 174, 255)');
+ assert.equal(await hotspot.locator('.wp-hotspot-outline polygon').evaluate(el=>getComputedStyle(el).stroke),'rgb(124, 92, 255)');
  const before=await hotspot.locator('.wp-hotspot-marker').boundingBox();assert.ok(before.width>=44);
  await hotspot.press('Enter');await page.waitForURL('**/portfolio/social-media/test-brand');await page.locator('.work-tile').first().waitFor();
  await page.goto(base+'/portfolio');await page.getByRole('link',{name:'Explore poster gallery',exact:true}).waitFor();
@@ -126,7 +126,7 @@ try {
  const box=await phoneHotspot.locator('svg').boundingBox();const frame=await page.locator('.wp-hotspots').boundingBox();
  assert.ok(Math.abs(box.width-1600*Math.max(frame.width/1600,frame.height/900))<2);
  assert.ok(Math.abs(box.x-frame.x-(frame.width-box.width)*.3)<2);
- await phoneHotspot.locator('.wp-hotspot-marker').click();await page.waitForURL('**/portfolio/social-media/test-brand');
+ await phoneHotspot.locator('.wp-hotspot-hit').click();await page.waitForURL('**/portfolio/social-media/test-brand');
  await page.goto(base+'/portfolio');await page.getByRole('button',{name:'Choose a client',exact:true}).waitFor();
 
  await page.getByRole('button',{name:'Choose a client',exact:true}).click();await page.keyboard.press('Escape');

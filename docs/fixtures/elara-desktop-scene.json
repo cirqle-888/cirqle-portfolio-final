@@ -1,0 +1,15 @@
+{
+  "slug": "elara-perfumes",
+  "client_name": "Elara Perfumes",
+  "category": "Brand identity",
+  "description": "A visual identity for a perfume brand.",
+  "media_type": "image",
+  "media_url": "https://noiybevsiprkxfvhfhlf.supabase.co/storage/v1/object/public/work/showcase/elara-perfumes/desktop-2752.webp?v=1791875379163",
+  "alt_text": "Elara Perfumes \u2014 Brand identity",
+  "focal_x": 61,
+  "focal_y": 60,
+  "hotspots": {
+    "mobile": [],
+    "desktop": []
+  }
+}
