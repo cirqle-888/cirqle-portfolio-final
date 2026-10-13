@@ -16,21 +16,36 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 .portfolio-gallery-switch{justify-content:flex-start;max-width:1280px;margin:0 auto;padding:38px 24px 0}
 .portfolio-gallery-switch a{border:0;border-radius:0;padding:10px 0;font-size:12px;color:var(--c-ink-muted);text-decoration:underline;text-decoration-color:#a259ff50;text-underline-offset:6px}
 /* One steady brand-coloured stage while the first artwork decodes. */
-.wp-first-frame{position:absolute;inset:0;z-index:-4;background:radial-gradient(ellipse at 25% 25%,#8562bc66,transparent 65%),radial-gradient(ellipse at 80% 70%,#4585a855,transparent 65%),#292235}
-.wp-media{opacity:0;transition:opacity .45s ease}
+.wp-first-frame{position:absolute;inset:0;z-index:-5;background:radial-gradient(ellipse at 25% 25%,#8562bc66,transparent 65%),radial-gradient(ellipse at 80% 70%,#4585a855,transparent 65%),#292235}
+/* Switching client cross-fades: the previous artwork is held underneath
+   (wp-media--held) until the incoming one has decoded, so the placeholder
+   gradient never shows between two clients. Slightly longer and eased out
+   rather than linear — the switch happens on hover, so it should feel like a
+   settle rather than a cut. */
+.wp-media{opacity:0;transition:opacity .6s cubic-bezier(.4,0,.2,1)}
 .wp-media--ready{opacity:1}
+.wp-media--held{z-index:-4;opacity:1;transition:none}
 .work-presentation .wp-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-@media(prefers-reduced-motion:reduce){.wp-media{transition:none}}
+@keyframes wp-settle{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.wp-caption>span,.wp-caption h2,.wp-caption p,.wp-caption>a{animation:wp-settle .45s cubic-bezier(.4,0,.2,1) both}
+.wp-caption h2{animation-delay:.04s}.wp-caption p{animation-delay:.08s}.wp-caption>a{animation-delay:.12s}
+@media(prefers-reduced-motion:reduce){.wp-media{transition:none}.wp-caption>span,.wp-caption h2,.wp-caption p,.wp-caption>a{animation:none}}
 
 /* Hotspot hit areas sit above artwork, below navigation and captions. */
 .wp-hotspots{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 /* --wp-glow is set per area from its chosen colour (lib/hotspots). The
    fallback is the Cirqle brand violet, which is also what an area saved
    before colours existed resolves to. */
-.wp-hotspot{pointer-events:none;color:#fff;--wp-glow:#7c5cff}.wp-hotspot svg{overflow:visible;pointer-events:none}.wp-hotspot polygon{pointer-events:all;cursor:pointer;fill:transparent;stroke:transparent;stroke-width:2;stroke-linejoin:round;transition:fill .2s,stroke .2s,filter .2s}
-.wp-hotspot:hover polygon,.wp-hotspot:focus-visible polygon{fill:color-mix(in srgb,var(--wp-glow) 9%,transparent);stroke:color-mix(in srgb,var(--wp-glow) 65%,#fff);filter:drop-shadow(0 0 5px var(--wp-glow)) drop-shadow(0 0 10px var(--wp-glow))}
+.wp-hotspot{pointer-events:none;color:#fff;--wp-glow:#7c5cff;--wp-glow-2:var(--wp-glow)}.wp-hotspot svg{overflow:visible;pointer-events:none}.wp-hotspot polygon{pointer-events:all;cursor:pointer;fill:transparent;stroke:transparent;stroke-width:2;stroke-linejoin:round;transition:fill .2s,stroke .2s,filter .2s}
+/* A gradient area sets --wp-stroke to its own <linearGradient>; everything
+   else falls back to a lightened flat colour. It goes through a custom
+   property rather than an inline style so the resting state stays transparent
+   — an inline stroke would beat the rule above and draw every outline all the
+   time. The two neon shadows take one end each, which is what the original
+   hardcoded violet/blue pair did by hand. */
+.wp-hotspot:hover polygon,.wp-hotspot:focus-visible polygon{fill:color-mix(in srgb,var(--wp-glow) 9%,transparent);stroke:var(--wp-stroke,color-mix(in srgb,var(--wp-glow) 65%,#fff));filter:drop-shadow(0 0 5px var(--wp-glow)) drop-shadow(0 0 10px var(--wp-glow-2))}
 .wp-hotspot-marker{position:absolute;transform:translate(-50%,-50%);min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;pointer-events:auto;border:1px solid #ffffff75;border-radius:24px;background:#171020b8;backdrop-filter:blur(5px);box-shadow:0 2px 12px #0004;font-size:23px;cursor:pointer}
-.wp-hotspot-label{display:none;font-size:12px;padding:0 12px;max-width:180px;line-height:1.3}.wp-hotspot:hover .wp-hotspot-label,.wp-hotspot:focus-visible .wp-hotspot-label{display:block}.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{padding-left:12px;border-color:color-mix(in srgb,var(--wp-glow) 55%,#fff)}
+.wp-hotspot-label{display:none;font-size:12px;padding:0 12px;max-width:180px;line-height:1.3}.wp-hotspot:hover .wp-hotspot-label,.wp-hotspot:focus-visible .wp-hotspot-label{display:block}.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{padding-left:12px;border-color:color-mix(in srgb,var(--wp-glow-2) 55%,#fff)}
 .wp-hotspot:focus-visible{outline:none!important}.wp-hotspot:focus-visible .wp-hotspot-marker{outline:2px solid #fff;outline-offset:3px}
 .wp-top,.wp-clients,.wp-caption{z-index:2}
 @media(prefers-reduced-motion:reduce){.wp-hotspot polygon{transition:none}}

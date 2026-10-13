@@ -1,5 +1,5 @@
 import { PresentationHotspots } from './PresentationHotspots';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { ClientPicker } from './ClientPicker';
@@ -22,14 +22,50 @@ export function WorkPresentation() {
  const poster=useMobile ? current?.mobile_poster_url || current?.poster_url : current?.poster_url;
  const focalX=useMobile ? current?.mobile_focal_x ?? current?.focal_x : current?.focal_x;
  const focalY=useMobile ? current?.mobile_focal_y ?? current?.focal_y : current?.focal_y;
+ /**
+  * The last artwork that finished decoding, kept painted underneath.
+  *
+  * Without it, switching client unmounts the old artwork immediately (the
+  * media layer is keyed on the slug) and the new one fades up from the
+  * placeholder gradient — so every switch flashes the background. Holding the
+  * previous frame gives the incoming one something to cross-fade over.
+  *
+  * A video is held by its poster: keeping a second <video> alive underneath
+  * would mean two decoders running for no visible benefit.
+  */
+ const [held,setHeld]=useState<{src:string;focalX:number;focalY:number}|null>(null);
+ /**
+  * A media finished decoding: show it, and remember it as the frame to fade
+  * FROM next time. Set where readiness is already known rather than from an
+  * effect watching `ready` — the same state, set once, when it is true.
+  */
+ const markReady=useCallback((url:string,type:string,posterUrl:string|null,fx:number,fy:number)=>{
+  setReady(url);
+  const src=type==='video'?posterUrl:url;
+  if(src)setHeld({src,focalX:fx,focalY:fy});
+ },[]);
  useEffect(()=>{
   if(mediaType!=='video'||!mediaUrl)return;
   if(!poster)return;
   let live=true;const image=new Image();image.src=poster;
-  void image.decode().then(()=>{if(live)setReady(mediaUrl);}).catch(()=>{});
+  void image.decode().then(()=>{if(live)markReady(mediaUrl,mediaType,poster,focalX??50,focalY??50);}).catch(()=>{});
   return()=>{live=false;};
- },[mediaUrl,mediaType,poster]);
+ },[mediaUrl,mediaType,poster,focalX,focalY,markReady]);
  const select=(slug:string)=>{setSelected(slug);setFailed(null);};
+ /**
+  * The last artwork that finished decoding, kept painted underneath.
+  *
+  * Without it, switching client unmounts the old artwork immediately (the
+  * media layer is keyed on the slug) and the new one fades up from the
+  * placeholder gradient — so every switch flashes the background. Holding the
+  * previous frame gives the incoming one something to cross-fade over, and it
+  * is dropped as soon as the new one is ready.
+  *
+  * A video is held by its poster: keeping a second <video> alive underneath
+  * would mean two decoders running for no visible benefit.
+  */
+
+
  useEffect(()=>{
   const header=document.querySelector('header');
   if(!header)return;
@@ -37,8 +73,11 @@ export function WorkPresentation() {
   const observer=new ResizeObserver(update);observer.observe(header);update();return()=>observer.disconnect();
  },[]);
  return <><div className="wp-dwell"><section ref={section} className="work-presentation" aria-label="Client work presentation" aria-busy={loading || (!!current && ready !== mediaUrl && !(mediaType==='video'&&!poster) && failed !== current.slug)}><div className="wp-first-frame" aria-hidden="true"/>
+  {held&&held.src!==mediaUrl&&<div className="wp-media wp-media--ready wp-media--held" aria-hidden="true" style={{objectPosition:`${held.focalX}% ${held.focalY}%`}}>
+   <img src={held.src} alt="" decoding="async" style={{objectPosition:'inherit'}}/>
+  </div>}
   {current&&<div className={`wp-media ${ready===mediaUrl || (mediaType==='video'&&!poster) ? "wp-media--ready" : ""}`} key={`${current.slug}-${mediaUrl}`} style={{objectPosition:`${focalX}% ${focalY}%`}}>
-   {mediaType==='video'?<video src={mediaUrl||undefined} poster={poster||undefined} controls playsInline preload="none" onLoadedData={()=>setReady(mediaUrl||'')} onError={()=>setFailed(current.slug)} aria-label={current.alt_text} style={{objectPosition:'inherit'}}/>:<img fetchPriority="high" decoding="async" onLoad={async e=>{const img=e.currentTarget;try{await img.decode();}catch{/* Loaded images may already be decoded. */}setReady(mediaUrl||'');}} src={mediaUrl||undefined} alt={current.alt_text} style={{objectPosition:'inherit'}} onError={()=>setFailed(current.slug)}/>}
+   {mediaType==='video'?<video src={mediaUrl||undefined} poster={poster||undefined} controls playsInline preload="none" onLoadedData={()=>markReady(mediaUrl||'',mediaType,poster,focalX??50,focalY??50)} onError={()=>setFailed(current.slug)} aria-label={current.alt_text} style={{objectPosition:'inherit'}}/>:<img fetchPriority="high" decoding="async" onLoad={async e=>{const img=e.currentTarget;try{await img.decode();}catch{/* Loaded images may already be decoded. */}markReady(mediaUrl||'',mediaType,poster,focalX??50,focalY??50);}} src={mediaUrl||undefined} alt={current.alt_text} style={{objectPosition:'inherit'}} onError={()=>setFailed(current.slug)}/>}
 
   </div>}
   <div className="wp-shade" aria-hidden="true"/>
@@ -47,7 +86,7 @@ export function WorkPresentation() {
   {loading&&<p className="wp-sr-only" role="status">Loading selected work…</p>}
   {error&&<div className="wp-state" role="alert"><p>Selected work is temporarily unavailable.</p><button onClick={retry}>Try again</button></div>}
   {!loading&&!error&&!current&&<p className="wp-state">Explore our latest work in the <Link to="/portfolio?view=gallery">gallery</Link>.</p>}
-  {current&&<><ClientPicker entries={entries} value={current.slug} onChange={select}/><nav className="wp-clients" aria-label="Select a client">{entries.map(entry=><button key={entry.slug} aria-pressed={entry.slug===current.slug} onPointerEnter={e=>{if(e.pointerType==='mouse')select(entry.slug);}} onFocus={()=>select(entry.slug)} onClick={()=>select(entry.slug)}>{entry.client_name}</button>)}</nav><div className="wp-caption" aria-live="polite"><span>{current.category}</span><h2>{current.client_name}</h2>{current.description&&<p>{current.description}</p>}{current.project_path&&<Link to={current.project_path}>View project <ArrowUpRight size={15}/></Link>}</div>{failed===current.slug&&<p className="wp-media-error" role="status">Visual unavailable. Explore the project or select another client.</p>}</>}
+  {current&&<><ClientPicker entries={entries} value={current.slug} onChange={select}/><nav className="wp-clients" aria-label="Select a client">{entries.map(entry=><button key={entry.slug} aria-pressed={entry.slug===current.slug} onPointerEnter={e=>{if(e.pointerType==='mouse')select(entry.slug);}} onFocus={()=>select(entry.slug)} onClick={()=>select(entry.slug)}>{entry.client_name}</button>)}</nav><div className="wp-caption" key={current.slug} aria-live="polite"><span>{current.category}</span><h2>{current.client_name}</h2>{current.description&&<p>{current.description}</p>}{current.project_path&&<Link to={current.project_path}>View project <ArrowUpRight size={15}/></Link>}</div>{failed===current.slug&&<p className="wp-media-error" role="status">Visual unavailable. Explore the project or select another client.</p>}</>}
  </section></div><section className="wp-contact" aria-label="Start a project"><span className="wp-contact-eyebrow">YOUR NEXT CHAPTER</span><h2>Let’s make<br/><em>your next impression.</em></h2><p>What do you have in mind?</p><div className="wp-interest" aria-label="Project interest">{[['brand-identity','A brand'],['supermarket-campaign','A campaign'],['ui-ux-design','A digital experience']].map(([value,label])=><button key={value} aria-pressed={interest===value} onClick={()=>setInterest(value)}>{label}</button>)}</div><Link className="wp-contact-cta" to={`/contact?service=${interest}`}>Let’s talk <ArrowUpRight/></Link><div className="wp-contact-bottom"><a href="mailto:team@cirqle.work">team@cirqle.work</a><button onClick={()=>section.current?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}>Back to work ↑</button><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></div></section></>;
 
 }

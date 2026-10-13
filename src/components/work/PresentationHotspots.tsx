@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { coverBox, hotspotColour, type PresentationHotspot } from '../../lib/hotspots';
+import { coverBox, hotspotGlow, hasGradient, type PresentationHotspot } from '../../lib/hotspots';
 
 /** SVG paths share the image's cover transform, including off-centre crops. */
 export function PresentationHotspots({ items, source, focalX, focalY }: {items: PresentationHotspot[];source: string;focalX:number;focalY:number}) {
@@ -20,9 +20,14 @@ export function PresentationHotspots({ items, source, focalX, focalY }: {items: 
   // Fully cropped targets must not create invisible keyboard stops.
   const visible=px>=0&&py>=0&&px<=geometry.frameWidth&&py<=geometry.frameHeight;
   if(!visible)return null;
-  // The glow colour travels as a custom property. `hotspotColour` resolves a
-  // stored KEY to one of a fixed set of hexes, so no author-supplied string
-  // ever reaches this style declaration.
-  return <a key={item.id} href={item.path} aria-label={item.label} className="wp-hotspot" style={{'--wp-glow':hotspotColour(item.color)} as CSSProperties}><svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',width:geometry.width,height:geometry.height,left:geometry.left,top:geometry.top}}><polygon points={item.points.map(p=>p.join(',')).join(' ')} vectorEffect="non-scaling-stroke"/></svg><span className="wp-hotspot-marker" style={{left:px,top:py}}><span aria-hidden="true">+</span><span className="wp-hotspot-label">{item.label} ↗</span></span></a>;
+  // Both ends of the glow travel as custom properties. They come back from
+  // hotspotGlow as validated hexes — a preset key resolved, or a custom colour
+  // that matched /^#[0-9a-f]{6}$/ — so no author-supplied string reaches this
+  // style declaration unchecked.
+  const glow=hotspotGlow(item);
+  const gradient=hasGradient(item);
+  // One gradient per area, so two areas with different colours cannot collide.
+  const gradientId=`wp-glow-${item.id}`;
+  return <a key={item.id} href={item.path} aria-label={item.label} className={`wp-hotspot${gradient?' wp-hotspot--gradient':''}`} style={{'--wp-glow':glow.from,'--wp-glow-2':glow.to,...(gradient?{'--wp-stroke':`url(#${gradientId})`}:null)} as CSSProperties}><svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none" style={{position:'absolute',width:geometry.width,height:geometry.height,left:geometry.left,top:geometry.top}}>{gradient&&<defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={glow.from}/><stop offset="100%" stopColor={glow.to}/></linearGradient></defs>}<polygon points={item.points.map(p=>p.join(',')).join(' ')} vectorEffect="non-scaling-stroke"/></svg><span className="wp-hotspot-marker" style={{left:px,top:py}}><span aria-hidden="true">+</span><span className="wp-hotspot-label">{item.label} ↗</span></span></a>;
  })}</div>;
 }
