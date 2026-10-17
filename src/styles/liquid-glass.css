@@ -1,0 +1,498 @@
+/* ============================================================================
+   Liquid glass — one material, applied everywhere
+   ============================================================================
+
+   What separates this from ordinary glassmorphism is where the work is done.
+   Flat glassmorphism is a translucent fill plus a blur; it reads as a frosted
+   sheet of paper. Real optical glass announces itself three other ways, and
+   all three are here:
+
+     1. It BENDS what is behind it. The backdrop is displaced, not just
+        blurred, and most strongly at the rim — which is where a lens bends
+        light most. That is the cue that sells thickness.
+     2. It catches light on its edges. A bright specular line along the top,
+        a dimmer bounce along the bottom, and a hairline ring inside the
+        border that reads as the cut edge of the pane.
+     3. It floats. A tight contact shadow plus a wide ambient one, so the
+        surface sits ABOVE the page rather than being painted onto it.
+
+   Loaded after index.css so it wins the cascade without !important, and it
+   deliberately redefines the existing .liquid-glass* classes rather than
+   introducing a parallel set — eight files already use those names, and the
+   point is for every one of them to inherit the new material untouched.
+
+   ── Performance ───────────────────────────────────────────────────────────
+   backdrop-filter is the expensive property on this page, so: blur sits at
+   24px (past roughly 30 the cost climbs with no visible gain), the refraction
+   filter is opt-in behind @supports, and nothing animates blur — only
+   transform, opacity and shadow, which stay on the compositor.
+   ========================================================================= */
+
+:root{
+  /* The material. Override these per-surface rather than restating the rules. */
+  --lg-blur: 24px;
+  --lg-saturate: 175%;
+  --lg-brightness: .92;
+
+  /* The pane itself. Thin on purpose — the filter above does the heavy work,
+     and a thick fill is exactly what makes glassmorphism look like paper. */
+  --lg-tint: rgba(13,16,28,.26);
+  --lg-sheen-1: rgba(255,255,255,.17);
+  --lg-sheen-2: rgba(255,255,255,.045);
+  --lg-sheen-3: rgba(255,255,255,.02);
+  --lg-sheen-4: rgba(255,255,255,.075);
+
+  /* Edges. */
+  --lg-border: rgba(255,255,255,.15);
+  --lg-border-top: rgba(255,255,255,.42);
+  --lg-specular: rgba(255,255,255,.42);
+  --lg-bounce: rgba(255,255,255,.1);
+  --lg-thickness: rgba(255,255,255,.055);
+
+  /* Shadows: one tight contact, one wide ambient. */
+  --lg-shadow:
+    0 1px 2px rgba(0,0,0,.22),
+    0 16px 44px rgba(0,0,0,.34);
+  --lg-shadow-raised:
+    0 2px 4px rgba(0,0,0,.24),
+    0 26px 64px rgba(0,0,0,.42);
+
+  /* Continuous curvature. Generous by default — a tight radius on a thick
+     material looks like a chamfer, not a fillet. */
+  --lg-radius: 22px;
+  --lg-ease: cubic-bezier(.22,.61,.36,1);
+}
+
+/* The site is dark by default; on light the pane inverts — it tints toward
+   white and the rim softens, because a bright room reflects differently. */
+html:not(.dark){
+  --lg-tint: rgba(255,255,255,.42);
+  --lg-brightness: 1.04;
+  --lg-saturate: 160%;
+  --lg-border: rgba(255,255,255,.65);
+  --lg-border-top: rgba(255,255,255,.95);
+  --lg-specular: rgba(255,255,255,.9);
+  --lg-bounce: rgba(255,255,255,.45);
+  --lg-thickness: rgba(255,255,255,.3);
+  --lg-shadow:
+    0 1px 2px rgba(31,22,48,.08),
+    0 16px 44px rgba(31,22,48,.12);
+  --lg-shadow-raised:
+    0 2px 4px rgba(31,22,48,.1),
+    0 26px 64px rgba(31,22,48,.18);
+}
+
+/* ── The material ────────────────────────────────────────────────────────── */
+
+.lg,
+.liquid-glass,
+.liquid-glass-card,
+.liquid-glass-dark,
+.liquid-glass-thumbnail{
+  position: relative;
+  /* Own stacking context: the rim and sheen layers below must not escape, and
+     this also stops a parent's filter from flattening them. */
+  isolation: isolate;
+  border-radius: var(--lg-radius);
+  background:
+    linear-gradient(135deg,
+      var(--lg-sheen-1) 0%,
+      var(--lg-sheen-2) 26%,
+      var(--lg-sheen-3) 55%,
+      var(--lg-sheen-4) 100%),
+    var(--lg-tint);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 1px solid var(--lg-border);
+  border-top-color: var(--lg-border-top);
+  box-shadow:
+    inset 0 1px 0 var(--lg-specular),
+    inset 0 -1px 0 var(--lg-bounce),
+    inset 0 0 0 1px var(--lg-thickness),
+    var(--lg-shadow);
+  transition:
+    transform .5s var(--lg-ease),
+    box-shadow .5s var(--lg-ease),
+    border-color .5s var(--lg-ease),
+    background .5s var(--lg-ease);
+}
+
+/* index.css carries an `html.dark .liquid-glass{…}` block left over from the
+   previous flat-glass design (lines ~3057). `html.dark .liquid-glass` outranks
+   a bare `.liquid-glass`, so everything above would silently lose to it — in
+   the only mode this site actually ships. Rather than reaching for
+   !important, the same selectors are restated here at equal specificity and
+   pointed at the material's own tokens. Delete the originals and these go too. */
+html.dark .liquid-glass,
+html.dark .liquid-glass-card,
+html.dark .liquid-glass-dark,
+html.dark .liquid-glass-thumbnail{
+  background:
+    linear-gradient(135deg,
+      var(--lg-sheen-1) 0%,
+      var(--lg-sheen-2) 26%,
+      var(--lg-sheen-3) 55%,
+      var(--lg-sheen-4) 100%),
+    var(--lg-tint);
+  border-color: var(--lg-border);
+  border-top-color: var(--lg-border-top);
+  box-shadow:
+    inset 0 1px 0 var(--lg-specular),
+    inset 0 -1px 0 var(--lg-bounce),
+    inset 0 0 0 1px var(--lg-thickness),
+    var(--lg-shadow);
+}
+
+/* The old sweep-on-hover and purple-glow pseudo-elements occupy ::before and
+   ::after — the same two slots the rim and the internal light need. They are
+   turned off rather than worked around: a light sweep across a pane that is
+   already refracting its backdrop reads as a smear, not a shine. */
+.liquid-glass:hover::before{ left: auto }
+.site-header.liquid-glass::after,
+.site-header.liquid-glass:hover::after{ background: none; opacity: 0 }
+
+/* ── The rim: where the light actually bends ─────────────────────────────── */
+/*
+   A ring just inside the border, carrying its OWN backdrop-filter. That is the
+   whole trick, and it is worth saying why it is done this way.
+
+   The obvious approach is an SVG feDisplacementMap referenced as
+   `backdrop-filter: … url(#f)`. It does not work: Chromium parses the
+   reference, reports it through CSS.supports() and getComputedStyle(), and
+   then renders nothing — verified by A/B-ing a probe element over this very
+   page and getting pixel-identical results. Safari and Firefox do not
+   implement filter references there at all. Shipping it would have been forty
+   lines of inert SVG plus an @supports test that answers true and buys
+   nothing.
+
+   A nested backdrop-filter DOES render. So the rim samples the backdrop
+   almost unblurred, brighter and far more saturated, while the body of the
+   pane stays softly blurred — and the eye reads that disagreement at the edge
+   as thickness, which is exactly the cue the displacement map was for. The
+   conic gradient on top gives the light a direction so it has a source rather
+   than glowing evenly.
+*/
+.lg::before,
+.float-pill::before,
+.glance-tile::before,
+.contact-card::before,
+.liquid-glass::before,
+.liquid-glass-card::before,
+.liquid-glass-dark::before,
+.liquid-glass-thumbnail::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* The rim's width. Kept inside the host's own padding so it never crosses
+     text, and thin enough that the sampling cost stays trivial. */
+  padding: 9px;
+  backdrop-filter: blur(.5px) saturate(260%) brightness(1.14) contrast(1.08);
+  -webkit-backdrop-filter: blur(.5px) saturate(260%) brightness(1.14) contrast(1.08);
+  background:
+    conic-gradient(from 210deg at 50% 50%,
+      rgba(255,255,255,.06) 0deg,
+      rgba(255,255,255,.4) 72deg,
+      rgba(255,255,255,.07) 150deg,
+      rgba(255,255,255,.22) 232deg,
+      rgba(255,255,255,.46) 300deg,
+      rgba(255,255,255,.06) 360deg);
+  /* Ring only: paint the border box, knock out the content box, keep the
+     difference. Without this the filter would cover the whole surface and the
+     edge would stop being an edge. */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: .9;
+  transition: opacity .5s var(--lg-ease);
+  pointer-events: none;
+}
+
+/* ── Internal light ──────────────────────────────────────────────────────── */
+/* The slow, fluid sheen inside the pane. Two very soft radial pools that drift
+   on hover — the "liquid" in liquid glass. Opacity and transform only, so it
+   never costs a repaint. */
+.lg::after,
+.float-pill::after,
+.glance-tile::after,
+.contact-card::after,
+.liquid-glass::after,
+.liquid-glass-card::after,
+.liquid-glass-dark::after,
+.liquid-glass-thumbnail::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  /* ONE pool, anchored to the top edge where the light is.
+     This was two opposing pools — top-left white and bottom-right purple —
+     which looked right on a small pill and failed on a large card: between
+     them they left a diagonal valley that read as a crease across the middle
+     of the contact form, and because this layer sits above the host's
+     background it washed out the input placeholders sitting on top of it.
+     One directional sheen scales; two competing ones do not. */
+  background: radial-gradient(135% 90% at 14% -10%, rgba(255,255,255,.1), transparent 58%);
+  opacity: .85;
+  transform: translate3d(0,0,0) scale(1);
+  transition: transform .9s var(--lg-ease), opacity .6s var(--lg-ease);
+  pointer-events: none;
+}
+
+/* ── Micro-interactions ──────────────────────────────────────────────────── */
+/* Hover-capable pointers only: on a touch screen :hover sticks after a tap and
+   leaves the surface permanently raised. */
+@media (hover: hover) and (pointer: fine){
+  .lg:hover,
+  .liquid-glass-card:hover,
+  .liquid-glass-thumbnail:hover{
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 var(--lg-specular),
+      inset 0 -1px 0 var(--lg-bounce),
+      inset 0 0 0 1px var(--lg-thickness),
+      var(--lg-shadow-raised);
+    border-top-color: rgba(255,255,255,.6);
+  }
+  .lg:hover::before,
+  .float-pill:hover::before,
+  .glance-tile:hover::before,
+  .contact-card:hover::before,
+  .liquid-glass-card:hover::before,
+  .liquid-glass-thumbnail:hover::before{ opacity: 1 }
+  /* The light pools drift rather than flash. */
+  .lg:hover::after,
+  .float-pill:hover::after,
+  .glance-tile:hover::after,
+  .contact-card:hover::after,
+  .liquid-glass-card:hover::after,
+  .liquid-glass-thumbnail:hover::after{
+    transform: translate3d(3%, -2%, 0) scale(1.06);
+    opacity: 1;
+  }
+}
+
+.lg:active,
+.liquid-glass-card:active{
+  transform: translateY(0);
+  transition-duration: .12s;
+}
+
+.lg:focus-visible,
+.liquid-glass:focus-visible,
+.liquid-glass-card:focus-visible{
+  outline: 2px solid rgba(207,180,255,.9);
+  outline-offset: 3px;
+}
+
+/* ── Variants ────────────────────────────────────────────────────────────── */
+
+/* A bar across the full width: no float, no lift, and a flatter radius,
+   because a navigation bar that appears to hover above the page fights the
+   page's own scroll. */
+.lg--bar{
+  --lg-radius: 0px;
+  --lg-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.26);
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+.lg--bar:hover{ transform: none }
+
+/* Fully rounded — the shape of the reference. */
+.lg--pill{ --lg-radius: 999px }
+
+/* Dense surfaces that sit close to the page. */
+.lg--flush{
+  --lg-radius: 16px;
+  --lg-shadow: 0 1px 2px rgba(0,0,0,.18), 0 8px 22px rgba(0,0,0,.22);
+}
+
+/* A modal or floating panel: thicker material, deeper float, more separation
+   from whatever it covers. */
+.lg--panel{
+  --lg-blur: 32px;
+  --lg-tint: rgba(13,16,28,.46);
+  --lg-radius: 26px;
+  --lg-shadow: 0 4px 10px rgba(0,0,0,.3), 0 40px 90px rgba(0,0,0,.5);
+}
+html:not(.dark) .lg--panel{ --lg-tint: rgba(255,255,255,.66) }
+
+/* The existing names, kept pointing at sensible variants. */
+.liquid-glass-card{ --lg-radius: 20px }
+.liquid-glass-dark{ --lg-tint: rgba(8,10,18,.5) }
+.liquid-glass-thumbnail{ --lg-radius: 18px; --lg-blur: 18px }
+
+/* The header is a bar, and its old sweep/glow pseudo-elements would collide
+   with the rim and sheen layers this file installs on the same slots. */
+.site-header.liquid-glass,
+.site-header.liquid-glass-card{
+  --lg-radius: 0px;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+.site-header.liquid-glass:hover,
+.site-header.liquid-glass-card:hover{ transform: none }
+
+/* ── Fallbacks ───────────────────────────────────────────────────────────── */
+
+/* No backdrop-filter at all: a translucent tint over a photograph is an
+   unreadable surface, not a degraded one, so the pane goes solid and keeps
+   only the edge treatment that costs nothing. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
+  .lg,
+  .liquid-glass,
+  .liquid-glass-card,
+  .liquid-glass-thumbnail{ background: rgba(17,20,34,.96) }
+  .liquid-glass-dark{ background: rgba(8,10,18,.97) }
+  html:not(.dark) .lg,
+  html:not(.dark) .liquid-glass,
+  html:not(.dark) .liquid-glass-card{ background: rgba(252,251,255,.97) }
+}
+
+/* Asked for at the OS level: the same answer, by request rather than by
+   capability. The rim and shadow stay — they are what makes the surface
+   legible as a surface — and only the transparency goes. */
+@media (prefers-reduced-transparency: reduce){
+  .lg,
+  .liquid-glass,
+  .liquid-glass-card,
+  .liquid-glass-thumbnail{
+    background: rgba(17,20,34,.97);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  html:not(.dark) .lg,
+  html:not(.dark) .liquid-glass,
+  html:not(.dark) .liquid-glass-card{ background: rgba(252,251,255,.98) }
+  .lg::after, .liquid-glass::after, .liquid-glass-card::after{ display: none }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .lg, .liquid-glass, .liquid-glass-card,
+  .liquid-glass-dark, .liquid-glass-thumbnail,
+  .lg::before, .lg::after,
+  .liquid-glass::before, .liquid-glass::after,
+  .liquid-glass-card::before, .liquid-glass-card::after{
+    transition: none;
+  }
+  .lg:hover, .liquid-glass-card:hover, .liquid-glass-thumbnail:hover{ transform: none }
+  .lg:hover::after, .liquid-glass-card:hover::after{ transform: none }
+}
+
+/* ============================================================================
+   Adoption — which of the site's own surfaces become glass
+   ============================================================================
+   Chosen by what each surface IS, not by sweeping every rounded box:
+
+     .float-pill        floats over scrolling content. The reference shape.
+     .glance-tile       a raised card on a tinted page.
+     .contact-card      the same, larger.
+     .mobile-navigation a full-screen panel over the page it covers.
+
+   Deliberately NOT converted, and worth recording so nobody "finishes the
+   job" later:
+     .site-cta        — a solid brand-purple button. Brand colour is identity;
+                        making it translucent would weaken the one element on
+                        the page whose job is to be unambiguous.
+     .work-chip       — underlined text tabs, not a surface. Giving them a
+                        pane would invent a control that was never there.
+     .hd-service-card — an image card. There is nothing behind the artwork to
+                        refract, so glass would cost blur and buy nothing.
+     .work-tile       — portfolio thumbnails. Same reason.
+     .v2-*            — another branch's work in progress. Not ours to restyle.
+   ========================================================================= */
+
+.float-pill{
+  --lg-radius: 999px;
+  --lg-blur: 20px;
+  position: fixed;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, var(--lg-sheen-1) 0%, var(--lg-sheen-2) 26%, var(--lg-sheen-3) 55%, var(--lg-sheen-4) 100%),
+    var(--lg-tint);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 1px solid var(--lg-border);
+  border-top-color: var(--lg-border-top);
+  border-radius: var(--lg-radius);
+  box-shadow:
+    inset 0 1px 0 var(--lg-specular),
+    inset 0 -1px 0 var(--lg-bounce),
+    inset 0 0 0 1px var(--lg-thickness),
+    var(--lg-shadow);
+  transition: transform .5s var(--lg-ease), box-shadow .5s var(--lg-ease), border-color .5s var(--lg-ease);
+}
+
+.glance-tile,
+.contact-card{
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, var(--lg-sheen-1) 0%, var(--lg-sheen-2) 26%, var(--lg-sheen-3) 55%, var(--lg-sheen-4) 100%),
+    var(--lg-tint);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 1px solid var(--lg-border);
+  border-top-color: var(--lg-border-top);
+  box-shadow:
+    inset 0 1px 0 var(--lg-specular),
+    inset 0 -1px 0 var(--lg-bounce),
+    inset 0 0 0 1px var(--lg-thickness),
+    var(--lg-shadow);
+  transition: transform .5s var(--lg-ease), box-shadow .5s var(--lg-ease), border-color .5s var(--lg-ease);
+}
+
+/* The mobile navigation covers the page, so it takes the thicker panel
+   material — enough to separate it from what is behind without hiding that
+   something IS behind, which is the cue that tells you it can be dismissed. */
+.mobile-navigation{
+  --lg-blur: 32px;
+  background:
+    linear-gradient(135deg, var(--lg-sheen-1) 0%, var(--lg-sheen-2) 30%, var(--lg-sheen-3) 60%, var(--lg-sheen-4) 100%),
+    rgba(10,12,22,.72);
+  backdrop-filter: blur(var(--lg-blur)) saturate(150%) brightness(.9);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(150%) brightness(.9);
+}
+html:not(.dark) .mobile-navigation{ background: rgba(252,251,255,.82) }
+
+@media (hover: hover) and (pointer: fine){
+  .float-pill:hover,
+  .glance-tile:hover,
+  .contact-card:hover{
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 var(--lg-specular),
+      inset 0 -1px 0 var(--lg-bounce),
+      inset 0 0 0 1px var(--lg-thickness),
+      var(--lg-shadow-raised);
+    border-top-color: rgba(255,255,255,.6);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
+  .float-pill, .glance-tile, .contact-card{ background: rgba(17,20,34,.96) }
+  .mobile-navigation{ background: rgba(12,14,24,.99) }
+  html:not(.dark) .float-pill,
+  html:not(.dark) .glance-tile,
+  html:not(.dark) .contact-card{ background: rgba(252,251,255,.97) }
+}
+
+@media (prefers-reduced-transparency: reduce){
+  .float-pill, .glance-tile, .contact-card, .mobile-navigation{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(17,20,34,.97);
+  }
+  html:not(.dark) .float-pill,
+  html:not(.dark) .glance-tile,
+  html:not(.dark) .contact-card,
+  html:not(.dark) .mobile-navigation{ background: rgba(252,251,255,.98) }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .float-pill, .glance-tile, .contact-card{ transition: none }
+  .float-pill:hover, .glance-tile:hover, .contact-card:hover{ transform: none }
+}

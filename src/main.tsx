@@ -6,6 +6,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
 import "./styles/utilities.css";
+// Last, so the material wins the cascade without !important.
+import "./styles/liquid-glass.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
