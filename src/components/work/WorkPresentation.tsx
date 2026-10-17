@@ -58,7 +58,7 @@ export function WorkPresentation() {
   </div>}
   <div className="wp-shade" aria-hidden="true"/>
   {current && mediaType === "image" && ready === mediaUrl && failed !== current.slug && mediaUrl && <PresentationHotspots key={`${current.slug}-${mobile}`} items={(mobile ? current.hotspots?.mobile : current.hotspots?.desktop) || []} source={mediaUrl} focalX={focalX ?? 50} focalY={focalY ?? 50}/>}
-  <div className="wp-top"><h1 className="wp-sr-only">Cirqle portfolio</h1><div className="wp-top-actions"><button className="wp-return" onClick={()=>{window.dispatchEvent(new Event("cirqle:show-navigation"));window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});}}>Navigation ↑</button><Link className="wp-browse" to="/portfolio?view=gallery">All work <ArrowUpRight size={16}/></Link></div></div>
+  <div className="wp-top"><h1 className="wp-sr-only">Cirqle portfolio</h1><div className="wp-top-actions"><Link className="wp-browse" to="/portfolio?view=gallery">All work <ArrowUpRight size={16}/></Link></div></div>
   {loading&&<p className="wp-sr-only" role="status">Loading selected work…</p>}
   {error&&<div className="wp-state" role="alert"><p>Selected work is temporarily unavailable.</p><button onClick={retry}>Try again</button></div>}
   {!loading&&!error&&!current&&<p className="wp-state">Explore our latest work in the <Link to="/portfolio?view=gallery">gallery</Link>.</p>}

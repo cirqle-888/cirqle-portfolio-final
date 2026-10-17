@@ -8,13 +8,13 @@ try{
  await page.mouse.move(1100,500);
  assert.equal(await header.evaluate(e=>e.classList.contains('site-header--away')),false);
  await page.waitForFunction(()=>document.querySelector('.site-header')?.classList.contains('site-header--away'),{},{timeout:6500});
- await page.getByRole('button',{name:'Navigation ↑',exact:true}).click();
+ await page.mouse.move(600,5);
  await page.waitForFunction(()=>!document.querySelector('.site-header')?.classList.contains('site-header--away'));
  await header.getByRole('link',{name:'Home',exact:true}).focus();
  await page.waitForTimeout(3800);
  assert.equal(await header.evaluate(e=>e.classList.contains('site-header--away')),false);
  await page.mouse.move(1100,500);
- await page.getByRole('button',{name:'Navigation ↑',exact:true}).focus();
+ await page.locator('.wp-browse').focus();
  await page.waitForFunction(()=>document.querySelector('.site-header')?.classList.contains('site-header--away'),{},{timeout:6500});
  await page.goto((process.env.BASE_URL||'http://127.0.0.1:5176')+'/');await page.waitForTimeout(3800);
  assert.equal(await header.evaluate(e=>e.classList.contains('site-header--away')),false);
