@@ -30,17 +30,21 @@
 
 :root{
   /* The material. Override these per-surface rather than restating the rules. */
-  --lg-blur: 24px;
-  --lg-saturate: 175%;
-  --lg-brightness: .92;
+  /* Low on purpose. A heavy blur flattens whatever is behind into a wash,
+     and then the surface is frosted paper again — you can tell something is
+     back there but not WHAT. Real glass keeps the shapes readable and merely
+     softens and bends them. 8px softens; 24px erased. */
+  --lg-blur: 8px;
+  --lg-saturate: 190%;
+  --lg-brightness: .95;
 
   /* The pane itself. Thin on purpose — the filter above does the heavy work,
      and a thick fill is exactly what makes glassmorphism look like paper. */
-  --lg-tint: rgba(13,16,28,.26);
-  --lg-sheen-1: rgba(255,255,255,.17);
+  --lg-tint: rgba(13,16,28,.16);
+  --lg-sheen-1: rgba(255,255,255,.14);
   --lg-sheen-2: rgba(255,255,255,.045);
   --lg-sheen-3: rgba(255,255,255,.02);
-  --lg-sheen-4: rgba(255,255,255,.075);
+  --lg-sheen-4: rgba(255,255,255,.06);
 
   /* Edges. */
   --lg-border: rgba(255,255,255,.15);
@@ -66,9 +70,9 @@
 /* The site is dark by default; on light the pane inverts — it tints toward
    white and the rim softens, because a bright room reflects differently. */
 html:not(.dark){
-  --lg-tint: rgba(255,255,255,.42);
-  --lg-brightness: 1.04;
-  --lg-saturate: 160%;
+  --lg-tint: rgba(255,255,255,.3);
+  --lg-brightness: 1.03;
+  --lg-saturate: 170%;
   --lg-border: rgba(255,255,255,.65);
   --lg-border-top: rgba(255,255,255,.95);
   --lg-specular: rgba(255,255,255,.9);
@@ -187,8 +191,8 @@ html.dark .liquid-glass-thumbnail{
   /* The rim's width. Kept inside the host's own padding so it never crosses
      text, and thin enough that the sampling cost stays trivial. */
   padding: 9px;
-  backdrop-filter: blur(.5px) saturate(260%) brightness(1.14) contrast(1.08);
-  -webkit-backdrop-filter: blur(.5px) saturate(260%) brightness(1.14) contrast(1.08);
+  backdrop-filter: blur(0px) saturate(280%) brightness(1.18) contrast(1.1);
+  -webkit-backdrop-filter: blur(0px) saturate(280%) brightness(1.18) contrast(1.1);
   background:
     conic-gradient(from 210deg at 50% 50%,
       rgba(255,255,255,.06) 0deg,
@@ -312,8 +316,8 @@ html.dark .liquid-glass-thumbnail{
 /* A modal or floating panel: thicker material, deeper float, more separation
    from whatever it covers. */
 .lg--panel{
-  --lg-blur: 32px;
-  --lg-tint: rgba(13,16,28,.46);
+  --lg-blur: 14px;
+  --lg-tint: rgba(13,16,28,.34);
   --lg-radius: 26px;
   --lg-shadow: 0 4px 10px rgba(0,0,0,.3), 0 40px 90px rgba(0,0,0,.5);
 }
@@ -322,7 +326,7 @@ html:not(.dark) .lg--panel{ --lg-tint: rgba(255,255,255,.66) }
 /* The existing names, kept pointing at sensible variants. */
 .liquid-glass-card{ --lg-radius: 20px }
 .liquid-glass-dark{ --lg-tint: rgba(8,10,18,.5) }
-.liquid-glass-thumbnail{ --lg-radius: 18px; --lg-blur: 18px }
+.liquid-glass-thumbnail{ --lg-radius: 18px; --lg-blur: 7px }
 
 /* The header is a bar, and its old sweep/glow pseudo-elements would collide
    with the rim and sheen layers this file installs on the same slots. */
@@ -407,7 +411,7 @@ html:not(.dark) .lg--panel{ --lg-tint: rgba(255,255,255,.66) }
 
 .float-pill{
   --lg-radius: 999px;
-  --lg-blur: 20px;
+  --lg-blur: 7px;
   position: fixed;
   isolation: isolate;
   background:
@@ -449,10 +453,10 @@ html:not(.dark) .lg--panel{ --lg-tint: rgba(255,255,255,.66) }
    material — enough to separate it from what is behind without hiding that
    something IS behind, which is the cue that tells you it can be dismissed. */
 .mobile-navigation{
-  --lg-blur: 32px;
+  --lg-blur: 16px;
   background:
     linear-gradient(135deg, var(--lg-sheen-1) 0%, var(--lg-sheen-2) 30%, var(--lg-sheen-3) 60%, var(--lg-sheen-4) 100%),
-    rgba(10,12,22,.72);
+    rgba(10,12,22,.58);
   backdrop-filter: blur(var(--lg-blur)) saturate(150%) brightness(.9);
   -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(150%) brightness(.9);
 }

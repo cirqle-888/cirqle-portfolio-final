@@ -114,8 +114,13 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
     text carries a two-layer shadow rather than relying on the panel. If you
     need the body line to clear 4.5:1 on its own, brightness .72 with a 22%
     tint does it — at the cost of most of the image behind it. */
- backdrop-filter:blur(30px) saturate(165%) brightness(.9) contrast(1.02);
- -webkit-backdrop-filter:blur(30px) saturate(165%) brightness(.9) contrast(1.02);
+ /* Tracks the site material (styles/liquid-glass.css) so there is one glass,
+    not two. Low blur is the point: at 30px the artwork behind these panels
+    became an unreadable wash — you could tell something was there but not
+    what. At 8px the shapes survive, softened and desaturated, which is what
+    a real pane does. */
+ backdrop-filter:blur(var(--lg-blur,8px)) saturate(190%) brightness(.9) contrast(1.02);
+ -webkit-backdrop-filter:blur(var(--lg-blur,8px)) saturate(190%) brightness(.9) contrast(1.02);
  border:1px solid #ffffff2b;
  /* A pane catches the sky on its top edge and the ground on its bottom one. */
  border-top-color:#ffffff80;
@@ -167,8 +172,8 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
    under the options entirely. */
 .work-presentation .wp-picker-menu{
  background:linear-gradient(135deg,#ffffff16,#ffffff05 40%,transparent),#131724f0;
- backdrop-filter:blur(30px) saturate(150%) brightness(.9);
- -webkit-backdrop-filter:blur(30px) saturate(150%) brightness(.9);
+ backdrop-filter:blur(16px) saturate(160%) brightness(.82);
+ -webkit-backdrop-filter:blur(16px) saturate(160%) brightness(.82);
  border:1px solid #ffffff2e;
  border-top-color:#ffffff52;
  border-radius:16px;
