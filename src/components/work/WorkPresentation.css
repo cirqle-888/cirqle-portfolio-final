@@ -303,7 +303,6 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 .wp-client-list button.is-current{color:#fff;font-weight:600}
 .wp-client-list button:hover,.wp-client-list button:focus-visible{color:#fff;background:#ffffff12}
 .wp-client-list button:focus-visible{outline:1px solid #ffffffa0;outline-offset:-2px}
-.wp-autoplay{color:#fff;font-size:11px;min-height:44px;padding:10px 14px;border:1px solid #ffffff30;border-radius:8px;background:#100d184d;backdrop-filter:blur(8px)}
 .work-presentation--idle .wp-client-picker,.work-presentation--idle .wp-top{opacity:1;pointer-events:auto}
 @media(max-width:700px){.work-presentation .wp-client-picker{--list-height:132px;top:86px;left:22px;right:auto;width:min(230px,calc(100% - 44px));transform:none}}
 /* Each loaded client gets one reveal, then quiet artwork until the next client. */

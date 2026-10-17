@@ -13,10 +13,12 @@ const centre=page.locator('.wp-client-list .is-current');assert.equal(await cent
 await page.waitForFunction(()=>document.querySelector('.wp-client-list .is-current')?.textContent==='Two',null,{timeout:10000});
 await page.waitForTimeout(750);assert.ok(Math.abs((await centre.boundingBox()).y-y)<3,'Centre name stays in one position');
 assert.equal(await page.locator('.wp-hotspot-outline').evaluate(e=>getComputedStyle(e).animationIterationCount),'1');
-await page.getByRole('button',{name:'Pause client rotation'}).click();await page.waitForTimeout(7000);assert.equal(await centre.textContent(),'Two');
-await page.getByRole('button',{name:'Three',exact:true}).click();assert.equal(await centre.textContent(),'Three');
-await page.getByRole('button',{name:'Resume client rotation'}).click();await page.waitForFunction(()=>document.querySelector('.wp-client-list .is-current')?.textContent==='One',null,{timeout:10000});
-await page.emulateMedia({reducedMotion:'reduce'});await page.getByRole('button',{name:'Pause client rotation'}).waitFor({state:'detached'});await page.waitForTimeout(7000);assert.equal(await centre.textContent(),'One');
+assert.equal(await page.locator('.wp-autoplay').count(),0);
+await page.getByRole('button',{name:'Two',exact:true}).focus();await page.waitForTimeout(7000);assert.equal(await centre.textContent(),'Two');
+await page.locator('.wp-client-list .is-current').evaluate(e=>e.blur());
+await page.waitForFunction(()=>document.querySelector('.wp-client-list .is-current')?.textContent==='Three',null,{timeout:10000});
+await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(7000);assert.equal(await centre.textContent(),'Three');
+await page.getByRole('button',{name:'Two',exact:true}).click();assert.equal(await centre.textContent(),'Two');
 await page.setViewportSize({width:1280,height:900});assert.equal(await page.getByRole('navigation',{name:'Select a client',exact:true}).isVisible(),true);
-console.log('Client rotation passed: advance, fixed centre, single reveal, pause/resume, manual selection, wrap, desktop selector and reduced motion.');
+console.log('Client rotation passed: advance, fixed centre, single reveal, focus hold, manual selection, desktop selector and reduced motion.');
 }finally{await browser.close()}
