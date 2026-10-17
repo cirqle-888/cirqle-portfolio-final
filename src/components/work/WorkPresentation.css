@@ -39,7 +39,7 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 .wp-hotspot svg{overflow:visible;pointer-events:none}
 .wp-hotspot .wp-hotspot-hit{pointer-events:all;cursor:pointer;fill:transparent;stroke:none}
 .wp-hotspot-outline{pointer-events:none;opacity:0;transition:opacity .18s ease}
-.wp-hotspot-outline polygon{pointer-events:none;fill:none;stroke:var(--wp-stroke,var(--wp-glow));stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 0 var(--wp-blur-near,2px) var(--wp-glow)) drop-shadow(0 0 var(--wp-blur-far,4px) var(--wp-glow-2))}
+.wp-hotspot-outline polygon{pointer-events:none;fill:none;stroke:var(--wp-stroke,var(--wp-glow));stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 0 var(--wp-blur-near,3px) var(--wp-glow)) drop-shadow(0 0 var(--wp-blur-far,7px) var(--wp-glow-2))}
 
 .wp-hotspot-marker{position:absolute;transform:translate(-50%,-50%);min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;pointer-events:auto;border:1px solid #ffffff75;border-radius:24px;background:#171020b8;backdrop-filter:blur(5px);box-shadow:0 2px 12px #0004;font-size:23px;cursor:pointer}
 .wp-hotspot-label{display:none;font-size:12px;padding:0 12px;max-width:180px;line-height:1.3}.wp-hotspot:hover .wp-hotspot-label,.wp-hotspot:focus-visible .wp-hotspot-label{display:block}.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{padding-left:12px;border-color:color-mix(in srgb,var(--wp-glow-2) 55%,#fff)}
@@ -65,9 +65,9 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
    the edge stays thin and the exterior mask keeps the artwork untouched. */
 @keyframes wp-glow-breathe{
  0%,48%,100%{opacity:0}
- 68%,76%{opacity:.85}
+ 68%,76%{opacity:1}
 }
-.wp-hotspot-outline{animation:wp-glow-breathe 7.5s ease-in-out 1.5s infinite both}
+.wp-hotspot-outline{animation:wp-glow-breathe 7.5s ease-in-out var(--wp-pulse-delay,1.5s) infinite both}
 @media(hover:hover) and (pointer:fine){
  .wp-hotspot:hover .wp-hotspot-outline{animation:none;opacity:1}
 }

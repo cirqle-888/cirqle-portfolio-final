@@ -12,7 +12,7 @@ try {
   await page.goto(base+'/portfolio');const outline=page.locator('.wp-hotspot-outline');await outline.waitFor({state:'attached'});
   assert.equal(await outline.evaluate(e=>getComputedStyle(e).opacity),'0.35');
   const stroke=await outline.locator('polygon').evaluate(e=>({width:parseFloat(getComputedStyle(e).strokeWidth),fill:getComputedStyle(e).fill,filter:getComputedStyle(e).filter}));
-  assert.ok(Math.abs(stroke.width-1.6)<.01);assert.equal(stroke.fill,'none');assert.ok(stroke.filter.includes(touch?'12px':'2px'));
+  assert.ok(Math.abs(stroke.width-1.6)<.01);assert.equal(stroke.fill,'none');assert.ok(stroke.filter.includes(touch?'21px':'3.5px'));
   if(!touch){await page.locator('.wp-hotspot').focus();assert.equal(await outline.evaluate(e=>getComputedStyle(e).opacity),'1')}
   await page.locator('.wp-return').focus();
   await page.mouse.move(0,0);
