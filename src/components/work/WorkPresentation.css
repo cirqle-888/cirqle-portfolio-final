@@ -40,7 +40,7 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 .wp-hotspot .wp-hotspot-hit{pointer-events:all;cursor:pointer;fill:transparent;stroke:none}
 .wp-hotspot-outline{pointer-events:none;opacity:0;transition:opacity .18s ease}
 .wp-hotspot-outline polygon{pointer-events:none;fill:none;stroke:var(--wp-stroke,var(--wp-glow));stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 0 var(--wp-blur-near,2px) var(--wp-glow)) drop-shadow(0 0 var(--wp-blur-far,4px) var(--wp-glow-2))}
-.wp-hotspot:hover .wp-hotspot-outline,.wp-hotspot:focus-visible .wp-hotspot-outline{opacity:1}
+
 .wp-hotspot-marker{position:absolute;transform:translate(-50%,-50%);min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;pointer-events:auto;border:1px solid #ffffff75;border-radius:24px;background:#171020b8;backdrop-filter:blur(5px);box-shadow:0 2px 12px #0004;font-size:23px;cursor:pointer}
 .wp-hotspot-label{display:none;font-size:12px;padding:0 12px;max-width:180px;line-height:1.3}.wp-hotspot:hover .wp-hotspot-label,.wp-hotspot:focus-visible .wp-hotspot-label{display:block}.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{padding-left:12px;border-color:color-mix(in srgb,var(--wp-glow-2) 55%,#fff)}
 .wp-hotspot:focus-visible{outline:none!important}.wp-hotspot:focus-visible .wp-hotspot-marker{outline:2px solid #fff;outline-offset:3px}
@@ -61,20 +61,23 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 ::view-transition-new(root){animation-duration:.28s}
 @media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}
 
-/* Touch visitors cannot hover, so the MARKER is their affordance: the rule
-   above already pins it visible at a 44px tap target on coarse pointers.
-   Pinning the outline as well drew a permanent neon ring around the artwork
-   on every phone — the thing a visitor is meant to be looking at is the work,
-   not a box around it. The outline appears while a finger is actually down,
-   which is the feedback a tap needs, and the glow stays a hover/focus state
-   everywhere else. */
-@media(hover:none),(pointer:coarse){.wp-hotspot:active .wp-hotspot-outline{opacity:1}}
-
-/* iOS Safari applies :hover on tap and leaves it applied until something else
-   is tapped, so a hover rule unguarded by a hover query stays on after the
-   finger lifts. Everything that lights the glow is gated on a real pointer. */
+/* A soft invitation, followed by a long quiet interval. Only opacity moves:
+   the edge stays thin and the exterior mask keeps the artwork untouched. */
+@keyframes wp-glow-breathe{
+ 0%,48%,100%{opacity:0}
+ 68%,76%{opacity:.85}
+}
+.wp-hotspot-outline{animation:wp-glow-breathe 7.5s ease-in-out 1.5s infinite both}
+@media(hover:hover) and (pointer:fine){
+ .wp-hotspot:hover .wp-hotspot-outline{animation:none;opacity:1}
+}
+.wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspot:active .wp-hotspot-outline{animation:none;opacity:1}
+/* Avoid sticky hover labels after an iOS tap. */
 @media(hover:none),(pointer:coarse){
- .wp-hotspot:hover .wp-hotspot-outline{opacity:0}
  .wp-hotspot:hover .wp-hotspot-label{display:none}
  .wp-hotspot:focus-visible .wp-hotspot-label{display:block}
+}
+@media(prefers-reduced-motion:reduce){
+ .wp-hotspot-outline{animation:none;opacity:.35;transition:none}
+ .wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspot:active .wp-hotspot-outline{opacity:1}
 }
