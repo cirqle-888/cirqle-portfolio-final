@@ -296,15 +296,20 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
  .wp-clients button::before{transition:none}
 }
 
-/* Direct client navigation: a centred selection and softly fading edges. */
-.work-presentation .wp-client-picker{--list-height:220px;display:block;position:absolute;left:3%;right:auto;top:50%;transform:translateY(-50%);width:220px;padding:0;border:1px solid #ffffff18;border-radius:18px;background:linear-gradient(120deg,#17121d40,#17121d14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.wp-client-list{position:relative;height:var(--list-height);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#ffffff30 transparent;padding:calc((var(--list-height) - 44px)/2) 12px;mask-image:linear-gradient(transparent,#0009 12%,#000 35%,#000 65%,#0009 88%,transparent);-webkit-mask-image:linear-gradient(transparent,#0009 12%,#000 35%,#000 65%,#0009 88%,transparent)}
-.wp-client-list button{display:block;width:100%;min-height:44px;padding:10px 12px;text-align:left;font-size:14px;line-height:24px;color:#ffffffa6;border-radius:8px;transition:color .3s,background .3s;text-shadow:0 1px 8px #0008}
-.wp-client-list button.is-current{color:#fff;font-weight:600}
-.wp-client-list button:hover,.wp-client-list button:focus-visible{color:#fff;background:#ffffff12}
+/* The selected row shares the top action line; neighbours float outside its glass. */
+.work-presentation .wp-client-picker,.work-presentation .wp-client-picker:hover,.work-presentation .wp-client-picker:focus-within{display:block;position:absolute;left:0;right:auto;top:-44px;transform:none;width:min(240px,calc(100% - 120px));padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
+.work-presentation .wp-client-picker::before,.work-presentation .wp-client-picker::after{display:none}
+.wp-client-list{position:relative;height:132px;overflow:hidden;touch-action:pan-x;mask-image:linear-gradient(transparent,#0005 15%,#000 34%,#000 66%,#0005 85%,transparent);-webkit-mask-image:linear-gradient(transparent,#0005 15%,#000 34%,#000 66%,#0005 85%,transparent)}
+.wp-client-wheel{animation:wp-wheel-enter .4s ease-out}
+.wp-client-list button,.wp-client-empty{display:block;width:100%;height:44px;padding:10px 16px;text-align:left;font-size:14px;line-height:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ffffffb3;border:1px solid transparent;border-radius:12px;text-shadow:0 1px 8px #0009}
+.wp-client-list button.is-current{color:#fff;font-weight:600;border-color:#ffffff30;background:linear-gradient(120deg,#302b395c,#17121d38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 #ffffff12}
+.wp-client-list button:hover{color:#fff}
 .wp-client-list button:focus-visible{outline:1px solid #ffffffa0;outline-offset:-2px}
+.wp-top .wp-browse{min-height:44px}
 .work-presentation--idle .wp-client-picker,.work-presentation--idle .wp-top{opacity:1;pointer-events:auto}
-@media(max-width:700px){.work-presentation .wp-client-picker{--list-height:132px;top:86px;left:22px;right:auto;width:min(230px,calc(100% - 44px));transform:none}}
+@keyframes wp-wheel-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.work-presentation .wp-client-picker{width:min(230px,calc(100% - 108px))}.wp-client-list button{padding-inline:12px;font-size:13px}}
+@media(prefers-reduced-motion:reduce){.wp-client-wheel{animation:none}}
 /* Each loaded client gets one reveal, then quiet artwork until the next client. */
 .wp-hotspots--single .wp-hotspot-outline{animation:wp-client-reveal 3.8s ease-in-out .75s 1 both}
 @keyframes wp-client-reveal{0%,100%{opacity:0}28%,60%{opacity:1}}
