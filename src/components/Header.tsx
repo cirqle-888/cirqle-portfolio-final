@@ -80,6 +80,7 @@ export const Header = memo(function Header() {
     window.scrollTo({top: 0, behavior: 'instant'});
     let touchY = 0, previousY = window.scrollY;
     const reveal = () => setPresentationNavigation(location.key);
+    reveal();
     const gesture = (up: boolean) => setPresentationNavigation(up ? location.key : null);
     const nested = (target: EventTarget | null) => target instanceof Element && !!target.closest('.wp-clients,.wp-picker-menu,[role="dialog"],input,textarea,select,video');
     const wheel = (event: WheelEvent) => {
@@ -112,6 +113,31 @@ export const Header = memo(function Header() {
       window.removeEventListener('cirqle:show-navigation', reveal);
     };
   }, [presentation, location.key]);
+
+  // Let the presentation take focus after a pause, without hiding navigation
+  // while someone is using it or while the mobile menu is open.
+  useEffect(() => {
+    if (!presentation || presentationNavigation !== location.key || isMobileMenuOpen) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const hero = document.querySelector('.work-presentation')?.getBoundingClientRect();
+        const header = document.querySelector('.site-header');
+        const usingHeader = header?.matches(':hover') || header?.contains(document.activeElement);
+        if (hero && hero.top < window.innerHeight / 2 && hero.bottom > window.innerHeight / 2 && !usingHeader) {
+          setPresentationNavigation(null);
+        } else schedule();
+      }, 3500);
+    };
+    const events = ['pointermove', 'pointerdown', 'keydown', 'focusin', 'focusout', 'scroll', 'cirqle:show-navigation'] as const;
+    events.forEach(event => window.addEventListener(event, schedule, { passive: true }));
+    schedule();
+    return () => {
+      clearTimeout(timer);
+      events.forEach(event => window.removeEventListener(event, schedule));
+    };
+  }, [presentation, presentationNavigation, location.key, isMobileMenuOpen]);
 
   useDialogFocus(isMobileMenuOpen, '[aria-label="Navigation menu"]');
 
