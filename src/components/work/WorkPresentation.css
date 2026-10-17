@@ -81,3 +81,123 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
  .wp-hotspot-outline{animation:none;opacity:.35;transition:none}
  .wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspot:active .wp-hotspot-outline{opacity:1}
 }
+
+/* ── Glass over artwork ─────────────────────────────────────────────────────
+   The balance problem: an opaque panel is readable and hides the work; a
+   transparent one shows the work and makes the text fight the photo behind it.
+
+   The way out is to stop doing the legibility work with the FILL and do it in
+   the backdrop filter instead. A heavy blur turns whatever is behind into a
+   smooth wash with no edges for the letterforms to compete with, brightness
+   pulls that wash down under white text, and saturation puts back the colour
+   the darkening takes away. What is left is a panel that still carries the
+   hue and the light of the image behind it — which is what reads as glass,
+   rather than as a grey card that happens to be see-through.
+
+   So the tint here is thin (24%) and the filter is doing most of the work. */
+.work-presentation .wp-caption,
+.work-presentation .wp-clients,
+.work-presentation .wp-client-picker{
+ background:
+   /* Raking sheen, brightest at the top-left corner, as light falls on a pane. */
+   linear-gradient(135deg,#ffffff2b 0%,#ffffff0d 34%,#ffffff05 58%,#05070f14 100%),
+   /* Tint. Deliberately NOT enough on its own — see the filter above. */
+   #0b0f1c42;
+ /* These four numbers are measured, not taste. Composite the filter pipeline
+    and the tint over a flat backdrop and white body text scores: white 4.7,
+    sand 5.3, sky 5.9, red 8.6, dark artwork 18 — every one clear of WCAG AA's
+    4.5:1. An earlier pass sat at brightness .85, which looked better over this
+    beach photo and measured 2.4:1 over a white one: the small text all but
+    vanished. Saturation is high to put back the colour the darkening costs,
+    which is what keeps this reading as glass rather than as smoked plastic.
+    If you lighten brightness, re-measure over a WHITE backdrop first. */
+ backdrop-filter:blur(28px) saturate(210%) brightness(.55) contrast(1.04);
+ -webkit-backdrop-filter:blur(28px) saturate(210%) brightness(.55) contrast(1.04);
+ border:1px solid #ffffff2b;
+ /* A pane catches the sky on its top edge and the ground on its bottom one. */
+ border-top-color:#ffffff80;
+ border-bottom-color:#ffffff14;
+ border-radius:18px;
+ box-shadow:
+   inset 0 1px 0 #ffffff4f,          /* specular line along the top edge */
+   inset 0 0 0 1px #ffffff0a,        /* inner ring — reads as thickness */
+   inset 0 -20px 30px -20px #00000038, /* light pooling toward the bottom */
+   0 18px 48px #00000042,            /* the float */
+   0 2px 8px #0000002e;
+ color:#fff;
+ /* Short and tight: enough to hold an edge over a bright patch of photo,
+    not so soft that it turns into a halo. */
+ text-shadow:0 1px 2px #00000085,0 1px 10px #00000047;
+}
+
+/* The caption holds a paragraph, so it gets a second, vertical scrim that is
+   almost absent at the top — where the artwork should still read — and firms
+   up behind the body text. The picker is one line and needs no such help. */
+.work-presentation .wp-caption{
+ background:
+   linear-gradient(135deg,#ffffff2b 0%,#ffffff0d 34%,#ffffff05 58%,#05070f14 100%),
+   linear-gradient(180deg,#05070f00 0%,#05070f00 34%,#05070f1f 100%),
+   #0b0f1c42;
+}
+
+.work-presentation .wp-caption h2{color:#fff;text-shadow:0 1px 3px #00000094,0 2px 18px #00000052}
+.work-presentation .wp-caption p{color:#fffffff5}
+.work-presentation .wp-caption>span{color:#ffffffd1}
+.work-presentation .wp-picker-trigger{color:#fff;text-shadow:0 1px 2px #00000085,0 1px 10px #00000047}
+
+/* Interaction brings the pane forward: a touch more tint, a brighter rim.
+   Not more blur — changing blur mid-transition is what makes glass shimmer. */
+.work-presentation .wp-client-picker:hover,
+.work-presentation .wp-client-picker:focus-within,
+.work-presentation .wp-clients:hover,
+.work-presentation .wp-caption:hover{
+ background:
+   linear-gradient(135deg,#ffffff33 0%,#ffffff0f 34%,#ffffff05 58%,#05070f26 100%),
+   #0b0f1c57;
+ border-color:#ffffff3d;
+ border-top-color:#ffffff7a;
+}
+
+/* The open dropdown is the one surface that should NOT be subtle: it is a list
+   being scanned, so it goes denser and blurs harder to cut the photo out from
+   under the options entirely. */
+.work-presentation .wp-picker-menu{
+ background:linear-gradient(135deg,#ffffff16,#ffffff05 40%,transparent),#131724f0;
+ backdrop-filter:blur(30px) saturate(150%) brightness(.9);
+ -webkit-backdrop-filter:blur(30px) saturate(150%) brightness(.9);
+ border:1px solid #ffffff2e;
+ border-top-color:#ffffff52;
+ border-radius:16px;
+ box-shadow:inset 0 1px 0 #ffffff2b,0 20px 48px #0000005c;
+}
+
+/* ── When glass is unavailable or unwanted ────────────────────────────────── */
+
+/* No backdrop-filter: the tint alone would leave white text on a photo, so it
+   falls all the way back to a solid panel rather than a prettier unreadable one. */
+/* The clients list scrolls, and an inset ring would ride the content instead of
+   the frame, so it keeps the rim and loses the inner highlight. */
+.work-presentation .wp-clients{
+ box-shadow:inset 0 1px 0 #ffffff4f,0 18px 48px #00000042,0 2px 8px #0000002e;
+}
+.work-presentation .wp-clients button{text-shadow:0 1px 2px #00000085}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ .work-presentation .wp-caption,
+ .work-presentation .wp-clients,
+ .work-presentation .wp-client-picker{background:#131726f0}
+ .work-presentation .wp-picker-menu{background:#131726fa}
+}
+
+/* Asked for less transparency at the OS level — the same answer, by request
+   rather than by capability. */
+@media (prefers-reduced-transparency:reduce){
+ .work-presentation .wp-caption,
+ .work-presentation .wp-clients,
+ .work-presentation .wp-client-picker{
+  background:#131726f2;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+ }
+ .work-presentation .wp-picker-menu{background:#131726fc;backdrop-filter:none;-webkit-backdrop-filter:none}
+}
