@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { coverBox, hotspotGlowStrength, hotspotGlow, hasGradient, type PresentationHotspot } from '../../lib/hotspots';
 
 /** SVG paths share the image's cover transform, including off-centre crops. */
-export function PresentationHotspots({ items, source, focalX, focalY }: {items: PresentationHotspot[];source: string;focalX:number;focalY:number}) {
+export function PresentationHotspots({ items, source, focalX, focalY, singleReveal=false }: {singleReveal?:boolean;items: PresentationHotspot[];source: string;focalX:number;focalY:number}) {
  const instanceId=useId().replace(/:/g,'');
  const frame=useRef<HTMLDivElement>(null);
  const [geometry,setGeometry]=useState<{frameWidth:number;frameHeight:number;source:string;width:number;height:number;left:number;top:number}|null>(null);
@@ -15,7 +15,7 @@ export function PresentationHotspots({ items, source, focalX, focalY }: {items: 
   const observer=new ResizeObserver(update);observer.observe(node);update();
   return()=>{live=false;observer.disconnect();image.onload=null;};
  },[source,focalX,focalY]);
- return <div ref={frame} className="wp-hotspots" aria-label="Explore featured artwork">{geometry?.source===source&&items.map((item,index)=>{
+ return <div ref={frame} className={`wp-hotspots${singleReveal?" wp-hotspots--single":""}`} aria-label="Explore featured artwork">{geometry?.source===source&&items.map((item,index)=>{
   const x=item.points.reduce((s,p)=>s+p[0],0)/item.points.length;
   const y=item.points.reduce((s,p)=>s+p[1],0)/item.points.length;
   const px=geometry.left+x*geometry.width/100,py=geometry.top+y*geometry.height/100;
@@ -27,7 +27,7 @@ export function PresentationHotspots({ items, source, focalX, focalY }: {items: 
   // that matched /^#[0-9a-f]{6}$/ — so no author-supplied string reaches this
   // style declaration unchecked.
   const glow=hotspotGlow(item);
-  const strength=hotspotGlowStrength(item.glowStrength);
+  const strength=hotspotGlowStrength(item.glowStrength)*(singleReveal?1.35:1);
   const gradient=hasGradient(item);
   // One gradient per area, so two areas with different colours cannot collide.
   const gradientId=`wp-glow-${instanceId}-${item.id}`;

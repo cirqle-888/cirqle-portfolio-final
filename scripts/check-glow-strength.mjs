@@ -12,14 +12,14 @@ try {
   await page.goto(base+'/portfolio');const outline=page.locator('.wp-hotspot-outline');await outline.waitFor({state:'attached'});
   assert.equal(await outline.evaluate(e=>getComputedStyle(e).opacity),'0.35');
   const stroke=await outline.locator('polygon').evaluate(e=>({width:parseFloat(getComputedStyle(e).strokeWidth),fill:getComputedStyle(e).fill,filter:getComputedStyle(e).filter}));
-  assert.ok(Math.abs(stroke.width-1.6)<.01);assert.equal(stroke.fill,'none');assert.ok(stroke.filter.includes(touch?'21px':'3.5px'));
+  assert.ok(Math.abs(stroke.width-1.6)<.01);assert.equal(stroke.fill,'none');assert.ok(stroke.filter.includes(touch?'28.35px':'4.725px'));
   if(!touch){await page.locator('.wp-hotspot').focus();assert.equal(await outline.evaluate(e=>getComputedStyle(e).opacity),'1')}
   await page.locator('.wp-browse').focus();
   await page.mouse.move(0,0);
   await page.emulateMedia({reducedMotion:'no-preference'});
-  await outline.evaluate(e=>{const a=e.getAnimations()[0];a.pause();a.currentTime=1500+7500*.2});
+  await outline.evaluate(e=>{const a=e.getAnimations()[0];a.pause();a.currentTime=5000});
   assert.equal(await outline.evaluate(e=>getComputedStyle(e).opacity),'0');
-  await outline.evaluate(e=>{e.getAnimations()[0].currentTime=1500+7500*.72});
+  await outline.evaluate(e=>{e.getAnimations()[0].currentTime=2200});
   assert.ok(Number(await outline.evaluate(e=>getComputedStyle(e).opacity))>.8);
   if(!touch){
    await page.locator('.wp-hotspot-hit').hover();

@@ -295,3 +295,21 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 @media(prefers-reduced-motion:reduce){
  .wp-clients button::before{transition:none}
 }
+
+/* A fixed centre line: names travel through a softly faded vertical window. */
+.work-presentation .wp-client-picker{display:block;position:absolute;left:3%;right:auto;top:28%;width:260px;padding:0}
+.work-presentation .wp-picker-trigger{padding:0 18px;gap:12px}
+.wp-client-reel{display:block;height:120px;overflow:hidden;flex:1;min-width:0;mask-image:linear-gradient(transparent,#0003 15%,#000 40%,#000 60%,#0003 85%,transparent);-webkit-mask-image:linear-gradient(transparent,#0003 15%,#000 40%,#000 60%,#0003 85%,transparent)}
+.wp-client-reel-track{display:block;transform:translateY(-40px);animation:wp-name-roll .65s cubic-bezier(.22,.61,.36,1) both}
+.wp-client-reel-track>span{height:40px;display:flex;align-items:center;font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.55}
+.wp-client-reel-track>span.is-current{opacity:1;font-weight:600;color:white}
+@keyframes wp-name-roll{from{transform:translateY(0)}to{transform:translateY(-40px)}}
+.wp-autoplay{color:#fff;font-size:11px;min-height:44px;padding:10px 14px;border:1px solid #ffffff30;border-radius:8px;background:#100d184d;backdrop-filter:blur(8px)}
+.work-presentation--idle .wp-client-picker,.work-presentation--idle .wp-top{opacity:1;pointer-events:auto}
+@media(max-width:700px){.work-presentation .wp-client-picker{top:86px;left:22px;right:22px;width:auto}.wp-client-reel-track>span{font-size:14px}}
+/* Each loaded client gets one reveal, then quiet artwork until the next client. */
+.wp-hotspots--single .wp-hotspot-outline{animation:wp-client-reveal 3.8s ease-in-out .75s 1 both}
+@keyframes wp-client-reveal{0%,100%{opacity:0}28%,60%{opacity:1}}
+@media(hover:hover) and (pointer:fine){.wp-hotspots--single .wp-hotspot:hover .wp-hotspot-outline{animation:none;opacity:1}}
+.wp-hotspots--single .wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspots--single .wp-hotspot:active .wp-hotspot-outline{animation:none;opacity:1}
+@media(prefers-reduced-motion:reduce){.wp-client-reel-track{animation:none}.wp-hotspots--single .wp-hotspot-outline{animation:none;opacity:.35}}
