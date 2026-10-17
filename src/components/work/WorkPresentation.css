@@ -210,3 +210,88 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
  }
  .work-presentation .wp-picker-menu{background:#131726fc;backdrop-filter:none;-webkit-backdrop-filter:none}
 }
+
+/* ── A caption that holds still ──────────────────────────────────────────── */
+/*
+   It used to jump on every client switch, for two reasons that compounded.
+
+   It was anchored right/bottom with `max-width`, so its size followed its
+   contents — a longer client name or a shorter description resized the box,
+   and because the anchor is the bottom-RIGHT corner it grew leftward and
+   upward. Then `key={current.slug}` remounted it, re-running an entry
+   animation that slid the text up 6px.
+
+   A fixed width and a floor under the height make the frame constant, so only
+   the words inside it change.
+*/
+.wp-caption{
+ width:min(410px,46%);
+ max-width:none;
+ min-height:166px;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+}
+@media(max-width:700px){
+ .wp-caption{width:auto;min-height:124px}
+}
+
+/* With the frame pinned, the 6px slide is the only thing still moving — and
+   movement is exactly what read as a jump. It becomes a cross-fade. */
+@keyframes wp-settle{from{opacity:0}to{opacity:1}}
+
+/* ── Idle: get out of the way of the work ────────────────────────────────── */
+/*
+   A portfolio's job is the artwork, and the panels sit on top of it. After a
+   few seconds without input they recede to near-nothing so the piece can be
+   seen whole; any movement of the pointer brings them straight back.
+
+   Asymmetric timing on purpose: slow to fade (you should not notice it
+   leaving) and quick to return (you should never wait for it).
+*/
+.wp-clients,.wp-caption,.wp-client-picker,.wp-top{
+ transition:opacity .22s ease-out;
+}
+.work-presentation--idle .wp-clients,
+.work-presentation--idle .wp-caption,
+.work-presentation--idle .wp-client-picker,
+.work-presentation--idle .wp-top{
+ opacity:.12;
+ transition:opacity 1.4s ease-in;
+}
+/* Never hide something someone is using: a keyboard user tabbing through the
+   client list has no pointer to move, and the hotspots stay reachable. */
+.work-presentation--idle:has(:focus-visible) .wp-clients,
+.work-presentation--idle:has(:focus-visible) .wp-caption,
+.work-presentation--idle:has(:focus-visible) .wp-client-picker,
+.work-presentation--idle:has(:focus-visible) .wp-top{
+ opacity:1;
+}
+@media(prefers-reduced-motion:reduce){
+ .work-presentation--idle .wp-clients,
+ .work-presentation--idle .wp-caption,
+ .work-presentation--idle .wp-client-picker,
+ .work-presentation--idle .wp-top{transition:none}
+}
+
+/* ── The auto-advancing client list ──────────────────────────────────────── */
+/* The selected row carries a left rule. Animating it with a transform rather
+   than a border means the move is a single composited slide instead of a
+   repaint on two rows at once. */
+.wp-clients button{position:relative;transition:color .25s ease,background .25s ease}
+.wp-clients button::before{
+ content:"";
+ position:absolute;
+ left:0;top:10%;bottom:10%;
+ width:2px;
+ border-radius:2px;
+ background:#cfb4ff;
+ transform:scaleY(0);
+ transform-origin:50% 50%;
+ transition:transform .38s cubic-bezier(.22,.61,.36,1);
+}
+.wp-clients button[aria-pressed=true]::before{transform:scaleY(1)}
+.wp-clients button[aria-pressed=true]{border-left-color:transparent}
+@media(prefers-reduced-motion:reduce){
+ .wp-clients button::before{transition:none}
+}
