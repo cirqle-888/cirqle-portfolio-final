@@ -128,7 +128,7 @@ export const Header = memo(function Header() {
         if (hero && hero.top < window.innerHeight / 2 && hero.bottom > window.innerHeight / 2 && !usingHeader) {
           setPresentationNavigation(null);
         } else schedule();
-      }, 3500);
+      }, 2000);
     };
     const events = ['pointermove', 'pointerdown', 'keydown', 'focusin', 'focusout', 'scroll', 'cirqle:show-navigation'] as const;
     events.forEach(event => window.addEventListener(event, schedule, { passive: true }));
