@@ -2,6 +2,7 @@ import { PresentationHotspots } from './PresentationHotspots';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
+import { ProjectCaption } from './ProjectCaption';
 import { ClientPicker } from './ClientPicker';
 import { useShowcase } from '../../lib/showcase';
 import './WorkPresentation.css';
@@ -106,7 +107,7 @@ export function WorkPresentation() {
   {loading&&<p className="wp-sr-only" role="status">Loading selected work…</p>}
   {error&&<div className="wp-state" role="alert"><p>Selected work is temporarily unavailable.</p><button onClick={retry}>Try again</button></div>}
   {!loading&&!error&&!current&&<p className="wp-state">Explore our latest work in the <Link to="/portfolio?view=gallery">gallery</Link>.</p>}
-  {current&&<><div className="wp-bottom"><ClientPicker entries={entries} value={current.slug} onChange={manualSelect}/><div className="wp-caption" key={current.slug} aria-live={paused?"polite":"off"}><span>{current.category}</span><h2>{current.client_name}</h2>{current.description&&<p>{current.description}</p>}{current.project_path&&<Link to={current.project_path}>View project <ArrowUpRight size={15}/></Link>}</div></div>{failed===current.slug&&<p className="wp-media-error" role="status">Visual unavailable. Explore the project or select another client.</p>}</>}
+  {current&&<><div className="wp-bottom"><ClientPicker entries={entries} value={current.slug} onChange={manualSelect}/><ProjectCaption entry={current} announce={paused}/></div>{failed===current.slug&&<p className="wp-media-error" role="status">Visual unavailable. Explore the project or select another client.</p>}</>}
  </section></div><section className="wp-contact" aria-label="Start a project"><span className="wp-contact-eyebrow">YOUR NEXT CHAPTER</span><h2>Let’s make<br/><em>your next impression.</em></h2><p>What do you have in mind?</p><div className="wp-interest" aria-label="Project interest">{[['brand-identity','A brand'],['supermarket-campaign','A campaign'],['ui-ux-design','A digital experience']].map(([value,label])=><button key={value} aria-pressed={interest===value} onClick={()=>setInterest(value)}>{label}</button>)}</div><Link className="wp-contact-cta" to={`/contact?service=${interest}`}>Let’s talk <ArrowUpRight/></Link><div className="wp-contact-bottom"><a href="mailto:team@cirqle.work">team@cirqle.work</a><button onClick={()=>section.current?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}>Back to work ↑</button><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></div></section></>;
 
 }
