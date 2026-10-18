@@ -11,6 +11,8 @@ await page.route('https://example.test/*.webp',r=>r.fulfill({contentType:'image/
 await page.goto(base+'/portfolio',{waitUntil:'domcontentloaded'});await page.locator('.wp-media--ready:not(.wp-media--held)').waitFor();
 const centre=page.locator('.wp-client-list .is-current');assert.equal(await centre.textContent(),'One');await page.waitForTimeout(750);const y=(await centre.boundingBox()).y-(await page.locator('.wp-bottom').boundingBox()).y;
 await page.waitForFunction(()=>document.querySelector('.wp-client-list .is-current')?.textContent==='Two',null,{timeout:10000});
+const roll=await page.locator('.wp-client-wheel').evaluate(e=>{const animation=e.getAnimations()[0];return animation?{duration:animation.effect.getTiming().duration,frames:animation.effect.getKeyframes().map(frame=>frame.transform)}:null});
+assert.equal(roll?.duration,680);assert.deepEqual(roll.frames,['translateY(0px)','translateY(-44px)']);
 await page.waitForTimeout(750);assert.ok(Math.abs((await centre.boundingBox()).y-(await page.locator('.wp-bottom').boundingBox()).y-y)<3,'Centre name stays in one position');
 assert.equal(await page.locator('.wp-hotspot-outline').evaluate(e=>getComputedStyle(e).animationIterationCount),'1');
 assert.equal(await page.locator('.wp-autoplay').count(),0);
@@ -23,11 +25,12 @@ await page.setViewportSize({width:1280,height:900});assert.equal(await page.getB
 const selectedBox=await centre.boundingBox();const caption=await page.locator('.wp-caption').boundingBox();
 assert.ok(Math.abs(selectedBox.y+selectedBox.height/2-caption.y-caption.height/2)<3,'Selected client aligns with caption centre');
 assert.ok(selectedBox.x+selectedBox.width<caption.x,'Selector does not overlap caption');
-await page.locator('.wp-client-list').scrollIntoViewIfNeeded();await page.locator('.wp-client-list').hover();await page.locator('.wp-client-list').dispatchEvent('wheel',{deltaY:100});await page.waitForTimeout(500);assert.equal(await centre.textContent(),'Three');
-await page.locator('.wp-client-list').dispatchEvent('wheel',{deltaY:100});await page.waitForTimeout(500);assert.equal(await centre.textContent(),'One','Wheel wraps to first client');
+await page.locator('.wp-client-list').scrollIntoViewIfNeeded();await page.locator('.wp-client-list').hover();await page.locator('.wp-client-list').dispatchEvent('wheel',{deltaY:100});await page.waitForTimeout(750);assert.equal(await centre.textContent(),'Three');
+await page.locator('.wp-client-list').dispatchEvent('wheel',{deltaY:100});await page.waitForTimeout(750);assert.equal(await centre.textContent(),'One','Wheel wraps to first client');
 await page.setViewportSize({width:390,height:798});
 await page.locator('.wp-client-list').evaluate(el=>{for(const [type,property,y] of [['touchstart','touches',180],['touchend','changedTouches',110]]){const event=new Event(type,{bubbles:true});Object.defineProperty(event,property,{value:[{clientY:y}]});el.dispatchEvent(event)}});
 assert.equal(await centre.textContent(),'Two','Swipe selects the next client');
+await page.waitForTimeout(750);
 const mobileSelected=await centre.boundingBox();const mobileCaption=await page.locator('.wp-caption').boundingBox();
 assert.ok(Math.abs(mobileSelected.y+mobileSelected.height/2-mobileCaption.y-mobileCaption.height/2)<3,'Mobile selected client aligns with caption centre');
 assert.ok(mobileSelected.x+mobileSelected.width<mobileCaption.x,'Mobile selector does not overlap caption');
