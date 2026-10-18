@@ -316,3 +316,15 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 @media(hover:hover) and (pointer:fine){.wp-hotspots--single .wp-hotspot:hover .wp-hotspot-outline{animation:none;opacity:1}}
 .wp-hotspots--single .wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspots--single .wp-hotspot:active .wp-hotspot-outline{animation:none;opacity:1}
 @media(prefers-reduced-motion:reduce){.wp-client-list button{transition:none}.wp-hotspots--single .wp-hotspot-outline{animation:none;opacity:.35}}
+
+/* Keep client navigation alongside the project details at the foot of the artwork. */
+.wp-bottom{position:absolute;left:4%;right:4%;bottom:8%;z-index:8;display:grid;grid-template-columns:minmax(0,240px) minmax(0,410px);justify-content:space-between;align-items:center;gap:28px;pointer-events:none}
+.work-presentation .wp-bottom .wp-client-picker{position:relative;inset:auto;width:100%;transform:none;pointer-events:auto}
+.work-presentation .wp-bottom .wp-caption{position:relative;inset:auto;width:100%;max-width:none;pointer-events:auto}
+@media(max-width:700px){
+ .wp-bottom{left:22px;right:22px;bottom:40px;grid-template-columns:minmax(0, .43fr) minmax(0, .57fr);gap:12px}
+ .work-presentation .wp-bottom .wp-caption{padding:16px 14px}
+ .wp-bottom .wp-caption h2{font-size:clamp(20px,4.5vw,28px);overflow-wrap:anywhere}
+ .wp-bottom .wp-caption p{font-size:11px;line-height:1.5}
+ .wp-bottom .wp-client-list button{padding-inline:9px;font-size:12px}
+}
