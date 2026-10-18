@@ -331,3 +331,19 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
  .wp-bottom .wp-caption p{font-size:11px;line-height:1.5}
  .wp-bottom .wp-client-list button{padding-inline:9px;font-size:12px}
 }
+
+/* Quiet the glass, never the project text. */
+.work-presentation .wp-bottom .wp-caption{
+ opacity:1;
+ transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease,background .5s ease;
+}
+.work-presentation--idle .wp-bottom .wp-caption{
+ backdrop-filter:blur(0px) saturate(100%) brightness(1);
+ -webkit-backdrop-filter:blur(0px) saturate(100%) brightness(1);
+ background:linear-gradient(135deg,#100d1838,#100d1866);
+}
+.work-presentation--idle .wp-bottom .wp-caption:focus-within{
+ backdrop-filter:blur(8px) saturate(190%) brightness(.9);
+ -webkit-backdrop-filter:blur(8px) saturate(190%) brightness(.9);
+}
+@media(prefers-reduced-motion:reduce){.work-presentation .wp-bottom .wp-caption{transition:none}}
