@@ -10,7 +10,12 @@ h1,h2,h3,p,ul,figure{margin:0}
 button{font:inherit}
 img{display:block;max-width:100%}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.wrap{max-width:1240px;margin:0 auto;padding-left:20px;padding-right:20px}
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding-left:20px;padding-right:20px}
+/* Wide screens get a wider page rather than wider empty margins. */
+@media (min-width:1440px){.wrap{max-width:1380px}}
+@media (min-width:1680px){.wrap{max-width:1560px;padding-left:40px;padding-right:40px}}
+@media (min-width:1920px){.wrap{max-width:1760px}}
+@media (min-width:2400px){.wrap{max-width:2040px}}
 .outfit{font-family:'Outfit',sans-serif;letter-spacing:-0.03em}
 .h-xl{font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:-0.045em;line-height:.96;font-size:clamp(2.8rem,7.4vw,6.4rem);color:#16132A}
 .h-l{font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:-0.04em;line-height:1;font-size:clamp(2.2rem,4.6vw,3.8rem);color:#16132A}
@@ -157,7 +162,7 @@ transition:box-shadow .3s ease,transform .3s ease}
 
 .hero{position:relative;padding:clamp(140px,14vw,190px) 0 clamp(56px,6vw,88px)}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:40px;align-items:center}
-.fan{position:relative;height:460px}
+.fan{position:relative;height:clamp(460px,34vw,620px)}
 .fan .vibe{position:absolute;width:78%;height:360px;top:40px;left:11%;transition:transform .5s ease}
 .fan .v1{transform:rotate(-7deg) translateX(-12%)}
 .fan .v2{transform:translateY(-4%);z-index:2;box-shadow:0 30px 70px rgba(22,19,42,.14)}
