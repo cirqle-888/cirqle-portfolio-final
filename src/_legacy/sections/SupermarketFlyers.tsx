@@ -1,0 +1,286 @@
+import { Suspense, lazy, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { getSupermarketFlyers, groupFlyers, type Flyer, type FlyerGroup } from "../services/flyerService";
+import "../styles/flyers.css";
+
+// The flip-book reader is heavy — it loads when a flyer is actually opened.
+const BrochureReader = lazy(() =>
+  import("../components/ui/BrochureReader").then((m) => ({ default: m.BrochureReader }))
+);
+
+interface SupermarketFlyersProps {
+  limit?: number;
+}
+
+/**
+ * The flyers, as printed sheets.
+ *
+ * The artwork is drawn by the browser's own image pipeline and nothing is
+ * placed over it: these are offer sheets, where a colour is a decision someone
+ * signed off, and a canvas or a gloss layer changes it. The three-dimensional
+ * part is entirely geometry and shadow around the picture — see
+ * styles/flyers.css.
+ */
+export function SupermarketFlyers({ limit }: SupermarketFlyersProps = {}) {
+  const [flyers, setFlyers] = useState<Flyer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    let cancelled = false;
+    getSupermarketFlyers()
+      .then((rows) => {
+        if (cancelled) return;
+        setFlyers(rows);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching supermarket flyers:", err);
+        if (!cancelled) { setLoading(false); setError(true); }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  // Show every published page, preserving the original reader index.
+  // The legacy limit prop now only controls the existing portfolio CTA.
+  const groups = useMemo(() => groupFlyers(flyers).flatMap(group =>
+    group.pages.map((page, offset) => ({ pages: [page], startIndex: group.startIndex + offset }))
+  ), [flyers]);
+
+  return (
+    <section id="supermarket-flyers" className="sf-section py-28 px-6 relative">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "100px" }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+        >
+          <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
+            <span className="text-sm text-gray-900 font-medium">RETAIL IN MOTION</span>
+          </div>
+
+          <h2 className="text-4xl md:text-5xl lg:text-6xl mb-6 tracking-tight">
+            Offers worth
+            <br />
+            <span className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent">
+              picking up.
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Real campaigns. Designed to move. Open a flyer to explore every page.
+          </p>
+        </motion.div>
+
+        {groups.length ? (
+          <FlyerField groups={groups} paused={activeIndex !== null} onOpen={setActiveIndex} />
+        ) : (
+          <div className="sf-empty" role="status" aria-busy={loading}>
+            {loading ? "Loading flyers…" : error ? "Could not load flyers." : "No flyers published yet."}
+            {error && <button type="button" onClick={() => { setLoading(true); setError(false); setAttempt(n => n + 1); }} className="work-share-btn">Retry</button>}
+          </div>
+        )}
+
+        {limit !== undefined && (
+          <div className="text-center mt-6">
+            <Button
+              size="lg"
+              onClick={() => navigate("/portfolio#supermarket-flyers")}
+              className="bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white hover:opacity-90 transition-opacity px-10 py-7 text-lg rounded-full shadow-lg shadow-[#A259FF]/25"
+            >
+              View Full Portfolio
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {activeIndex !== null && (
+        <Suspense fallback={null}>
+          <BrochureReader
+            images={flyers.map((f) => f.src)}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+          />
+        </Suspense>
+      )}
+    </section>
+  );
+}
+
+/** Stable variation, seeded by the real image URL rather than render timing. */
+function paperModel(src: string, index: number) {
+  let seed = 2166136261;
+  for (const char of src) seed = Math.imul(seed ^ char.charCodeAt(0), 16777619);
+  const random = () => {
+    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+    return (seed >>> 0) / 4294967296;
+  };
+  const corners = ["br", "tl", "bl", "tr"] as const;
+  return {
+    corner: corners[(index + Math.floor(random() * 4)) % 4], model: Math.floor(random() * 3),
+    curl: 48 + random() * 42, curlRatio: 0.75 + random() * 0.55,
+    control: 22 + random() * 34, tip: 5 + random() * 18,
+    rx: -7 + random() * 14, ry: -12 + random() * 24,
+    rz: (index % 2 ? 1 : -1) * (2 + random() * 4),
+    z: -30 + random() * 55, scale: 0.91 + random() * 0.07,
+    phase: random() * Math.PI * 2, duration: 4 + random() * 3,
+    drift: 10 + random() * 12,
+  };
+}
+
+function FlyerField({ groups, paused, onOpen }: {
+  groups: FlyerGroup[]; paused: boolean; onOpen: (index: number) => void;
+}) {
+  const stage = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const models = useMemo(() => groups.map((g, i) => paperModel(g.pages[0].src, i)), [groups]);
+  const frozen = useRef({ paused });
+  useEffect(() => { frozen.current = { paused }; }, [paused]);
+
+  useEffect(() => {
+    const field = stage.current;
+    if (!field || reduced) return;
+    const slots = Array.from(field.querySelectorAll<HTMLElement>(".sf-slot"));
+    const sheets = slots.map(slot => slot.querySelector<HTMLButtonElement>(".sf-item")!);
+    const states = models.map(() => ({ t: 0, hover: 0 }));
+    const visible = new Set<number>();
+    const lookup = new Map(slots.map((slot, index) => [slot, index]));
+    const phone = window.matchMedia("(max-width: 639px)");
+    let frame = 0, last = 0, px = 0, py = 0, mx = 0, my = 0;
+    let scrollOffset = 0, previousScroll = window.scrollY;
+    const pointer = (event: PointerEvent) => {
+      if (phone.matches || event.pointerType !== "mouse") return;
+      px = (event.clientX / window.innerWidth - 0.5) * 2;
+      py = (event.clientY / window.innerHeight - 0.5) * 2;
+    };
+    const leave = () => { px = 0; py = 0; };
+    const scroll = () => {
+      scrollOffset = Math.max(-10, Math.min(10, scrollOffset + (window.scrollY - previousScroll) * 0.035));
+      previousScroll = window.scrollY;
+    };
+    const tick = (now: number) => {
+      frame = 0;
+      if (!visible.size || document.hidden) { last = 0; return; }
+      const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+      last = now;
+      if (!frozen.current.paused) {
+        mx += (px - mx) * (1 - Math.exp(-dt * 3));
+        my += (py - my) * (1 - Math.exp(-dt * 3));
+        scrollOffset *= Math.exp(-dt * 1.6);
+        // All projects remain visible in normal flow; at most eight animate.
+        Array.from(visible).slice(0, 8).forEach(i => {
+          const s = states[i], p = models[i], sheet = sheets[i];
+          const hovering = sheet.matches(":hover, :focus-visible");
+          s.hover += ((hovering ? 1 : 0) - s.hover) * (1 - Math.exp(-dt * 5));
+          s.t = Math.min(4, s.t + dt * (1 - s.hover));
+          const power = phone.matches ? 0.3 : 1;
+          const settle = -Math.exp(-s.t / p.duration) * (phone.matches ? 18 : 80);
+          const wind = Math.sin(s.t * 0.23 + p.phase);
+          const x = (wind * p.drift + mx * 2) * power;
+          const y = settle + Math.sin(s.t * 0.17 + p.phase) * p.drift * power + scrollOffset * power - s.hover * 5;
+          const rx = (p.rx + Math.sin(s.t * 0.19 + p.phase) * 3 + my) * power * (1 - s.hover * 0.65);
+          const ry = (p.ry + wind * 3 - mx) * power * (1 - s.hover * 0.65);
+          const rz = p.rz * (phone.matches ? 0.6 : 1) + wind * power;
+          sheet.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,${(p.z * power + s.hover * 12).toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${p.scale})`;
+          sheet.style.setProperty("--bend", `${(Math.sin(s.t * 0.4 + p.phase) * 3 * power).toFixed(2)}deg`);
+        });
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    const start = () => {
+      if (visible.size && !document.hidden && !frame) { last = 0; frame = requestAnimationFrame(tick); }
+      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; last = 0; }
+    };
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        const i = lookup.get(entry.target as HTMLElement)!;
+        if (entry.isIntersecting) visible.add(i); else visible.delete(i);
+      }
+      if (visible.size) start();
+      else { cancelAnimationFrame(frame); frame = 0; last = 0; }
+    }, { threshold: 0.05 });
+    slots.forEach(slot => observer.observe(slot));
+    field.addEventListener("pointermove", pointer, { passive: true });
+    field.addEventListener("pointerleave", leave);
+    window.addEventListener("scroll", scroll, { passive: true });
+    document.addEventListener("visibilitychange", start);
+    return () => {
+      observer.disconnect(); cancelAnimationFrame(frame);
+      field.removeEventListener("pointermove", pointer); field.removeEventListener("pointerleave", leave);
+      window.removeEventListener("scroll", scroll); document.removeEventListener("visibilitychange", start);
+      sheets.forEach(sheet => { sheet.style.removeProperty("transform"); sheet.style.removeProperty("--bend"); });
+    };
+  }, [models, reduced]);
+
+  return (
+    <>
+      <div ref={stage} className="sf-field" aria-label="All supermarket flyers">
+        {groups.map((group, i) => (
+          <div className="sf-slot" key={group.startIndex}>
+            <FlyerSheet group={group} backs={[groups[(i + 1 + models[i].model % Math.max(1, groups.length - 1)) % groups.length].pages[0].src, groups[(i + 1 + (models[i].model + 1) % Math.max(1, groups.length - 1)) % groups.length].pages[0].src]} model={models[i]} onOpen={() => onOpen(group.startIndex)} />
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function FlyerSheet({ group, backs, model: p, onOpen }: {
+  group: FlyerGroup; backs: string[]; model: ReturnType<typeof paperModel>; onOpen: () => void;
+}) {
+  const page = group.pages[0];
+  const curlId = useId();
+  const [failed, setFailed] = useState(false);
+  // Three curved silhouettes, each continuously varied in width and curvature.
+  const path = p.model === 0
+    ? `M100 0 Q${p.control} 12 ${p.tip} ${p.tip} Q12 ${p.control} 0 100 Z`
+    : p.model === 1
+      ? `M100 0 C62 5 ${p.tip} 0 5 28 Q9 67 0 100 Z`
+      : `M100 0 Q68 34 ${p.tip} 5 C5 34 20 65 0 100 Z`;
+  return (
+    <button type="button" className="sf-item" data-model={p.model}
+      style={{
+        "--back-one": `url(${JSON.stringify(backs[0])})`, "--back-two": `url(${JSON.stringify(backs[1])})`,
+        "--rx": `${p.rx}deg`, "--ry": `${p.ry}deg`, "--rz": `${p.rz}deg`,
+        "--z": `${p.z}px`, "--scale": p.scale,
+        "--curl-width": `${p.curl}px`, "--curl-height": `${p.curl * p.curlRatio}px`,
+        "--shadow-opacity": 0.13 + (p.z + 30) / 550,
+      } as CSSProperties}
+      aria-label={`Open ${page.title || "supermarket flyer"}`} onClick={onOpen}>
+      <span className={`sf-paper sf-paper--${p.corner}`}>
+        <span aria-hidden="true" className="sf-shadow" />
+        {failed ? <span className="sf-image-error">{page.title || "Supermarket flyer"}<br />Open flyer</span> : (
+          <>
+            <img className="sf-face" src={page.src} srcSet={page.srcset || undefined}
+              sizes="(max-width: 639px) 80vw, (max-width: 1023px) 40vw, 28vw"
+              alt={page.title || "Supermarket campaign flyer"} width={page.width} height={page.height}
+              loading="lazy" decoding="async" onError={() => setFailed(true)} />
+            <span className="sf-corner" aria-hidden="true">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+                <defs>
+                  <linearGradient id={curlId} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fffefb" />
+                    <stop offset={0.28 + p.model * 0.08} stopColor="#f9f7f0" />
+                    <stop offset="0.64" stopColor="#dedacf" />
+                    <stop offset="0.83" stopColor="#b8b2a6" />
+                    <stop offset="1" stopColor="#eeeae2" />
+                  </linearGradient>
+                </defs>
+                <path d={path} fill={`url(#${curlId})`} stroke="#f7f4ec" strokeWidth="0.5" />
+              </svg>
+            </span>
+          </>
+        )}
+      </span>
+    </button>
+  );
+}

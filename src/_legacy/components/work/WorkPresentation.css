@@ -1,0 +1,371 @@
+.portfolio-page--presentation{padding-top:var(--portfolio-header,88px)}.work-presentation{position:relative;isolation:isolate;height:calc(100svh - var(--portfolio-header,88px));min-height:580px;background:#100d18;color:#fff;overflow:hidden}.wp-media,.wp-media picture,.wp-media img,.wp-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wp-media{z-index:-3}.wp-media picture{object-position:inherit}.wp-media img{object-position:inherit}.wp-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#100d187a,transparent 55%),linear-gradient(0deg,#100d18cf,transparent 45%),linear-gradient(180deg,#100d185c,transparent 25%)}.wp-top{position:absolute;top:28px;left:4%;right:4%;display:flex;align-items:center;justify-content:space-between;gap:20px;pointer-events:none}.wp-top h1{font-size:12px;font-weight:500;letter-spacing:.07em;text-shadow:0 2px 15px #0009}.wp-top h1 span{opacity:.65}.wp-browse{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:8px;background:#100d183b;backdrop-filter:blur(14px);box-shadow:0 2px 18px #0001;font-size:12px;color:white}.wp-clients{position:absolute;left:4%;top:110px;bottom:70px;max-width:235px;display:flex;flex-direction:column;align-items:start;justify-content:center;gap:5px;overflow:auto;padding:5px;scrollbar-width:thin}.wp-clients button{flex-shrink:0;border:0;border-radius:7px;padding:11px 14px;min-height:44px;background:transparent;color:#ffffffe0;font-size:clamp(13px,1.4vw,17px);text-align:left;text-shadow:0 2px 15px #000a;transition:background .15s,color .15s}.wp-clients button[aria-pressed=true],.wp-clients button:hover{color:#fff;background:#100d1860;backdrop-filter:blur(12px);box-shadow:0 5px 22px #0002}.wp-caption{position:absolute;right:7%;bottom:86px;max-width:min(440px,48%);text-align:left;text-shadow:0 2px 18px #0006}.wp-caption>span{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#eee5ff}.wp-caption h2{font-size:clamp(25px,3.5vw,44px);font-weight:500;line-height:1.15;letter-spacing:-.04em;margin:10px 0}.wp-caption p{font-size:13px;line-height:1.7;max-width:350px;color:#eee8f4}.wp-caption>a{display:inline-flex;gap:10px;align-items:center;font-size:11px;margin-top:18px;padding-block:9px;border-bottom:1px solid #ffffff70}.wp-state,.wp-media-error{position:absolute;left:4%;top:45%;font-size:14px;max-width:500px}.wp-state button,.wp-state a{text-decoration:underline;padding:10px}.wp-media-error{top:auto;bottom:24px;max-width:70%;font-size:12px}.work-presentation :focus-visible{outline:2px solid #d7baff;outline-offset:4px}.portfolio-gallery-switch{display:flex;justify-content:center;padding:30px 20px 0}.portfolio-gallery-switch a{border:1px solid #a259ff40;border-radius:25px;padding:12px 20px;font-size:13px}@media(max-width:700px){.work-presentation{min-height:650px}.wp-top{top:22px;left:22px;right:22px}.wp-top h1{font-size:10px}.wp-clients{top:90px;left:16px;right:16px;bottom:auto;max-width:none;flex-direction:row;justify-content:start;overflow-x:auto;padding:6px;gap:2px}.wp-clients button{white-space:nowrap;font-size:12px;padding:10px 12px}.wp-caption{left:24px;right:24px;bottom:100px;max-width:90%}.wp-caption h2{font-size:30px}.wp-caption p{max-width:300px}.wp-shade{background:linear-gradient(0deg,#100d18e8,transparent 65%),linear-gradient(180deg,#100d1890,transparent 40%)}.wp-media-error{left:24px;bottom:35px}}@media(prefers-reduced-motion:reduce){.wp-clients button{transition:none}}
+/* A natural sticky pause gives the work space without trapping wheel or touch. */
+.wp-dwell{height:155svh;min-height:850px;position:relative}.work-presentation{position:sticky;top:0;height:100svh;min-height:580px}.wp-top-actions{display:flex;gap:14px;align-items:center;pointer-events:auto}.wp-return{font-size:11px;color:white;padding:11px 8px;text-shadow:0 2px 10px #000}.wp-client-picker{display:none}.wp-clients{left:3%;padding:22px 18px;justify-content:flex-start;top:24%;bottom:15%;max-width:265px;border-radius:14px;background:linear-gradient(100deg,#100d18b8,#100d1870);backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);box-shadow:0 12px 50px #0002;border-left:1px solid #ffffff36}.wp-list-label{font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:#eee4ff;padding:3px 14px 12px;flex-shrink:0}.wp-clients button{width:100%;font-size:14px;text-shadow:none}.wp-clients button[aria-pressed=true]{background:linear-gradient(90deg,#ffffff26,#ffffff09);box-shadow:none;border-left:2px solid #cfb4ff}.wp-caption{padding:25px 28px;background:linear-gradient(120deg,#100d18c4,#100d1870);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border-radius:14px;border-top:1px solid #ffffff35;right:4%;bottom:8%;max-width:min(410px,46%);box-shadow:0 10px 45px #0002;text-shadow:none}.wp-caption h2{font-size:clamp(26px,3.1vw,40px)}.wp-caption p{color:#f0ebf6}.wp-contact{background:radial-gradient(ellipse at 90% 10%,#4cc3ff24,transparent 55%),radial-gradient(ellipse at 10% 90%,#a259ff35,transparent 50%),#100d18;color:#fff;padding:100px 7% 30px;min-height:75svh}.wp-contact-eyebrow{font-size:10px;letter-spacing:.18em;color:#c9b6e7}.wp-contact h2{font-size:clamp(42px,6vw,86px);line-height:1.08;letter-spacing:-.05em;margin:26px 0}.wp-contact em{font-family:Fraunces,serif;color:#c4b2ff;font-weight:400}.wp-contact>p{color:#c9c0d6;font-size:15px;margin-top:32px}.wp-interest{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 30px}.wp-interest button{border:1px solid #ffffff35;border-radius:30px;padding:13px 20px;font-size:13px;min-height:44px}.wp-interest button[aria-pressed=true]{background:#dbc7ff;color:#21152f;border-color:#dbc7ff}.wp-contact-cta{display:inline-flex;gap:25px;align-items:center;font-size:24px;border-bottom:1px solid #a259ff;padding:12px 0;transition:gap .2s}.wp-contact-cta:hover{gap:40px}.wp-contact-bottom{display:flex;flex-wrap:wrap;gap:25px;font-size:12px;color:#c5bacf;margin-top:75px;padding-top:25px;border-top:1px solid #ffffff25}.wp-contact-bottom>a:first-child{margin-right:auto}.wp-contact :focus-visible{outline:2px solid #cfb4ff;outline-offset:5px}
+@media(max-width:700px){.wp-dwell{height:125svh;min-height:790px}.work-presentation{min-height:640px}.wp-clients{display:none}.wp-client-picker{display:flex;position:absolute;top:86px;left:22px;right:22px;padding:12px 15px;align-items:center;gap:14px;border-radius:10px;background:linear-gradient(90deg,#100d18b8,#100d1875);backdrop-filter:blur(12px);color:#e5d8f5;font-size:10px;letter-spacing:.06em}.wp-client-picker select{min-width:0;flex:1;min-height:30px;background:transparent;color:#fff;font-size:14px;border:0}.wp-client-picker option{background:#171021;color:white}.wp-caption{left:22px;right:22px;bottom:40px;padding:19px 21px;max-width:none}.wp-caption h2{font-size:28px}.wp-caption p{font-size:12px}.wp-top-actions{gap:6px}.wp-return{font-size:10px}.wp-contact{padding:70px 24px 25px}.wp-contact h2{font-size:44px}.wp-contact-bottom{gap:20px;margin-top:50px}.wp-contact-bottom>a:first-child{width:100%}}
+@media(prefers-reduced-motion:reduce){.wp-dwell{height:100svh;min-height:640px}.work-presentation{position:relative}.wp-contact-cta{transition:none}}
+/* Light resting glass; more definition only while a panel is in use. */
+.wp-clients,.wp-caption{background:linear-gradient(110deg,#100d1875,#100d1828);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);box-shadow:0 8px 30px #0001;text-shadow:0 1px 8px #000b;transition:background .25s,backdrop-filter .25s,-webkit-backdrop-filter .25s}.wp-clients:has(:focus-visible),.wp-caption:has(:focus-visible){background:linear-gradient(110deg,#100d18a6,#100d185e);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}.wp-clients button[aria-pressed=true]{backdrop-filter:none;-webkit-backdrop-filter:none}.wp-top{justify-content:flex-end}.wp-top .wp-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.wp-client-picker{z-index:8}.wp-picker-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;color:white;font-size:14px;padding:15px 18px;min-height:50px;text-align:left}.wp-picker-trigger svg{transition:transform .2s;flex-shrink:0}.wp-picker-trigger svg.is-open{transform:rotate(180deg)}.wp-picker-menu{position:absolute;top:calc(100% + 9px);left:0;right:0;max-height:min(380px,48svh);overflow:auto;background:linear-gradient(120deg,#221c30f5,#15111fed);backdrop-filter:blur(15px);border:1px solid #ffffff25;border-radius:14px;padding:8px;box-shadow:0 15px 45px #0005}.wp-picker-menu button{width:100%;min-height:46px;display:flex;justify-content:space-between;align-items:center;gap:15px;color:#f5efff;padding:12px 14px;border-radius:8px;font-size:14px;text-align:left;letter-spacing:0}.wp-picker-menu button[aria-checked=true]{background:linear-gradient(110deg,#a259ff35,#4cc3ff16);color:white}.wp-picker-menu button:focus-visible{outline:1px solid #c9afff;outline-offset:-1px;background:#ffffff12}.wp-picker-menu button:hover{background:#ffffff14}
+@media(hover:hover){.wp-clients:hover,.wp-caption:hover{background:linear-gradient(110deg,#100d18a6,#100d185e);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}}
+@media(max-width:700px){.wp-client-picker{padding:0;display:block;background:linear-gradient(110deg,#100d1888,#100d1844);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid #ffffff20;border-radius:12px}.wp-caption{background:linear-gradient(110deg,#100d1894,#100d184a)}.wp-client-picker:focus-within{background:linear-gradient(110deg,#100d18b0,#100d1870)}}
+@media(prefers-reduced-motion:reduce){.wp-clients,.wp-caption,.wp-picker-trigger svg{transition:none}}
+
+/* Enter directly into the artwork; navigation is deliberately revealed. */
+.portfolio-page--presentation{padding-top:0!important}
+body:has(.site-header:not(.site-header--away)) .portfolio-page--presentation .wp-top,
+body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:calc(var(--portfolio-header,88px) + 20px)}
+.portfolio-gallery-switch{justify-content:flex-start;max-width:1280px;margin:0 auto;padding:38px 24px 0}
+.portfolio-gallery-switch a{border:0;border-radius:0;padding:10px 0;font-size:12px;color:var(--c-ink-muted);text-decoration:underline;text-decoration-color:#a259ff50;text-underline-offset:6px}
+/* One steady brand-coloured stage while the first artwork decodes. */
+.wp-first-frame{position:absolute;inset:0;z-index:-5;background:radial-gradient(ellipse at 25% 25%,#8562bc66,transparent 65%),radial-gradient(ellipse at 80% 70%,#4585a855,transparent 65%),#292235}
+/* Switching client cross-fades: the previous artwork is held underneath
+   (wp-media--held) until the incoming one has decoded, so the placeholder
+   gradient never shows between two clients. Slightly longer and eased out
+   rather than linear — the switch happens on hover, so it should feel like a
+   settle rather than a cut. */
+.wp-media{opacity:0;transition:opacity .6s cubic-bezier(.4,0,.2,1)}
+.wp-media--ready{opacity:1}
+.wp-media--held{z-index:-4;opacity:1;transition:none}
+.work-presentation .wp-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@keyframes wp-settle{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.wp-caption>span,.wp-caption h2,.wp-caption p,.wp-caption>a{animation:wp-settle .45s cubic-bezier(.4,0,.2,1) both}
+.wp-caption h2{animation-delay:.04s}.wp-caption p{animation-delay:.08s}.wp-caption>a{animation-delay:.12s}
+@media(prefers-reduced-motion:reduce){.wp-media{transition:none}.wp-caption>span,.wp-caption h2,.wp-caption p,.wp-caption>a{animation:none}}
+
+/* Hotspot hit areas sit above artwork, below navigation and captions. */
+.wp-hotspots{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+/* Render the edge in screen pixels, then remove the entire interior AFTER
+   applying the glow. This keeps every pixel inside the artwork untouched. */
+.wp-hotspot{pointer-events:none;color:#fff;--wp-glow:#7c5cff;--wp-glow-2:var(--wp-glow)}
+.wp-hotspot svg{overflow:visible;pointer-events:none}
+.wp-hotspot .wp-hotspot-hit{pointer-events:all;cursor:pointer;fill:transparent;stroke:none}
+.wp-hotspot-outline{pointer-events:none;opacity:0;transition:opacity .18s ease}
+.wp-hotspot-outline polygon{pointer-events:none;fill:none;stroke:var(--wp-stroke,var(--wp-glow));stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 0 var(--wp-blur-near,3px) var(--wp-glow)) drop-shadow(0 0 var(--wp-blur-far,7px) var(--wp-glow-2))}
+
+.wp-hotspot-marker{position:absolute;transform:translate(-50%,-50%);min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;pointer-events:auto;border:1px solid #ffffff75;border-radius:24px;background:#171020b8;backdrop-filter:blur(5px);box-shadow:0 2px 12px #0004;font-size:23px;cursor:pointer}
+.wp-hotspot-label{display:none;font-size:12px;padding:0 12px;max-width:180px;line-height:1.3}.wp-hotspot:hover .wp-hotspot-label,.wp-hotspot:focus-visible .wp-hotspot-label{display:block}.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{padding-left:12px;border-color:color-mix(in srgb,var(--wp-glow-2) 55%,#fff)}
+.wp-hotspot:focus-visible{outline:none!important}.wp-hotspot:focus-visible .wp-hotspot-marker{outline:2px solid #fff;outline-offset:3px}
+.wp-top,.wp-clients,.wp-caption{z-index:2}
+@media(prefers-reduced-motion:reduce){.wp-hotspot-outline{transition:none}}
+.wp-hotspot{position:absolute;inset:0;display:block}
+
+/* Unhurried dissolve; the held image remains painted below the new layer. */
+.wp-media{transition:opacity .65s cubic-bezier(.22,.61,.36,1)}
+.wp-media--held{transition:none;pointer-events:none}
+.wp-hotspot-marker{opacity:0;visibility:hidden;pointer-events:none;min-width:0;height:auto;min-height:32px;padding:7px 12px;border-radius:18px;font-size:12px;background:#171020a8;transition:opacity .18s ease,visibility .18s ease;white-space:nowrap}
+.wp-hotspot-arrow{display:none}
+.wp-hotspot-label{display:block;padding:0;font-size:11px}
+.wp-hotspot:hover .wp-hotspot-marker,.wp-hotspot:focus-visible .wp-hotspot-marker{opacity:1;visibility:visible;pointer-events:auto;padding:7px 12px}
+@media(hover:none),(pointer:coarse){.wp-hotspot-marker{opacity:.85;visibility:visible;pointer-events:auto;min-width:44px;min-height:44px;padding:8px}.wp-hotspot-arrow{display:block;font-size:15px}.wp-hotspot-label{display:none}.wp-hotspot:focus-visible .wp-hotspot-label{display:block}}
+@media(prefers-reduced-motion:reduce){.wp-media,.wp-hotspot-marker{transition:none}}
+::view-transition-old(root){animation-duration:.22s}
+::view-transition-new(root){animation-duration:.28s}
+@media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}
+
+/* A soft invitation, followed by a long quiet interval. Only opacity moves:
+   the edge stays thin and the exterior mask keeps the artwork untouched. */
+@keyframes wp-glow-breathe{
+ 0%,48%,100%{opacity:0}
+ 68%,76%{opacity:1}
+}
+.wp-hotspot-outline{animation:wp-glow-breathe 7.5s ease-in-out var(--wp-pulse-delay,1.5s) infinite both}
+@media(hover:hover) and (pointer:fine){
+ .wp-hotspot:hover .wp-hotspot-outline{animation:none;opacity:1}
+}
+.wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspot:active .wp-hotspot-outline{animation:none;opacity:1}
+/* Avoid sticky hover labels after an iOS tap. */
+@media(hover:none),(pointer:coarse){
+ .wp-hotspot:hover .wp-hotspot-label{display:none}
+ .wp-hotspot:focus-visible .wp-hotspot-label{display:block}
+}
+@media(prefers-reduced-motion:reduce){
+ .wp-hotspot-outline{animation:none;opacity:.35;transition:none}
+ .wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspot:active .wp-hotspot-outline{opacity:1}
+}
+
+/* ── Glass over artwork ─────────────────────────────────────────────────────
+   The balance problem: an opaque panel is readable and hides the work; a
+   transparent one shows the work and makes the text fight the photo behind it.
+
+   The way out is to stop doing the legibility work with the FILL and do it in
+   the backdrop filter instead. A heavy blur turns whatever is behind into a
+   smooth wash with no edges for the letterforms to compete with, brightness
+   pulls that wash down under white text, and saturation puts back the colour
+   the darkening takes away. What is left is a panel that still carries the
+   hue and the light of the image behind it — which is what reads as glass,
+   rather than as a grey card that happens to be see-through.
+
+   So the tint here is thin (24%) and the filter is doing most of the work. */
+.work-presentation .wp-caption,
+.work-presentation .wp-clients,
+.work-presentation .wp-client-picker{
+ background:
+   /* Raking sheen, brightest at the top-left corner, as light falls on a pane. */
+   linear-gradient(135deg,#ffffff2b 0%,#ffffff0d 34%,#ffffff05 58%,#05070f14 100%),
+   /* Barely there — just enough to unify the surface. */
+   #0b0f1c1f;
+ /* Open glass. The panel is kept light on purpose so the work shows through
+    it — that is the whole point of a portfolio — and the contrast is bought
+    back on the TEXT instead of by darkening the whole surface.
+
+    Measured against the real artwork: the band behind the caption averages
+    0.43 luminance with highlights reaching 0.83, so white text on this tint
+    scores about 3.1:1 over the average area. That clears AA for the heading
+    (large text, 3.0) and sits under it for the body line, which is why the
+    text carries a two-layer shadow rather than relying on the panel. If you
+    need the body line to clear 4.5:1 on its own, brightness .72 with a 22%
+    tint does it — at the cost of most of the image behind it. */
+ /* Tracks the site material (styles/liquid-glass.css) so there is one glass,
+    not two. Low blur is the point: at 30px the artwork behind these panels
+    became an unreadable wash — you could tell something was there but not
+    what. At 8px the shapes survive, softened and desaturated, which is what
+    a real pane does. */
+ backdrop-filter:blur(var(--lg-blur,8px)) saturate(190%) brightness(.9) contrast(1.02);
+ -webkit-backdrop-filter:blur(var(--lg-blur,8px)) saturate(190%) brightness(.9) contrast(1.02);
+ border:1px solid #ffffff2b;
+ /* A pane catches the sky on its top edge and the ground on its bottom one. */
+ border-top-color:#ffffff80;
+ border-bottom-color:#ffffff14;
+ border-radius:18px;
+ box-shadow:
+   inset 0 1px 0 #ffffff4f,          /* specular line along the top edge */
+   inset 0 0 0 1px #ffffff0a,        /* inner ring — reads as thickness */
+   inset 0 -20px 30px -20px #00000038, /* light pooling toward the bottom */
+   0 18px 48px #00000042,            /* the float */
+   0 2px 8px #0000002e;
+ color:#fff;
+ /* Two layers: a tight one that holds the letter edge against a highlight,
+    and a wide soft one that separates the word from whatever is behind it.
+    This is what makes an open panel readable, so do not trim it back. */
+ text-shadow:0 1px 2px #000000b8,0 2px 12px #0000008c;
+}
+
+/* The caption holds a paragraph, so it gets a second, vertical scrim that is
+   almost absent at the top — where the artwork should still read — and firms
+   up behind the body text. The picker is one line and needs no such help. */
+.work-presentation .wp-caption{
+ background:
+   linear-gradient(135deg,#ffffff2b 0%,#ffffff0d 34%,#ffffff05 58%,#05070f14 100%),
+   linear-gradient(180deg,#05070f00 0%,#05070f00 38%,#05070f1a 100%),
+   #0b0f1c1f;
+}
+
+.work-presentation .wp-caption h2{color:#fff;text-shadow:0 2px 4px #000000c4,0 4px 22px #000000a3}
+.work-presentation .wp-caption p{color:#fff;text-shadow:0 1px 2px #000000c4,0 2px 12px #00000099}
+.work-presentation .wp-caption>span{color:#fff;text-shadow:0 1px 2px #000000b8,0 2px 10px #0000008c}
+.work-presentation .wp-picker-trigger{color:#fff;text-shadow:0 1px 2px #000000b8,0 2px 12px #0000008c}
+
+/* Interaction brings the pane forward: a touch more tint, a brighter rim.
+   Not more blur — changing blur mid-transition is what makes glass shimmer. */
+.work-presentation .wp-client-picker:hover,
+.work-presentation .wp-client-picker:focus-within,
+.work-presentation .wp-clients:hover,
+.work-presentation .wp-caption:hover{
+ background:
+   linear-gradient(135deg,#ffffff38 0%,#ffffff14 34%,#ffffff08 58%,#05070f1a 100%),
+   #0b0f1c33;
+ border-color:#ffffff3d;
+ border-top-color:#ffffff7a;
+}
+
+/* The open dropdown is the one surface that should NOT be subtle: it is a list
+   being scanned, so it goes denser and blurs harder to cut the photo out from
+   under the options entirely. */
+.work-presentation .wp-picker-menu{
+ background:linear-gradient(135deg,#ffffff16,#ffffff05 40%,transparent),#131724f0;
+ backdrop-filter:blur(16px) saturate(160%) brightness(.82);
+ -webkit-backdrop-filter:blur(16px) saturate(160%) brightness(.82);
+ border:1px solid #ffffff2e;
+ border-top-color:#ffffff52;
+ border-radius:16px;
+ box-shadow:inset 0 1px 0 #ffffff2b,0 20px 48px #0000005c;
+}
+
+/* ── When glass is unavailable or unwanted ────────────────────────────────── */
+
+/* No backdrop-filter: the tint alone would leave white text on a photo, so it
+   falls all the way back to a solid panel rather than a prettier unreadable one. */
+/* The clients list scrolls, and an inset ring would ride the content instead of
+   the frame, so it keeps the rim and loses the inner highlight. */
+.work-presentation .wp-clients{
+ box-shadow:inset 0 1px 0 #ffffff4f,0 18px 48px #00000042,0 2px 8px #0000002e;
+}
+.work-presentation .wp-clients button{text-shadow:0 1px 2px #000000b8,0 2px 12px #0000008c}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ .work-presentation .wp-caption,
+ .work-presentation .wp-clients,
+ .work-presentation .wp-client-picker{background:#131726f0}
+ .work-presentation .wp-picker-menu{background:#131726fa}
+}
+
+/* Asked for less transparency at the OS level — the same answer, by request
+   rather than by capability. */
+@media (prefers-reduced-transparency:reduce){
+ .work-presentation .wp-caption,
+ .work-presentation .wp-clients,
+ .work-presentation .wp-client-picker{
+  background:#131726f2;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+ }
+ .work-presentation .wp-picker-menu{background:#131726fc;backdrop-filter:none;-webkit-backdrop-filter:none}
+}
+
+/* ── A caption that holds still ──────────────────────────────────────────── */
+/*
+   It used to jump on every client switch, for two reasons that compounded.
+
+   It was anchored right/bottom with `max-width`, so its size followed its
+   contents — a longer client name or a shorter description resized the box,
+   and because the anchor is the bottom-RIGHT corner it grew leftward and
+   upward. Then `key={current.slug}` remounted it, re-running an entry
+   animation that slid the text up 6px.
+
+   A fixed width and a floor under the height make the frame constant, so only
+   the words inside it change.
+*/
+.wp-caption{
+ width:min(410px,46%);
+ max-width:none;
+ min-height:166px;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+}
+@media(max-width:700px){
+ .wp-caption{width:auto;min-height:124px}
+}
+
+/* With the frame pinned, the 6px slide is the only thing still moving — and
+   movement is exactly what read as a jump. It becomes a cross-fade. */
+@keyframes wp-settle{from{opacity:0}to{opacity:1}}
+
+/* ── Idle: get out of the way of the work ────────────────────────────────── */
+/*
+   A portfolio's job is the artwork, and the panels sit on top of it. After a
+   few seconds without input they recede to near-nothing so the piece can be
+   seen whole; any movement of the pointer brings them straight back.
+
+   Asymmetric timing on purpose: slow to fade (you should not notice it
+   leaving) and quick to return (you should never wait for it).
+*/
+.wp-clients,.wp-caption,.wp-client-picker,.wp-top{
+ transition:opacity .22s ease-out;
+}
+.work-presentation--idle .wp-clients,
+.work-presentation--idle .wp-caption,
+.work-presentation--idle .wp-client-picker,
+.work-presentation--idle .wp-top{
+ opacity:.12;
+ transition:opacity 1.4s ease-in;
+}
+/* Never hide something someone is using: a keyboard user tabbing through the
+   client list has no pointer to move, and the hotspots stay reachable. */
+.work-presentation--idle:has(:focus-visible) .wp-clients,
+.work-presentation--idle:has(:focus-visible) .wp-caption,
+.work-presentation--idle:has(:focus-visible) .wp-client-picker,
+.work-presentation--idle:has(:focus-visible) .wp-top{
+ opacity:1;
+}
+@media(prefers-reduced-motion:reduce){
+ .work-presentation--idle .wp-clients,
+ .work-presentation--idle .wp-caption,
+ .work-presentation--idle .wp-client-picker,
+ .work-presentation--idle .wp-top{transition:none}
+}
+
+/* ── The auto-advancing client list ──────────────────────────────────────── */
+/* The selected row carries a left rule. Animating it with a transform rather
+   than a border means the move is a single composited slide instead of a
+   repaint on two rows at once. */
+.wp-clients button{position:relative;transition:color .25s ease,background .25s ease}
+.wp-clients button::before{
+ content:"";
+ position:absolute;
+ left:0;top:10%;bottom:10%;
+ width:2px;
+ border-radius:2px;
+ background:#cfb4ff;
+ transform:scaleY(0);
+ transform-origin:50% 50%;
+ transition:transform .38s cubic-bezier(.22,.61,.36,1);
+}
+.wp-clients button[aria-pressed=true]::before{transform:scaleY(1)}
+.wp-clients button[aria-pressed=true]{border-left-color:transparent}
+@media(prefers-reduced-motion:reduce){
+ .wp-clients button::before{transition:none}
+}
+
+/* The selected row shares the top action line; neighbours float outside its glass. */
+.work-presentation .wp-client-picker,.work-presentation .wp-client-picker:hover,.work-presentation .wp-client-picker:focus-within{display:block;position:absolute;left:0;right:auto;top:-44px;transform:none;width:min(240px,calc(100% - 120px));padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
+.work-presentation .wp-client-picker::before,.work-presentation .wp-client-picker::after{display:none}
+.wp-client-list{position:relative;height:132px;overflow:hidden;touch-action:pan-x;mask-image:linear-gradient(transparent,#0005 15%,#000 34%,#000 66%,#0005 85%,transparent);-webkit-mask-image:linear-gradient(transparent,#0005 15%,#000 34%,#000 66%,#0005 85%,transparent)}
+.wp-client-wheel{transform:translateY(-44px);will-change:transform}
+.wp-client-list button,.wp-client-empty{display:block;width:100%;height:44px;padding:10px 16px;text-align:left;font-size:14px;line-height:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ffffffb3;border:1px solid transparent;border-radius:12px;text-shadow:0 1px 8px #0009}
+.wp-client-list::before{content:"";position:absolute;top:44px;left:0;right:0;height:44px;border:1px solid #ffffff30;border-radius:12px;background:linear-gradient(120deg,#302b395c,#17121d38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 #ffffff12;pointer-events:none}
+.wp-client-list button.is-current{color:#fff;font-weight:600}
+.wp-client-list button{transition:color .68s ease}
+.wp-client-list button[aria-hidden=true]{pointer-events:none}
+.wp-client-list button:hover{color:#fff}
+.wp-client-list button:focus-visible{outline:1px solid #ffffffa0;outline-offset:-2px}
+.wp-top .wp-browse{min-height:44px}
+.work-presentation--idle .wp-client-picker,.work-presentation--idle .wp-top{opacity:1;pointer-events:auto}
+
+@media(max-width:700px){.work-presentation .wp-client-picker{width:min(230px,calc(100% - 108px))}.wp-client-list button{padding-inline:12px;font-size:13px}}
+@media(prefers-reduced-motion:reduce){.wp-client-wheel{animation:none}}
+/* Each loaded client gets one reveal, then quiet artwork until the next client. */
+.wp-hotspots--single .wp-hotspot-outline{animation:wp-client-reveal 3.8s ease-in-out .75s 1 both}
+@keyframes wp-client-reveal{0%,100%{opacity:0}28%,60%{opacity:1}}
+@media(hover:hover) and (pointer:fine){.wp-hotspots--single .wp-hotspot:hover .wp-hotspot-outline{animation:none;opacity:1}}
+.wp-hotspots--single .wp-hotspot:focus-visible .wp-hotspot-outline,.wp-hotspots--single .wp-hotspot:active .wp-hotspot-outline{animation:none;opacity:1}
+@media(prefers-reduced-motion:reduce){.wp-client-list button{transition:none}.wp-hotspots--single .wp-hotspot-outline{animation:none;opacity:.35}}
+
+/* Keep client navigation alongside the project details at the foot of the artwork. */
+.wp-bottom{position:absolute;left:4%;right:4%;bottom:8%;z-index:8;display:grid;grid-template-columns:minmax(0,240px) minmax(0,410px);justify-content:space-between;align-items:center;gap:28px;pointer-events:none}
+.work-presentation .wp-bottom .wp-client-picker{position:relative;inset:auto;width:100%;transform:none;pointer-events:auto}
+.work-presentation .wp-bottom .wp-caption{position:relative;inset:auto;width:100%;max-width:none;pointer-events:auto}
+@media(max-width:700px){
+ .wp-bottom{left:22px;right:22px;bottom:40px;grid-template-columns:minmax(0, .43fr) minmax(0, .57fr);gap:12px}
+ .work-presentation .wp-bottom .wp-caption{padding:16px 14px}
+ .wp-bottom .wp-caption h2{font-size:clamp(20px,4.5vw,28px);overflow-wrap:anywhere}
+ .wp-bottom .wp-caption p{font-size:11px;line-height:1.5}
+ .wp-bottom .wp-client-list button{padding-inline:9px;font-size:12px}
+}
+
+/* Quiet the glass, never the project text. */
+.work-presentation .wp-bottom .wp-caption{
+ opacity:1;
+ transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease,background .5s ease;
+}
+.work-presentation--idle .wp-bottom .wp-caption{
+ backdrop-filter:blur(0px) saturate(100%) brightness(1);
+ -webkit-backdrop-filter:blur(0px) saturate(100%) brightness(1);
+ background:linear-gradient(135deg,#100d1838,#100d1866);
+}
+.work-presentation--idle .wp-bottom .wp-caption:focus-within{
+ backdrop-filter:blur(8px) saturate(190%) brightness(.9);
+ -webkit-backdrop-filter:blur(8px) saturate(190%) brightness(.9);
+}
+@media(prefers-reduced-motion:reduce){.work-presentation .wp-bottom .wp-caption{transition:none}}
+
+.wp-caption-stage{position:relative;overflow:hidden}
+.wp-caption-content{width:100%;top:0;left:0;display:flow-root}
+.work-presentation .wp-caption-content>span{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px #000b,0 2px 10px #0008}
+.wp-caption-content>a{display:inline-flex;gap:10px;align-items:center;font-size:11px;margin-top:18px;padding-block:9px;border-bottom:1px solid #ffffff70}
+
+.wp-client-picker--expanded .wp-client-list{visibility:hidden}
+.wp-client-expanded{position:absolute;left:0;bottom:0;width:100%;min-width:220px;padding:16px 10px 10px;border:1px solid #ffffff30;border-radius:16px;background:linear-gradient(130deg,#292333ed,#17141ee8);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 16px 48px #0005;animation:wp-expand-clients .25s ease-out}
+.wp-client-expanded-label{display:block;padding:0 12px 12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff80}
+.wp-client-expanded-scroll{max-height:min(420px,55svh);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.wp-client-expanded button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:12px;border-radius:9px;text-align:left;font-size:14px;color:#ffffffb3;transition:background .2s,color .2s}
+.wp-client-expanded button:hover,.wp-client-expanded button:focus-visible{background:#ffffff0c;color:#fff}
+.wp-client-expanded button[aria-pressed=true]{background:#ffffff16;color:#fff}
+.wp-client-number{font-size:9px;color:#ffffff50;font-variant-numeric:tabular-nums}
+.wp-client-dot{margin-left:auto;width:5px;height:5px;border-radius:50%;background:transparent;flex-shrink:0}
+[aria-pressed=true]>.wp-client-dot{background:#d4bcff}
+@keyframes wp-expand-clients{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.wp-client-expanded{animation:none}}
+/* Glass surface positioning must not turn the fixed navigation into a spacer. */
+.site-header.liquid-glass,.site-header.liquid-glass-card{position:fixed}
+.site-header.site-header--away,.site-header.site-header--away:hover{transform:translateY(-110%)}
+.site-header.site-header--away:has(:focus-visible){transform:translateY(0)}

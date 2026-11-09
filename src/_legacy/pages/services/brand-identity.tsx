@@ -1,0 +1,88 @@
+import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { motion } from "motion/react";
+import { Button } from "../../components/ui/button";
+import { useNavigate } from "react-router-dom";
+
+export function BrandIdentity() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      <Helmet>
+        <title>Brand Identity Design | Logo &amp; Visual System | Cirqle</title>
+        <meta name="description" content="Cirqle crafts complete brand identity systems — logos, typography, colour palettes, and brand guidelines that make your business instantly recognisable." />
+        <link rel="canonical" href="https://cirqle.work/services/brand-identity" />
+        <meta property="og:url" content="https://cirqle.work/services/brand-identity" />
+        <meta property="og:title" content="Brand Identity Design | Logo &amp; Visual System | Cirqle" />
+        <meta property="og:description" content="Cirqle crafts complete brand identity systems — logos, typography, colour palettes, and brand guidelines that make your business instantly recognisable." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
+
+      <div className="max-w-7xl mx-auto px-6 relative">
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.6 }}
+           className="text-center mb-16"
+        >
+          <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
+             <span className="text-sm font-medium text-gray-900">Service</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl mb-6 tracking-tight font-medium">Brand Identity</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            We craft complete visual systems that tell your story. Our brand identity services include logo design, typography, color palettes, and comprehensive brand guidelines.
+          </p>
+        </motion.div>
+
+
+
+        <section className="mb-24">
+          <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Logo Mark & Logotypes",
+                desc: "A primary logo plus the variations you actually need — stacked, horizontal, icon-only — delivered in every format.",
+              },
+              {
+                title: "Color & Typography System",
+                desc: "A palette and type pairing chosen for your industry, tested on both screens and print.",
+              },
+              {
+                title: "Brand Guidelines",
+                desc: "A practical usage guide so anyone — your team or another printer — keeps the brand consistent.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="liquid-glass-card p-8 rounded-3xl transition-all">
+                <h3 className="text-xl font-medium mb-4">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center py-20 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
+        >
+          <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
+          <div className="relative z-10 px-6">
+            <h2 className="text-4xl font-medium mb-6">Ready to build your brand?</h2>
+            <Button size="lg" onClick={() => navigate('/contact?service=brand-identity')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
+              Get a Quote
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

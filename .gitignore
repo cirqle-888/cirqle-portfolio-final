@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+dist_*
+.env
+.vercel
+.DS_Store
+supabase/.temp

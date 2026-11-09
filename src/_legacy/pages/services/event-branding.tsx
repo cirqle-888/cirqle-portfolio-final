@@ -1,0 +1,88 @@
+import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { motion } from "motion/react";
+import { Button } from "../../components/ui/button";
+import { useNavigate } from "react-router-dom";
+
+export function EventBranding() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="pt-24 pb-16 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      <Helmet>
+        <title>Event Branding | Stage, Exhibition &amp; Event Design | Cirqle</title>
+        <meta name="description" content="Cirqle designs immersive event branding experiences — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
+        <link rel="canonical" href="https://cirqle.work/services/event-branding" />
+        <meta property="og:url" content="https://cirqle.work/services/event-branding" />
+        <meta property="og:title" content="Event Branding | Stage, Exhibition &amp; Event Design | Cirqle" />
+        <meta property="og:description" content="Cirqle designs immersive event branding experiences — stage backdrops, banners, exhibitions, and event collateral that leave a lasting impression." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://cirqle.work/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
+
+      <div className="max-w-7xl mx-auto px-6 relative">
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.6 }}
+           className="text-center mb-16"
+        >
+          <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#A259FF]/10 to-[#4CC3FF]/10 rounded-full mb-6 border border-[#A259FF]/20">
+             <span className="text-sm font-medium text-gray-900">Service</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl mb-6 tracking-tight font-medium">Event Branding</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Create memorable physical and digital event experiences with unified branding logic from invites to stage design.
+          </p>
+        </motion.div>
+
+
+
+        <section className="mb-24">
+          <h2 className="text-3xl font-medium mb-10 text-center">What's Included</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Stage Design & Booths",
+                desc: "Backdrops, stage panels, and booth artwork sized to the venue and ready for the fabricator.",
+              },
+              {
+                title: "Event Signage & Wayfinding",
+                desc: "Standees, banners, and directional signage that keep the event on-brand end to end.",
+              },
+              {
+                title: "Promo Materials",
+                desc: "Invites, passes, social announcements, and after-event creatives — one consistent look.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="liquid-glass-card p-8 rounded-3xl transition-all">
+                <h3 className="text-xl font-medium mb-4">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center py-20 bg-gray-900 rounded-[3rem] text-white overflow-hidden relative"
+        >
+          <div className="absolute inset-0 liquid-glass-dark pointer-events-none opacity-50"></div>
+          <div className="relative z-10 px-6">
+            <h2 className="text-4xl font-medium mb-6">Plan your next event with us</h2>
+            <Button size="lg" onClick={() => navigate('/contact?service=event-branding')} className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-10 py-6 text-lg transition-transform hover:scale-105">
+              Get a Quote
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
