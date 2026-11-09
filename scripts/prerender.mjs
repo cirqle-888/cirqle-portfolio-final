@@ -7,6 +7,9 @@ import { gzipSync, brotliCompressSync } from 'node:zlib';
 const root = path.resolve('dist');
 const env = loadEnv('production', process.cwd(), 'VITE_');
 const routes = ['/', '/services', '/services/creative', '/services/digital', '/services/accounts', '/work', '/about', '/careers', '/contact', '/privacy', '/terms'];
+// Prerendered, but asking to be left out of search: listing a noindex page in
+// the sitemap tells crawlers two different things about the same URL.
+const noindex = new Set(['/privacy', '/terms']);
 const template = await readFile(path.join(root, 'index.html'));
 const mime = { '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon' };
 const server = createServer(async (req, res) => {
@@ -54,7 +57,8 @@ try {
     await mkdir(path.dirname(target), { recursive: true }); await writeFile(target, html);
     await writeFile(target + ".gz", gzipSync(html)); await writeFile(target + ".br", brotliCompressSync(html));
   }
-  const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + [...new Set(routes)].map(route => `  <url><loc>https://cirqle.work${route}</loc></url>`).join('\n') + '\n</urlset>\n';
+  const listed = [...new Set(routes)].filter(route => !noindex.has(route));
+  const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + listed.map(route => `  <url><loc>https://cirqle.work${route}</loc></url>`).join('\n') + '\n</urlset>\n';
   await writeFile(path.join(root, 'sitemap.xml'), sitemap);
-  console.log(`Prerendered ${new Set(routes).size} routes and a 404 page; generated sitemap.`);
+  console.log(`Prerendered ${new Set(routes).size} routes and a 404 page; sitemap lists ${listed.length}.`);
 } finally { await browser?.close(); server.close(); }
