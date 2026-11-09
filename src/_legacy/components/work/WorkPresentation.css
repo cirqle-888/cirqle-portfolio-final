@@ -352,3 +352,20 @@ body:has(.site-header :focus-visible) .portfolio-page--presentation .wp-top{top:
 .wp-caption-content{width:100%;top:0;left:0;display:flow-root}
 .work-presentation .wp-caption-content>span{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px #000b,0 2px 10px #0008}
 .wp-caption-content>a{display:inline-flex;gap:10px;align-items:center;font-size:11px;margin-top:18px;padding-block:9px;border-bottom:1px solid #ffffff70}
+
+.wp-client-picker--expanded .wp-client-list{visibility:hidden}
+.wp-client-expanded{position:absolute;left:0;bottom:0;width:100%;min-width:220px;padding:16px 10px 10px;border:1px solid #ffffff30;border-radius:16px;background:linear-gradient(130deg,#292333ed,#17141ee8);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 16px 48px #0005;animation:wp-expand-clients .25s ease-out}
+.wp-client-expanded-label{display:block;padding:0 12px 12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#ffffff80}
+.wp-client-expanded-scroll{max-height:min(420px,55svh);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.wp-client-expanded button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:12px;border-radius:9px;text-align:left;font-size:14px;color:#ffffffb3;transition:background .2s,color .2s}
+.wp-client-expanded button:hover,.wp-client-expanded button:focus-visible{background:#ffffff0c;color:#fff}
+.wp-client-expanded button[aria-pressed=true]{background:#ffffff16;color:#fff}
+.wp-client-number{font-size:9px;color:#ffffff50;font-variant-numeric:tabular-nums}
+.wp-client-dot{margin-left:auto;width:5px;height:5px;border-radius:50%;background:transparent;flex-shrink:0}
+[aria-pressed=true]>.wp-client-dot{background:#d4bcff}
+@keyframes wp-expand-clients{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.wp-client-expanded{animation:none}}
+/* Glass surface positioning must not turn the fixed navigation into a spacer. */
+.site-header.liquid-glass,.site-header.liquid-glass-card{position:fixed}
+.site-header.site-header--away,.site-header.site-header--away:hover{transform:translateY(-110%)}
+.site-header.site-header--away:has(:focus-visible){transform:translateY(0)}

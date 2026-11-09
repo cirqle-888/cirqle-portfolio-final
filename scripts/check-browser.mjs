@@ -1,174 +1,264 @@
+/**
+ * Browser checks for the v3 site.
+ *
+ * Runs against a built preview (`npm run preview -- --port 5176 --host
+ * 127.0.0.1`) so it exercises the prerendered HTML the visitor actually gets,
+ * not the dev server. Supabase is mocked: the portfolio has to render the same
+ * way whatever the live database happens to hold that day.
+ *
+ * Checked per route, at phone and desktop width: one <h1>, one canonical with
+ * the right href, a title, no horizontal scroll, no uncaught errors, no broken
+ * images. Then the things that are specific to this site: the header
+ * navigation, the three divisions, the Work presentation and grid, and the
+ * contact form.
+ */
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-const browser = await chromium.launch({headless:true, executablePath:process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
-const context = await browser.newContext({reducedMotion:'reduce'});
-let failWork = false, submissions = 0;
-const collection = {slug:'social-media',title:'Social media creatives',eyebrow:'Work',description:'Test portfolio',position:0,work_brands:[{slug:'test-brand',name:'Test Brand',position:0,work_items:Array.from({length:55},(_,i)=>({id:String(i),slug:'creative-'+i,title:'Test '+i,caption:'Creative '+i,width:480,height:600,variants:[{width:480,height:600,path:`test-${i}.webp`}],position:i,kind:'image',format:'post'}))}]};
-await context.route('**/rest/v1/work_collections?**',route=>route.fulfill({status:failWork?503:200,contentType:'application/json',body:JSON.stringify([collection, {...collection,slug:'brand-identity',title:'Brand identity',eyebrow:'Brand Identity',work_brands:[{...collection.work_brands[0],slug:'second-brand',name:'Second Brand',work_items:collection.work_brands[0].work_items.slice(0,1)}]}])}));
-const showcases=[{slug:'editorial-one',client_name:'Editorial One',category:'Branding',description:'Independent showcase entry',media_type:'image',media_url:'https://example.test/showcase.webp',poster_url:null,mobile_media_url:null,alt_text:'Editorial image',focal_x:40,focal_y:60,project_path:'/portfolio/social-media/test-brand'},{slug:'editorial-two',client_name:'Editorial Two',category:'Motion',description:'Video with manual playback',media_type:'video',media_url:'https://example.test/showcase.mp4',poster_url:'https://example.test/showcase.webp',mobile_media_url:null,alt_text:'Editorial video',focal_x:50,focal_y:50,project_path:null}];
-showcases[0].mobile_media_url='https://example.test/mobile.webp';showcases[0].mobile_media_type='image';showcases[0].mobile_focal_x=30;showcases[0].mobile_focal_y=70;
-showcases[0].hotspots={desktop:[{id:'poster',label:'Explore poster gallery',path:'/portfolio/social-media/test-brand',points:[[42,32],[65,32],[65,60],[42,60]]}],mobile:[{id:'phone-poster',label:'Explore phone poster',path:'/portfolio/social-media/test-brand',points:[[30,35],[45,35],[45,65],[30,65]]}]};
-showcases[1].mobile_media_url='https://example.test/mobile.mp4';showcases[1].mobile_media_type='video';showcases[1].mobile_poster_url='https://example.test/mobile.webp';
-await context.route('**/rest/v1/work_showcases?**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(showcases)}));
-await context.route('https://example.test/*.webp',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="1600" height="900" fill="#5824a0"/></svg>'}));
-await context.route('https://example.test/*.mp4',route=>route.abort());
-await context.route('**/rest/v1/flyers?**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{title:'Test flyer',width:480,height:600,position:0,variants:[{width:480,height:600,path:'test.webp'}]}])}));
-await context.route('**/storage/v1/object/public/**',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600"><rect width="480" height="600" fill="#7c3aed"/></svg>'}));
-await context.route('https://formspree.io/**',route=>{submissions++; assert.equal(JSON.parse(route.request().postData())._gotcha,''); assert.equal(JSON.parse(route.request().postData()).service,'Brand identity');return route.fulfill({contentType:'application/json',body:'{"ok":true}'});});
-const page = await context.newPage();
+
 const base = process.env.AUDIT_URL || 'http://127.0.0.1:5176';
+const SITE = 'https://cirqle.work';
+
+/** Every route the build prerenders — keep in step with scripts/prerender.mjs. */
+const ROUTES = [
+  '/',
+  '/services',
+  '/services/creative',
+  '/services/digital',
+  '/services/accounts',
+  '/work',
+  '/about',
+  '/careers',
+  '/contact',
+  '/privacy',
+  '/terms',
+];
+
+/** Prerendered pages that deliberately carry `noindex`, plus the 404. */
+const NOINDEX = new Set(['/privacy', '/terms', '/this-page-does-not-exist']);
+
+const item = (i) => ({
+  id: String(i),
+  slug: 'creative-' + i,
+  title: 'Test ' + i,
+  caption: 'Creative ' + i,
+  width: 480,
+  height: 600,
+  variants: [{ width: 480, height: 600, path: `test-${i}.webp` }],
+  position: i,
+  collection_position: i,
+  kind: 'image',
+  format: 'post',
+  media_path: null,
+  external_url: null,
+  duration_seconds: null,
+});
+
+const collections = [
+  {
+    slug: 'social-media',
+    eyebrow: 'Work',
+    title: 'Social media creatives',
+    description: 'Test portfolio',
+    seo_title: null,
+    seo_description: null,
+    position: 0,
+    work_brands: [
+      {
+        slug: 'test-brand',
+        name: 'Test Brand',
+        tagline: 'Test tagline',
+        position: 0,
+        logo_path: null,
+        work_items: Array.from({ length: 24 }, (_, i) => item(i)),
+      },
+    ],
+  },
+  {
+    slug: 'brand-identity',
+    eyebrow: 'Brand Identity',
+    title: 'Brand identity',
+    description: 'Test identity work',
+    seo_title: null,
+    seo_description: null,
+    position: 1,
+    work_brands: [
+      {
+        slug: 'second-brand',
+        name: 'Second Brand',
+        tagline: 'Second tagline',
+        position: 0,
+        logo_path: null,
+        work_items: [{ ...item(0), format: 'logo' }],
+      },
+    ],
+  },
+];
+
+const showcases = [
+  {
+    slug: 'editorial-one',
+    client_name: 'Editorial One',
+    category: 'Creative',
+    description: 'Independent showcase entry',
+    media_type: 'image',
+    media_url: 'https://example.test/showcase.webp',
+    poster_url: null,
+    mobile_media_url: 'https://example.test/mobile.webp',
+    mobile_media_type: 'image',
+    mobile_focal_x: 30,
+    mobile_focal_y: 70,
+    alt_text: 'Editorial image',
+    focal_x: 40,
+    focal_y: 60,
+    project_path: '/services/creative',
+  },
+  {
+    slug: 'editorial-two',
+    client_name: 'Editorial Two',
+    category: 'Digital',
+    description: 'Second showcase entry',
+    media_type: 'image',
+    media_url: 'https://example.test/showcase.webp',
+    poster_url: null,
+    mobile_media_url: 'https://example.test/mobile.webp',
+    mobile_media_type: 'image',
+    alt_text: 'Second editorial image',
+    focal_x: 50,
+    focal_y: 50,
+    project_path: '/services/digital',
+  },
+];
+
+const svg = (w, h) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="#5824a0"/></svg>`;
+
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+});
+
+/** A context with Supabase and the showcase media stubbed out. */
+async function makeContext(width) {
+  const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+  await context.route('**/rest/v1/work_collections?**', (route) =>
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(collections) }),
+  );
+  await context.route('**/rest/v1/work_showcases?**', (route) =>
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(showcases) }),
+  );
+  await context.route('**/storage/v1/object/public/**', (route) =>
+    route.fulfill({ contentType: 'image/svg+xml', body: svg(480, 600) }),
+  );
+  await context.route('https://example.test/*', (route) =>
+    route.fulfill({ contentType: 'image/svg+xml', body: svg(1600, 900) }),
+  );
+  await context.route('https://formspree.io/**', (route) =>
+    route.fulfill({ contentType: 'application/json', body: '{"ok":true}' }),
+  );
+  return context;
+}
+
+/** Fails the run with the route and width that broke, rather than a bare stack. */
+const failures = [];
+const check = (where, message, condition) => {
+  if (!condition) failures.push(`${where}: ${message}`);
+};
+
 try {
- for (const width of [390,1440]) {
-  await page.setViewportSize({width,height:900});
-  for(const route of ['/','/portfolio','/services','/about','/contact','/services/brand-identity','/services/event-branding','/services/ui-ux-design','/products/marketing-pack','/highlights/supermarket-campaign']) {
-   await page.goto(base+route); await page.waitForSelector('h1');
-   await page.waitForFunction(expected => { const tags = document.querySelectorAll('link[rel="canonical"]'); return tags.length === 1 && tags[0].getAttribute('href') === expected; }, 'https://cirqle.work'+(route==='/'?'':route));
-   assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),'https://cirqle.work'+(route==='/'?'':route));
-   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  for (const width of [390, 1440]) {
+    const context = await makeContext(width);
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(String(error)));
+
+    for (const route of [...ROUTES, '/this-page-does-not-exist']) {
+      const where = `${width}px ${route}`;
+      errors.length = 0;
+      const response = await page.goto(base + route);
+      check(where, `HTTP ${response?.status()}`, response?.status() === 200);
+      await page.waitForSelector('h1');
+      await page.waitForFunction(
+        (expected) => {
+          const tags = document.querySelectorAll('link[rel="canonical"]');
+          return tags.length === 1 && tags[0].getAttribute('href') === expected;
+        },
+        SITE + (route === '/' ? '' : route),
+      );
+
+      check(where, 'more than one <h1>', (await page.locator('h1').count()) === 1);
+      check(where, 'empty <title>', (await page.title()).length > 0);
+      check(
+        where,
+        'horizontal overflow',
+        !(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)),
+      );
+      const broken = await page.evaluate(() =>
+        [...document.querySelectorAll('img')].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src),
+      );
+      check(where, `broken images ${broken.slice(0, 3).join(', ')}`, broken.length === 0);
+      check(where, `uncaught errors ${errors.slice(0, 2).join(' | ')}`, errors.length === 0);
+
+      // The 404 and the legal pages must not be indexed; everything else must.
+      const robots = await page.locator('meta[name="robots"]').count();
+      if (NOINDEX.has(route)) check(where, 'missing noindex', robots === 1);
+      else check(where, 'unexpected robots meta', robots === 0);
+    }
+
+    await context.close();
   }
- }
 
- await page.goto(base+'/');
- await page.setViewportSize({width:2560,height:1440});
- await page.locator('.hd-selection nav a').first().waitFor();
- const wideSection = await page.locator('.home-discovery').first().boundingBox();
- assert.equal(wideSection.width,2560);
- assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
- await page.emulateMedia({reducedMotion:'no-preference'});
- assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollSnapType),'y');
- assert.equal(await page.locator('.hd-services').evaluate(el=>getComputedStyle(el).scrollSnapAlign),'start');
- await page.emulateMedia({reducedMotion:'reduce'});
- assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollSnapType),'none');
- await page.setViewportSize({width:1440,height:900});
- await page.evaluate(()=>document.fonts.ready);
- await page.locator('.hd-selection nav').scrollIntoViewIfNeeded();
- await page.waitForTimeout(150);
- const indexBefore=await page.locator('.hd-selection nav').evaluate(el=>({top:el.offsetTop,height:el.offsetHeight}));
- await page.locator('.hd-selection nav a').nth(1).hover();
- await page.waitForFunction(()=>document.querySelector('.hd-project-copy.is-active h3')?.textContent==='Editorial Two');
- assert.deepEqual(await page.locator('.hd-selection nav').evaluate(el=>({top:el.offsetTop,height:el.offsetHeight})),indexBefore);
- assert.equal(await page.locator('.hd-art video').count(),0);
- assert.equal(await page.locator('.hd-service-card').getByText('View work',{exact:true}).count(),0);
- assert.equal(await page.locator('.hd-selection nav a').first().getAttribute('href'),'/portfolio/social-media/test-brand');
- await page.locator('.hd-selection nav a').first().focus();
- await page.waitForFunction(()=>document.querySelector('.hd-project-copy.is-active h3')?.textContent==='Editorial One');
- assert.equal(await page.locator('.hd-service-card').count(),3);
- assert.equal(await page.locator('.hd-service-card').first().getAttribute('href'),'/portfolio?view=gallery#supermarket-flyers');
- assert.equal(await page.locator('.sf-section').count(),0);
- await page.locator('.hd-services').scrollIntoViewIfNeeded();
- await page.mouse.move(0,0);
- await page.locator('.hd-heading .hd-link').last().focus();
- const rotatingCard = page.locator('.hd-service-card').nth(1);
- const initialCreative = await rotatingCard.locator('img').first().getAttribute('src');
- await page.emulateMedia({reducedMotion:'no-preference'});
- await rotatingCard.locator('.hd-service-incoming').waitFor({timeout:16000});
- assert.notEqual(await rotatingCard.locator('.hd-service-incoming').getAttribute('src'),initialCreative);
- assert.equal(await rotatingCard.locator('.hd-service-incoming').evaluate(el=>getComputedStyle(el).animationDuration),'1.8s');
- await page.emulateMedia({reducedMotion:'reduce'});
- await page.setViewportSize({width:390,height:844});
- await page.waitForFunction(()=>document.querySelector('.hd-art .is-active img')?.currentSrc.includes('mobile.webp'));
- await page.locator('.hd-selection nav a').nth(1).click();
- await page.waitForURL('**/portfolio');
- await page.setViewportSize({width:1440,height:900});
- await page.goto(base+'/');
- await page.setViewportSize({width:1920,height:1080});
- const homeHeaderBounds=await page.locator('.site-header>div').boundingBox();
- await page.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'Work',exact:true}).click();
- await page.waitForURL('**/portfolio');
- await page.locator('.work-presentation').waitFor();
- assert.equal((await page.locator('.site-header>div').boundingBox()).width,homeHeaderBounds.width);
- await page.emulateMedia({reducedMotion:'no-preference'});
- await page.evaluate(()=>window.scrollTo(0,180));
- await page.waitForFunction(()=>document.querySelector('.site-header').getBoundingClientRect().bottom<=0);
- await page.evaluate(()=>window.scrollTo(0,0));
- await page.mouse.move(600,400);
- await page.mouse.wheel(0,-80);
+  // Navigation and the three divisions, at desktop width.
+  const context = await makeContext(1440);
+  const page = await context.newPage();
 
- await page.waitForFunction(()=>!document.querySelector('.site-header').classList.contains('site-header--away'));
- await page.mouse.wheel(0,80);
- await page.waitForFunction(()=>document.querySelector('.site-header').classList.contains('site-header--away'));
- await page.keyboard.press('Tab');
- await page.waitForFunction(()=>document.querySelector('.site-header').getBoundingClientRect().bottom>0);
- await page.emulateMedia({reducedMotion:'reduce'});
- await page.setViewportSize({width:1440,height:900});
- await page.goto(base+'/portfolio');
- assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('home-scroll')),false);
- await page.getByRole('button',{name:'Editorial One',exact:true}).waitFor();
- assert.equal(await page.locator('.wp-media img').evaluate(el=>getComputedStyle(el).objectFit),'cover');
- const hotspot=page.getByRole('link',{name:'Explore poster gallery',exact:true});await hotspot.waitFor();
- await hotspot.focus();assert.equal(await hotspot.evaluate(el=>el===document.activeElement),true);
- assert.equal(await hotspot.locator('.wp-hotspot-outline polygon').evaluate(el=>getComputedStyle(el).stroke),'rgb(124, 92, 255)');
- const before=await hotspot.locator('.wp-hotspot-marker').boundingBox();assert.ok(before.width>=44);
- await hotspot.press('Enter');await page.waitForURL('**/portfolio/social-media/test-brand');await page.locator('.work-tile').first().waitFor();
- await page.goto(base+'/portfolio');await page.getByRole('link',{name:'Explore poster gallery',exact:true}).waitFor();
+  await page.goto(base + '/');
+  const bar = page.getByRole('navigation', { name: 'Main' });
+  check('/', 'no "Get in touch" in the bar', (await bar.locator('a[href="/contact"]').count()) === 1);
+  await bar.getByRole('button', { name: 'Open menu' }).click();
+  const menu = page.getByRole('navigation', { name: 'Menu' });
+  await menu.locator('a').first().waitFor();
+  check('/', 'menu has fewer than four entries', (await menu.locator('a').count()) >= 4);
+  await menu.getByRole('link', { name: /Work/ }).click();
+  await page.waitForURL('**/work');
+  check('/work', 'menu stayed open after navigating', await page.locator('.menu').evaluate((el) => !el.classList.contains('open')));
 
- const mediaRect=await page.locator('.wp-media').boundingBox();const stageRect=await page.locator('.work-presentation').boundingBox();assert.equal(mediaRect.width,stageRect.width);assert.equal(mediaRect.height,stageRect.height);
- await page.getByRole('button',{name:'Editorial Two',exact:true}).hover();
- await page.waitForFunction(()=>document.querySelector('.wp-caption')?.textContent.includes('Editorial Two'));
- assert.equal(await page.locator('.wp-media video').evaluate(el=>el.autoplay),false);
- assert.equal(await page.locator('.wp-media video').evaluate(el=>el.paused),true);
- assert.equal(await page.getByRole('button',{name:'Next creative'}).count(),0);
- await page.getByRole('button',{name:'Editorial One',exact:true}).focus();
- await page.waitForFunction(()=>document.querySelector('.wp-caption')?.textContent.includes('Editorial One'));
- assert.equal(await page.locator('.wp-media video').count(),0);
- await page.setViewportSize({width:390,height:844});
- await page.getByRole('button',{name:'Choose a client',exact:true}).click();
- await page.getByRole('menuitemradio',{name:'Editorial Two',exact:true}).click();
- assert.equal(await page.getByRole('button',{name:'Choose a client',exact:true}).getAttribute('aria-expanded'),'false');
- assert.match(await page.locator('.wp-media video').getAttribute('src'),/mobile.mp4/);
- assert.match(await page.locator('.wp-media video').getAttribute('poster'),/mobile.webp/);
- await page.getByRole('button',{name:'Choose a client',exact:true}).click();
- await page.getByRole('menuitemradio',{name:'Editorial Two',exact:true}).press('Home');
- await page.getByRole('menuitemradio',{name:'Editorial One',exact:true}).press('Enter');
- assert.match(await page.locator('.wp-media img').getAttribute('src'),/mobile.webp/);
- assert.equal(await page.locator('.wp-media img').evaluate(el=>getComputedStyle(el).objectPosition),'30% 70%');
- const phoneHotspot=page.getByRole('link',{name:'Explore phone poster',exact:true});await phoneHotspot.waitFor();
- const box=await phoneHotspot.locator('svg').boundingBox();const frame=await page.locator('.wp-hotspots').boundingBox();
- assert.ok(Math.abs(box.width-1600*Math.max(frame.width/1600,frame.height/900))<2);
- assert.ok(Math.abs(box.x-frame.x-(frame.width-box.width)*.3)<2);
- await phoneHotspot.locator('.wp-hotspot-hit').click();await page.waitForURL('**/portfolio/social-media/test-brand');
- await page.goto(base+'/portfolio');await page.getByRole('button',{name:'Choose a client',exact:true}).waitFor();
+  // Work: the client list and the grid both come up from the mocked data.
+  await page.locator('.plist button.pc').first().waitFor();
+  check('/work', 'showcase clients missing', (await page.locator('.plist button.pc').count()) === showcases.length);
+  await page.locator('#grid').scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => document.querySelectorAll('#grid img').length > 0);
 
- await page.getByRole('button',{name:'Choose a client',exact:true}).click();await page.keyboard.press('Escape');
- assert.equal(await page.getByRole('button',{name:'Choose a client',exact:true}).evaluate(el=>el===document.activeElement),true);
+  await page.goto(base + '/services');
+  for (const [key, name] of [
+    ['creative', 'Creative'],
+    ['digital', 'Digital'],
+    ['accounts', 'Accounts'],
+  ]) {
+    check('/services', `no link to /services/${key}`, (await page.locator(`a[href="/services/${key}"]`).count()) > 0);
+    await page.goto(base + `/services/${key}`);
+    const heading = await page.locator('h1').innerText();
+    check(`/services/${key}`, `h1 "${heading}" does not name ${name}`, heading.toLowerCase().includes(name.toLowerCase()));
+  }
 
+  // Contact: the form the enquiries actually arrive through.
+  await page.goto(base + '/contact');
+  const form = page.locator('form.form');
+  await form.waitFor();
+  for (const field of ['name', 'email', 'service', 'message']) {
+    check('/contact', `form field "${field}" missing`, (await form.locator(`[name="${field}"]`).count()) === 1);
+  }
+  check('/contact', 'name is not required', (await form.locator('input[name="name"]').getAttribute('required')) !== null);
+  check('/contact', 'email is not required', (await form.locator('input[name="email"]').getAttribute('required')) !== null);
 
- assert.equal(await page.locator('footer').count(),0);
- await page.getByRole('button',{name:'A campaign',exact:true}).click();
- assert.equal(await page.locator('.wp-contact-cta').getAttribute('href'),'/contact?service=supermarket-campaign');
- await page.setViewportSize({width:874,height:804});await page.goto(base+'/portfolio');
- const ratio=await page.locator('.site-logo-image').evaluate(el=>el.getBoundingClientRect().width/el.getBoundingClientRect().height);assert.ok(Math.abs(ratio-480/195)<.02);
- assert.equal(await page.getByRole('button',{name:'Toggle mobile menu'}).isVisible(),true);
- await page.emulateMedia({reducedMotion:'no-preference'});
- await page.evaluate(()=>window.scrollTo(0,180));
- await page.waitForFunction(()=>document.querySelector('header')?.classList.contains('site-header--away'));
- assert.equal(await page.locator('.work-presentation').evaluate(el=>getComputedStyle(el).position),'sticky');
- await page.getByRole('button',{name:'Navigation ↑',exact:true}).click();
- await page.waitForFunction(()=>window.scrollY<5);
- await page.emulateMedia({reducedMotion:'reduce'});
- await page.getByRole('link',{name:'All work',exact:true}).click();await page.waitForURL('**/portfolio?view=gallery');
- await page.getByRole('heading',{name:"Work we're proud of"}).waitFor();
- await page.getByRole('link',{name:'← Selected work'}).click();await page.locator('.work-presentation').waitFor();
- await page.goto(base+'/about');assert.equal(await page.getByText('Namaskaram.',{exact:true}).count(),0);
- await page.goto(base+'/missing-audit-page');await page.getByRole('heading',{name:'Page not found'}).waitFor(); assert.match(await page.locator('meta[name="robots"]').getAttribute('content'),/noindex/);
- await page.setViewportSize({width:390,height:844});await page.goto(base+'/');
- const trigger=page.getByRole('button',{name:'Toggle mobile menu'});await trigger.click();await page.getByRole('dialog').waitFor();
- for(let i=0;i<25;i++){await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>!!document.activeElement?.closest('[role=dialog]')),true);}
- await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'hidden'});assert.equal(await trigger.evaluate(el=>el===document.activeElement),true);
- await page.goto(base+'/services/brand-identity'); await page.locator('[data-slot=button]').last().click(); await page.waitForURL('**/contact?service=brand-identity'); assert.equal(await page.getByLabel('What can we help with?', {exact:false}).inputValue(),'brand-identity'); await page.locator('button[type=submit]').click();await page.waitForFunction(()=>document.activeElement?.id==='name');assert.equal(submissions,0);
- await page.getByLabel('Full Name',{exact:true}).fill('Audit test');await page.getByLabel('Email Address',{exact:true}).fill('audit@example.com');await page.getByLabel('Project Details',{exact:true}).fill('Local automated test');
- await page.locator('[name=_gotcha]').evaluate(el=>el.value='bot');await page.locator('button[type=submit]').click();assert.equal(submissions,0);
- await page.locator('[name=_gotcha]').evaluate(el=>el.value='');await page.locator('button[type=submit]').click();await page.getByRole('heading',{name:'Message Sent!'}).waitFor();assert.equal(submissions,1);
- await page.goto(base+'/portfolio/social-media');await page.locator('.work-tile').first().waitFor();assert.equal(await page.locator('.work-tile').count(),48);await page.getByRole('button',{name:/Show more/}).click();await page.waitForFunction(()=>document.querySelectorAll('.work-tile').length===55);
- await page.getByRole('searchbox').fill('Creative 54');await page.waitForFunction(()=>document.querySelectorAll('.work-tile').length===1);const tile=page.locator('.work-tile').first();await tile.click();await page.locator('.work-lb').waitFor();
- assert.equal(await page.locator('.work-lb').getByRole('link',{name:'Download',exact:true}).count(),0);
- await page.evaluate(()=>{Object.defineProperty(navigator,'share',{configurable:true,value:undefined});Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.__copied=text;}}});});
- await page.getByRole('button',{name:'Share',exact:true}).click();await page.getByRole('button',{name:'Link copied',exact:true}).waitFor();assert.match(await page.evaluate(()=>window.__copied),/\?v=creative-54/);
- await page.evaluate(()=>{Object.defineProperty(navigator,'share',{configurable:true,value:async data=>{window.__shared=data;}});});
- await page.getByRole('button',{name:'Link copied',exact:true}).click();assert.match((await page.evaluate(()=>window.__shared)).url,/\?v=creative-54/);
- for(let i=0;i<15;i++){await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>!!document.activeElement?.closest('.work-lb')),true);}await page.keyboard.press('Escape');await page.locator('.work-lb').waitFor({state:'hidden'});
- failWork=true;await page.goto(base+'/portfolio/social-media/test-brand');await page.getByRole('button',{name:'Retry',exact:true}).waitFor();failWork=false;await page.getByRole('button',{name:'Retry',exact:true}).click();await page.locator('.work-tile').first().waitFor();
- await page.goto(base+'/highlights/supermarket-campaign');await page.locator('.sf-item').first().click();await page.getByRole('dialog',{name:'Flyer reader'}).waitFor();for(let i=0;i<12;i++){await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>!!document.activeElement?.closest('[role=dialog]')),true);}await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'hidden'});
- await page.goto(base+'/contact?service=invalid'); assert.equal(await page.locator('#service').inputValue(),''); await page.getByRole('button',{name:'Switch to dark theme'}).first().click(); await page.waitForFunction(()=>getComputedStyle(document.querySelector('#service')).backgroundColor==='rgb(22, 19, 32)');
- console.log('Browser checks passed: metadata, mobile overflow, dialog focus, contact validation/honeypot/success, scoped portfolio, search/pagination, retry and flyer close. All backend responses mocked.');
-} finally {await browser.close();}
+  await context.close();
+} finally {
+  await browser.close();
+}
+
+if (failures.length) {
+  console.error('Browser checks failed:\n' + failures.map((f) => '  - ' + f).join('\n'));
+  process.exit(1);
+}
+
+assert.equal(failures.length, 0);
+console.log(`Browser checks passed for ${ROUTES.length} routes and the 404 page, at 390px and 1440px.`);

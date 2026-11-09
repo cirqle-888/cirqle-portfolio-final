@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Showcase } from '../../lib/showcase';
 
 export function ClientPicker({entries,value,onChange}:{entries:Showcase[];value:string;onChange:(value:string)=>void}) {
+ const [expanded,setExpanded]=useState(false);
  const list=useRef<HTMLDivElement>(null);
  const previous=useRef(value);
  const touchY=useRef<number|null>(null);
@@ -30,8 +31,14 @@ export function ClientPicker({entries,value,onChange}:{entries:Showcase[];value:
   );
   return()=>animation?.cancel();
  },[value,at,entries]);
+ useEffect(()=>{
+  if(expanded&&document.activeElement?.matches(':focus-visible')&&list.current?.contains(document.activeElement)){
+   list.current.parentElement?.querySelector<HTMLButtonElement>('.wp-client-expanded [aria-pressed="true"]')?.focus();
+  }
+ },[expanded]);
  const step=(direction:number)=>onChange(entries[(at+direction+entries.length)%entries.length].slug);
- return <nav className="wp-client-picker" aria-label="Select a client">
+ return <nav className={`wp-client-picker${expanded?' wp-client-picker--expanded':''}`} aria-label="Select a client" onPointerEnter={e=>{if(e.pointerType==='mouse')setExpanded(true)}} onPointerLeave={()=>setExpanded(false)} onFocusCapture={e=>{if(e.target.matches(':focus-visible'))setExpanded(true)}} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setExpanded(false)}} onKeyDown={e=>{if(e.key==='Escape'){setExpanded(false);e.stopPropagation();}}}>
+  {expanded&&<div className="wp-client-expanded"><span className="wp-client-expanded-label">Explore clients</span><div className="wp-client-expanded-scroll">{entries.map((entry,index)=><button key={entry.slug} aria-pressed={entry.slug===value} onClick={()=>onChange(entry.slug)}><span className="wp-client-number">{String(index+1).padStart(2,'0')}</span><span>{entry.client_name}</span><span className="wp-client-dot" aria-hidden="true"/></button>)}</div></div>}
   <div ref={list} className="wp-client-list" onTouchStart={e=>{touchY.current=e.touches[0].clientY}} onTouchEnd={e=>{
    if(touchY.current===null)return;
    const delta=touchY.current-e.changedTouches[0].clientY;touchY.current=null;

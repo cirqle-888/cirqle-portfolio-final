@@ -1,94 +1,102 @@
-import { Portfolio } from "./pages/Portfolio";
+import { Suspense, lazy, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
-import { CustomCursor } from "./components/CustomCursor";
-import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
-import { PageSkeleton } from "./components/PageSkeleton";
-import { Privacy } from "./pages/Privacy";
-import { Terms } from "./pages/Terms";
-import { trackPageView } from "./lib/analytics";
+import { BrowserRouter as Router, Link, Route, Routes, useLocation } from 'react-router-dom';
+import { trackPageView } from './lib/analytics';
+import { Footer } from './v3/Footer';
+import { Header } from './v3/Header';
+import { useReveal } from './v3/useReveal';
+import { Home } from './v3/pages/Home';
+
+const Services = lazy(() => import('./v3/pages/Services').then((m) => ({ default: m.Services })));
+const Work = lazy(() => import('./v3/pages/Work').then((m) => ({ default: m.Work })));
+const Creative = lazy(() => import('./v3/pages/Division').then((m) => ({ default: m.Creative })));
+const Digital = lazy(() => import('./v3/pages/Division').then((m) => ({ default: m.Digital })));
+const Accounts = lazy(() => import('./v3/pages/Division').then((m) => ({ default: m.Accounts })));
+const About = lazy(() => import('./v3/pages/About').then((m) => ({ default: m.About })));
+const Contact = lazy(() => import('./v3/pages/Contact').then((m) => ({ default: m.Contact })));
+const Careers = lazy(() => import('./v3/pages/Careers').then((m) => ({ default: m.Careers })));
+const Privacy = lazy(() => import('./v3/pages/Legal').then((m) => ({ default: m.Privacy })));
+const Terms = lazy(() => import('./v3/pages/Legal').then((m) => ({ default: m.Terms })));
 
 function NotFound() {
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
-      <Helmet><title>Page not found | Cirqle</title><meta name="robots" content="noindex, follow" /><link rel="canonical" href={`https://cirqle.work${window.location.pathname}`} /></Helmet>
-      <p className="text-8xl font-medium bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] bg-clip-text text-transparent mb-6">
-        404
-      </p>
-      <h1 className="text-3xl mb-4 tracking-tight">Page not found</h1>
-      <p className="text-gray-500 mb-10 max-w-sm">
-        The page you're looking for doesn't exist or has been moved.
-      </p>
-      <Link
-        to="/"
-        className="px-8 py-3 rounded-full bg-gradient-to-r from-[#A259FF] to-[#4CC3FF] text-white text-sm font-medium hover:opacity-90 transition-opacity"
-      >
-        Back to Home
-      </Link>
-    </div>
+    <section style={{ padding: 'clamp(160px, 16vw, 220px) 0 clamp(72px, 8vw, 120px)' }}>
+      <Helmet>
+        <title>Page not found | Cirqle</title>
+        <meta name="robots" content="noindex, follow" />
+        <link rel="canonical" href={`https://cirqle.work${window.location.pathname}`} />
+      </Helmet>
+      <div className="wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 20 }}>
+        <span className="kicker">404</span>
+        <h1 className="h-xl">
+          That page has{' '}
+          <span className="ital acc" style={{ fontWeight: 500 }}>
+            moved on.
+          </span>
+        </h1>
+        <p className="lead" style={{ maxWidth: 460 }}>
+          The page you are looking for does not exist any more.
+        </p>
+        <Link className="btn btn-acc" to="/">
+          Back to home
+        </Link>
+      </div>
+    </section>
   );
 }
 
-function PageViewTracker() {
-  const location = useLocation();
+/** One place for the things every route needs: analytics, scroll reset, reveal. */
+function RouteEffects() {
+  const { pathname, hash } = useLocation();
+  useReveal();
+
   useEffect(() => {
-    trackPageView(location.pathname);
-  }, [location.pathname]);
+    trackPageView(pathname);
+    if (hash) return;
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [pathname, hash]);
+
   return null;
 }
 
-const Home = lazy(() => import("./pages/Home").then((module) => ({ default: module.Home })));
-const Services = lazy(() =>
-  import("./pages/Services").then((module) => ({ default: module.Services }))
-);
-const Contact = lazy(() =>
-  import("./pages/Contact").then((module) => ({ default: module.Contact }))
-);
-const About = lazy(() => import("./pages/About").then((module) => ({ default: module.About })));
-const Careers = lazy(() => import("./pages/Careers").then((module) => ({ default: module.Careers })));
-const BrandIdentity = lazy(() => import("./pages/services/brand-identity").then((m) => ({ default: m.BrandIdentity })));
-const EventBranding = lazy(() => import("./pages/services/event-branding").then((m) => ({ default: m.EventBranding })));
-const UIUXDesign = lazy(() => import("./pages/services/ui-ux-design").then((m) => ({ default: m.UIUXDesign })));
-const MarketingPack = lazy(() => import("./pages/products/marketing-pack").then((m) => ({ default: m.MarketingPack })));
-const SupermarketCampaign = lazy(() => import("./pages/highlights/supermarket-campaign").then((m) => ({ default: m.SupermarketCampaign })));
-const WorkCollectionPage = lazy(() => import("./pages/work/Collection").then((m) => ({ default: m.WorkCollectionPage })));
-const WorkBrandPage = lazy(() => import("./pages/work/Brand").then((m) => ({ default: m.WorkBrandPage })));
+function Shell() {
+  return (
+    <>
+      <RouteEffects />
+      <a href="#main-content" className="sr-only">
+        Skip to main content
+      </a>
+      <Header />
+      <main id="main-content" style={{ flex: 1 }}>
+        <Suspense fallback={<div style={{ minHeight: '70vh' }} />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/creative" element={<Creative />} />
+            <Route path="/services/digital" element={<Digital />} />
+            <Route path="/services/accounts" element={<Accounts />} />
+            <Route path="/work" element={<Work />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            {/* The old portfolio path keeps working. */}
+            <Route path="/portfolio" element={<Work />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </main>
+      <Footer />
+    </>
+  );
+}
 
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-white">
-        <a href="#main-content" className="skip-link">Skip to main content</a>
-        <CustomCursor />
-        <PageViewTracker />
-        <Header />
-        <Suspense fallback={<PageSkeleton />}>
-          <main id="main-content" className="flex-1">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/services/brand-identity" element={<BrandIdentity />} />
-              <Route path="/services/event-branding" element={<EventBranding />} />
-              <Route path="/services/ui-ux-design" element={<UIUXDesign />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/portfolio/:collection" element={<WorkCollectionPage />} />
-              <Route path="/portfolio/:collection/:brand" element={<WorkBrandPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/careers" element={<Careers />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/products/marketing-pack" element={<MarketingPack />} />
-              <Route path="/highlights/supermarket-campaign" element={<SupermarketCampaign />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-        </Suspense>
-        <FloatingWhatsApp />
-        <Footer />
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Shell />
       </div>
     </Router>
   );

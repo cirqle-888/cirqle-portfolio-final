@@ -1,68 +1,69 @@
-# Cirqle Marketing Website
+# Cirqle Website — v3
 
-Marketing site for [Cirqle](https://cirqle.work) — a creative design agency in Kerala, India.
+The cirqle.work marketing site rebuilt around the v3 design: one light system,
+three divisions (Creative, Digital, Accounts & Compliance) and the tagline
+"One Cirqle. Many Possibilities."
 
-## Stack
+This is a copy of `cirqle-website`. The original folder is untouched.
 
-- **Vite 6 + React 18 + TypeScript** (React navigation with route-specific prerendered HTML, deployed on Vercel)
-- **react-router-dom 7** for routing; Vercel serves generated clean URLs and a real `404.html`, without a blanket rewrite
-- **motion** for entrance animations (kept light; `prefers-reduced-motion` is respected)
-- **Supabase** (website-only project) holds everything that changes without a
-  deploy: the portfolio and the weekly supermarket flyers. It is deliberately a
-  different project from the one behind `cirqle-app`, so the key published in
-  this site's JavaScript can never reach business data. Read-only from here;
-  all writing happens in cirqle-app. See `supabase/README.md`.
-  Without the env vars the portfolio is empty and the flyer gallery shows a
-  placeholder — the site still builds and runs.
-- **Formspree** powers the contact form; WhatsApp CTA links to `wa.me`.
-- Styling preserves the existing design in `src/index.css`. Tailwind v4 now generates
-  new utilities through the Vite plugin and `src/styles/utilities.css`.
-
-## Develop
+## Run it
 
 ```bash
-npm install
+npm install        # only if node_modules is missing or stale
 npm run dev        # http://localhost:5176
-npm run build      # outputs prerendered dist/ and a generated sitemap
-npm run check      # zero-warning lint + source typecheck
-npm run check:static # validates metadata and compressed HTML after build
+npm run build      # prerendered dist/ plus a sitemap
+npm run check      # lint with zero warnings + typecheck
 ```
 
-Environment (`.env`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, from the
-**website** Supabase project. The anon key is public by design and limited by
-Row Level Security to reading published content.
+`node_modules` was copied from `cirqle-website`, so `npm run dev` should work
+straight away on macOS. If anything looks off, delete it and run `npm install`.
 
-## Analytics
+## What changed from the old site
 
-`src/lib/analytics.ts` forwards to `window.plausible` or `window.gtag` when
-present. To activate analytics, add the provider's `<script>` tag to
-`index.html` — no code changes needed.
+| | Old | v3 |
+|---|---|---|
+| Design | Gradient-led, dark/light toggle | One light system: `#F7F6FB`, ink `#16132A`, accent `#7C5CFF` |
+| Structure | Services with three detail pages | Three divisions, each with its own page |
+| Portfolio route | `/portfolio` | `/work` (the old path still resolves) |
+| Header | Solid bar | Liquid-glass pill, full-screen menu with service icons |
+| Motion | Per-section `motion` components | One CSS reveal driven by `useReveal` |
 
-## Pages
+## Layout
 
-`/` home · `/services` (+ brand-identity, event-branding, ui-ux-design) ·
-`/highlights/supermarket-campaign` (real flyer gallery) ·
-`/products/marketing-pack` · `/portfolio` · `/portfolio/:collection` ·
-`/portfolio/:collection/:brand` · `/about` · `/careers` · `/contact`
-· `/privacy` · `/terms`
+```
+src/v3/
+  theme.css      the whole design system; nothing else defines colour or type
+  data.ts        divisions, services, artwork paths, contact details
+  icons.tsx      line icons, one per service
+  Header.tsx     glass bar + full-screen menu
+  Footer.tsx
+  Vibes.tsx      the three division panels and the Retail Offers band
+  useReveal.ts   sections rise into place on first scroll
+  pages/         Home, Services, Work, Division, About, Contact, Careers, Legal
 
-## Adding portfolio work
+src/lib/         unchanged — Supabase reads, showcase, analytics
+src/_legacy/     the old pages and sections, kept for reference only.
+                 Excluded from tsconfig and never imported.
+```
 
-Use **cirqle-app → Dashboard → Portfolio**. Uploads are converted to WebP at
-four widths in the browser, so a full-size export is fine to drop in. New work
-is live on the next page load; no deploy.
+## Where the content comes from
 
-`seed/work/` keeps the original launch images so the portfolio can be rebuilt
-into a fresh Supabase project with `scripts/seed-portfolio.mjs`.
+- **Portfolio work and the Work page presentation** — the website Supabase
+  project, through `src/lib/work.ts` and `src/lib/showcase.ts`. Publish from
+  cirqle-app → Dashboard → Portfolio; nothing here needs a deploy.
+- **Division, service and step copy** — `src/v3/data.ts`.
+- **Panel artwork** — `public/v3/`. The Al Madina offer pages were rendered
+  from `cirqle-print/output/pdf`; the rest came from the Instagram kit.
+- **Contact form** — the same Formspree form the old site used.
+- **Careers** — applications go to `app.cirqle.work/careers/apply`.
 
-## Audit fixes and deployment
+A collection maps to a division in `COLLECTION_DIVISION` (`data.ts`):
+`brand-identity → creative`, `social-media → digital`. Add a rung there when a
+new collection appears, or the work lands under Creative by default.
 
-Vercel builds use pinned `@sparticuz/chromium` with its bundled Linux libraries; the build command is `npm run build`. No Playwright browser download or system-package installation is needed on Vercel. Local builds use Chrome (auto-detected on macOS), `CHROME_PATH`, or Chromium installed with `npm run browser:install`. Other Linux CI environments need Playwright Chromium and its system dependencies. The build reads website environment configuration, discovers published collection/brand routes and fails if it cannot fetch the configured sitemap data. New collection/brand URLs require a rebuild for direct-link HTML; creative changes within existing pages still load at runtime.
+## Still to do
 
-Apply `supabase/restrict-flyer-storage-writes.sql` to the **website** project to revoke broad authenticated-account storage writes. Admin management continues through the authorized service-role backend. This migration has not been applied by the local build.
-
-Unpublishing hides database rows; public object URLs remain accessible. For complete withdrawal remove the corresponding storage objects through authorized admin tooling after removing the published entries. Public buckets are for marketing assets only, never confidential drafts. No existing storage objects were deleted during this work.
-
-Analytics now emits contact success/failure and WhatsApp click events containing no form details. A provider must still be configured separately; this change does not activate tracking. Verify Formspree's provider-side spam/rate-limit configuration separately.
-
-Browser regression checks use mocked content and contact responses, never real submissions. Start the dev server with website configuration (test-safe example `VITE_SUPABASE_URL=https://website-fixture.invalid VITE_SUPABASE_ANON_KEY=fixture npm run dev`), then run `npm run check:browser`. Set `AUDIT_URL` if using another port and `CHROME_PATH` to select a browser. The source-controlled `public/sitemap.xml` is legacy; build replaces it with published route discovery.
+- Accounts has no published work, so its page falls back to three result cards.
+- Privacy and Terms are drafts written for this build. Have them checked before
+  they go live.
+- `scripts/check-*.mjs` still target the old presentation markup.

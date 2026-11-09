@@ -27,5 +27,6 @@
       "figma:asset/*": ["./src/assets/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/_legacy"]
 }

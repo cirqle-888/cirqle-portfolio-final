@@ -82,7 +82,7 @@ export const Header = memo(function Header() {
     const reveal = () => setPresentationNavigation(location.key);
     reveal();
     const gesture = (up: boolean) => setPresentationNavigation(up ? location.key : null);
-    const nested = (target: EventTarget | null) => target instanceof Element && !!target.closest('.wp-clients,.wp-picker-menu,[role="dialog"],input,textarea,select,video');
+    const nested = (target: EventTarget | null) => target instanceof Element && !!target.closest('.wp-client-picker,.wp-clients,.wp-picker-menu,[role="dialog"],input,textarea,select,video');
     const wheel = (event: WheelEvent) => {
       if (nested(event.target) || event.ctrlKey || Math.abs(event.deltaY) < 4 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
       gesture(event.deltaY < 0);
@@ -130,7 +130,7 @@ export const Header = memo(function Header() {
         } else schedule();
       }, 2000);
     };
-    const events = ['pointermove', 'pointerdown', 'keydown', 'focusin', 'focusout', 'scroll', 'cirqle:show-navigation'] as const;
+    const events = ['keydown', 'focusin', 'focusout', 'cirqle:show-navigation'] as const;
     events.forEach(event => window.addEventListener(event, schedule, { passive: true }));
     schedule();
     return () => {
