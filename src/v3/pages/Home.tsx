@@ -75,7 +75,7 @@ export function Home() {
           name="description"
           content="Cirqle brings design, marketing and accounting under one roof. One team, one point of contact for everything your business needs."
         />
-        <link rel="canonical" href="https://cirqle.work/" />
+        <link rel="canonical" href="https://cirqle.work" />
       </Helmet>
 
       <section id="top" className="hero">

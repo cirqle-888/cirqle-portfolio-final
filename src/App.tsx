@@ -24,6 +24,7 @@ function NotFound() {
       <Helmet>
         <title>Page not found | Cirqle</title>
         <meta name="robots" content="noindex, follow" />
+        <link rel="canonical" href={`https://cirqle.work${window.location.pathname}`} />
       </Helmet>
       <div className="wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 20 }}>
         <span className="kicker">404</span>

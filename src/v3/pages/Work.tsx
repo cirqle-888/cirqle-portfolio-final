@@ -280,12 +280,12 @@ export function Work() {
           className="wrap"
           style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}
         >
-          <h2 className="h-l">
+          <h1 className="h-l">
             All{' '}
             <span className="ital acc" style={{ fontWeight: 500 }}>
               work.
             </span>
-          </h2>
+          </h1>
           <p className="lead" style={{ maxWidth: 420 }}>
             Open any project to see the service behind it.
           </p>
